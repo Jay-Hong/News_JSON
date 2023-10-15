@@ -106,6 +106,24 @@ class NateNewsRankSpider(scrapy.Spider):
         for title_sel, link in zip(titles, links):
             #print(link.get_attribute("href"))
             newsURL_list.append(link.get_attribute("href"))
+
+        # 스포츠
+        self.driver.get("https://m.news.nate.com/rank/list?section=spo")
+        links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
+        titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
+
+        for title_sel, link in zip(titles, links):
+            #print(link.get_attribute("href"))
+            newsURL_list.append(link.get_attribute("href"))
+
+        # 연예
+        self.driver.get("https://m.news.nate.com/rank/list?section=ent")
+        links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
+        titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
+
+        for title_sel, link in zip(titles, links):
+            #print(link.get_attribute("href"))
+            newsURL_list.append(link.get_attribute("href"))
             
         # 중복 기사 URL 없애기
         newsURL_set = newsURL_list
