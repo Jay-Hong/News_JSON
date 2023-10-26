@@ -89,7 +89,7 @@ class NateNewsRankSpider(scrapy.Spider):
         pattern_square_bracket  = re.compile('\[[ㄱ-ㅣ가-힣A-Za-z0-9\t\n\r\f\v]+\]\s*')
         image = ""
 
-        # 뉴스 1~50위 가져오기  - - - - - - - - - - - - - - - - - - - - - - -
+        # 시사뉴스 1~50위 가져오기  - - - - - - - - - - - - - - - - - - - - - - -
         self.driver.get("https://m.news.nate.com/rank/list?page=1")
         links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
         titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
@@ -98,7 +98,7 @@ class NateNewsRankSpider(scrapy.Spider):
             #print(link.get_attribute("href"))
             newsURL_list.append(link.get_attribute("href"))
 
-        # 뉴스 51~100위 가져오기
+        # 시사뉴스 51~100위 가져오기
         self.driver.get("https://m.news.nate.com/rank/list?page=2")
         links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
         titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
@@ -107,7 +107,7 @@ class NateNewsRankSpider(scrapy.Spider):
             #print(link.get_attribute("href"))
             newsURL_list.append(link.get_attribute("href"))
 
-        # 스포츠
+        # 스포츠 1~50위 가져오기
         self.driver.get("https://m.news.nate.com/rank/list?section=spo")
         links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
         titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
@@ -116,7 +116,16 @@ class NateNewsRankSpider(scrapy.Spider):
             #print(link.get_attribute("href"))
             newsURL_list.append(link.get_attribute("href"))
 
-        # 연예
+        # 스포츠 51~100위 가져오기
+        self.driver.get("https://m.news.nate.com/rank/list?section=spo&page=2")
+        links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
+        titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
+
+        for title_sel, link in zip(titles, links):
+            #print(link.get_attribute("href"))
+            newsURL_list.append(link.get_attribute("href"))
+
+        # 연예 1~50위 가져오기
         self.driver.get("https://m.news.nate.com/rank/list?section=ent")
         links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
         titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
@@ -125,6 +134,15 @@ class NateNewsRankSpider(scrapy.Spider):
             #print(link.get_attribute("href"))
             newsURL_list.append(link.get_attribute("href"))
             
+        # 연예 51~100위 가져오기
+        self.driver.get("https://m.news.nate.com/rank/list?section=ent&page=2")
+        links = self.driver.find_elements(By.CSS_SELECTOR, links_selector)
+        titles = self.driver.find_elements(By.CSS_SELECTOR, titles_selector)
+
+        for title_sel, link in zip(titles, links):
+            #print(link.get_attribute("href"))
+            newsURL_list.append(link.get_attribute("href"))
+
         # 중복 기사 URL 없애기
         newsURL_set = newsURL_list
         newsURL_list = newsURL_set
