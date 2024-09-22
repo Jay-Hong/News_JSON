@@ -1,16 +1,16 @@
-name: Run crawler and update JSON
+name: News
 
 on: # [push]
   schedule:
-    # 매일 05, 08, 11, 16, 19 시 14분 전 실행 (UTC+9) [UTC기준 매일 20, 23, 02, 07, 10 시 14분 전 실행시작]
-    - cron: '46 01,06,09,19,22 * * *'
+    # 매일 05, 08, 11, 16, 19 시 17분 전 실행 (UTC+9) [UTC기준 매일 20, 23, 02, 07, 10 시 14분 전 실행시작]
+    - cron: '43 01,06,09,19,22 * * *'
     # - cron: '55 23 31 2 4'	# 실행되지 않을 것
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         # 개인 토큰을 사용할 것인지 말 것인지
         persist-credentials: false 
@@ -40,7 +40,7 @@ jobs:
         git config --local user.email "hjpyooo@gmail.com"
         git config --local user.name "Jay"
         git add .
-        git commit -m "Update JSON"
+        git commit -m "News"
     
     - name: Push changes
       uses: ad-m/github-push-action@master
