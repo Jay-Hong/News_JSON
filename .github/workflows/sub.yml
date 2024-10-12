@@ -1,0 +1,36 @@
+name: News
+
+on: # [push]
+  schedule:
+    - cron: '25 19 * * *'	# 매일 04:25 실행 (UTC+9) [UTC기준 매일 19:25 실행시작]
+    - cron: '55 23 31 2 4'	# 실행되지 않을 것
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        token: ${{ secrets.ACTION_TOKEN }}
+        fetch-depth: 0
+        submodules: true
+    - name: Requirements
+      run: |
+        git pull
+        git submodule update --remote --recursive
+        cp -fp ./news/requirements.txt ./requirements.txt
+        cp -fp ./news/config.json ./nate_news/nate_news/config.json
+    - name: Commit files
+      run: |
+        git config --local user.email "hjpyooo@gmail.com"
+        git config --local user.name "Jay"
+        if [ $(git status -s | wc -m) -eq 0 ]; then
+          echo "Nothing to commit, working tree clean"
+        else
+          git commit -am "News" --amend
+        fi
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        force_with_lease: true

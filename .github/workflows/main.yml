@@ -2,9 +2,9 @@ name:  News
 
 on: # [push]
   schedule:
-    # 매일 05, 08, 11, 16, 19 시 17분 전 (UTC+9) [UTC기준 매일 20, 23, 02, 07, 10 시 14분 전]
-    - cron: '43 01,06,09,19,22 * * *'
-    # - cron: '55 23 31 2 4'	# 실행되지 않을 것
+    # 매일 05, 08, 11, 16, 19 시 14분 전 (UTC+9) [UTC기준 매일 20, 23, 02, 07, 10 시 14분 전]
+    - cron: '46 01,06,09,19,22 * * *'
+    - cron: '55 23 31 2 4'	# 실행되지 않을 것
 
 jobs:
   build:
@@ -22,28 +22,25 @@ jobs:
         python3 -m pip install -U pyOpenSSL cryptography
     - name: requirements
       run: |
-        hostname -I
-        pwd
-        ls -al
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Execution
       run: |
-        pwd
-        ls -al
+        git pull
         if [ -f nate_result.json ]; then rm -f nate_result.json; fi
         scrapy crawl nate_news_rank -o nate_result.json -t json
         cp -fp nate_result.json ../newsURL.json
       working-directory: ./nate_news
-    
     - name: Commit files
       run: |
         git config --local user.email "hjpyooo@gmail.com"
         git config --local user.name "Jay"
-        git add .
-        git commit -m "News"
-    
+        if [ $(git status -s | wc -m) -eq 0 ]; then
+          echo "Nothing to commit, working tree clean"
+        else
+          git commit -am "News"
+        fi
+        git pull --rebase
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
-        # branch: "master"
         github_token: ${{ secrets.GITHUB_TOKEN }}
