@@ -27,7 +27,7 @@ jobs:
       run: |
         git pull
         if [ -f nate_result.json ]; then rm -f nate_result.json; fi
-        scrapy crawl nate_news_rank -o nate_result.json -t json
+        scrapy crawl -O nate_result:json nate_news_rank
         cp -fp nate_result.json ../newsURL.json
       working-directory: ./nate_news
     - name: Commit files
