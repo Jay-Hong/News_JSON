@@ -107,7 +107,7 @@ class NateNewsRankSpider(scrapy.Spider):
         newsURL_list = newsURL_set
         
         for index, newsURL in enumerate(newsURL_list):
-            time.sleep(random.randint(1,2))
+            # time.sleep(random.randint(0,1))
             title = ""
             company = ""
             image = ""
