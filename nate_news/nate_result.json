@@ -1,51 +1,393 @@
 [
 {
+    "title": "'피의자' 김건희, 10분 늦게 특검 도착…\"아무것도 아닌 사람이 심려 끼쳐 죄송\"",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/06/20250806505653.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10635?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "드디어 포토라인에 서는 김건희 여사…특검, 주가조작부터 겨눈다",
+    "company": "매일경제",
+    "image": "https://news.nateimg.co.kr/orgImg/mk/2025/08/06/news-p.v1.20250806.bdf1edbe50264fc696e014cd4cbbe766_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n03885?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "신세계백화점 폭파 협박 중학생 \"사람들 반응 궁금해서\"",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508060915138850_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n07594?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"차를 골목까지만 옮겨주라고 부탁한 40년 친구, 나를 음주운전 신고했다\"",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/4477678_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01191?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"아이 몸 닦은 수건이 걸레였다\"…여수, 이번엔 호텔 위생 논란",
+    "company": "중앙일보",
+    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/28fca81d-f8de-463c-b9fb-4a008add4f9c.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02125?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "이춘석, 정청래 조사지시 6시간만에 탈당…'개미여론' 악화 우려한 듯",
+    "company": "SBS",
+    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/06/202098317_700.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02169?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "정청래 \"이춘석 제명\"…후임 법사위원장 추미애 내정(2보)",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430596_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08600?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "검은 정장에 부은 얼굴…'10분 지각' 피의자 김건희 특검 출석",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508061138085141_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14598?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "정청래 \"차명 주식거래 의혹 이춘석 제명 조치…국민께 송구\"",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025080602110001301_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09580?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희 \"아무것도 아닌 사람이 심려 끼쳐 죄송…조사 잘 받겠다\"",
+    "company": "뉴시스",
+    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/06/NISI20201211_0000654239_web.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10115?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "1000만원짜리 바이올린 활 망가뜨린 남아…부모는 \"손 닿는 곳 놓은 책임도\"",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430476_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01200?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "권익위 국장 유서…김건희 명품백 '면죄' 괴로워했다",
+    "company": "한겨레",
+    "image": "https://news.nateimg.co.kr/orgImg/hn/2025/08/06/20250805503999.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02156?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"누구야? 너, 일로 와!\"…전광훈이 \"빤스 목사\"에 버럭한 이유",
+    "company": "한겨레",
+    "image": "https://news.nateimg.co.kr/orgImg/hn/2025/08/06/53_17544452726335_20250806501196.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13232?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "초등생 제자에 \"몸이 진짜 예뻐, 같은 침대 있고 싶다\" 메시지 보낸 태권도 관장",
+    "company": "파이낸셜뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/06/202508060809164379_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04621?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "강아지 목줄 잡고 빙빙 팽이처럼 돌려…부산서 동물 학대 정황 (영상)",
+    "company": "연합뉴스TV",
+    "image": "https://news.nateimg.co.kr/orgImg/ny/2025/08/06/434280_1754441836.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09088?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "소환 앞둔 김건희…자택 앞엔 지지자 5명 남짓 모여 '격앙'",
+    "company": "JTBC",
+    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/06/20250806082712400001.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04749?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "입장 밝히는 김건희 여사",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431551_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n11041?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "하남 스타필드·용인 신세계백화점 '폭발물 신고'…경찰 수색중",
+    "company": "아시아경제",
+    "image": "https://news.nateimg.co.kr/orgImg/ae/2025/08/06/ae_1754442071776_512245_0.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n06896?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "尹 '속옷 드러눕기'가 더워서라고? \"CCTV에 다 찍혀\"",
+    "company": "이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/ed/2025/08/06/PS25080600080.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01634?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "이춘석, \"결백\" 주장하더니 탈당…주식 차명거래 의혹 일파만파",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/06/20250805518759.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02111?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희 여사의 가방과 신발",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431731_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n12823?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "중학생·20대…신세계白 폭파 협박글 잇따라 \"모두 허위, 정상 영업 중\"",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/06/20250806507345.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14689?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "최은순 집사 메모 발견…'통일교 정○○·김여사·캄보디아'",
+    "company": "중앙일보",
+    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/69d0922f-d731-4941-90a6-cca1c3428e8c.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01295?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "李대통령, 포스코이앤씨 인명사고 \"최고수위 법적조치 검토\" 지시",
+    "company": "파이낸셜뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/06/202508061137595215_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15980?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "장맛비 처럼 쏟아지는 집중호우…서울·경기 출근길 시간당 50㎜ 폭우",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080517382566393_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01926?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"34도 찌는 화장실 청소하다 '핑'…락스 뿌린 바닥에 주저앉아\"",
+    "company": "한겨레",
+    "image": "https://news.nateimg.co.kr/orgImg/hn/2025/08/06/17544366009375_20250805503995.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02158?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "신세계 또 '폭발물 신고'…경찰, 각 지점 수색 중",
+    "company": "파이낸셜뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/06/202508060856425226_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04683?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "'30억짜리 새 아파트 맞아?'…난리 난 집주인들 ",
+    "company": "한국경제",
+    "image": "https://news.nateimg.co.kr/orgImg/hk/2025/08/06/ZA.40541213.1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02419?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"소비쿠폰이 부부 사이 이어줘\"…공무원이 쓴 후기, 어땠길래",
+    "company": "이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/ed/2025/08/06/PS25080600543.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04890?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "'처음으로 포토라인 선 김건희'…다른 대통령 배우자들 조사 어땠나",
+    "company": "경향신문",
+    "image": "https://news.nateimg.co.kr/orgImg/kh/2025/08/06/news-p.v1.20250806.52477c98b8f44930a51515b444324d43_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n11164?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "사랑제일교회 압수수색서 '사제 금고' 발견…경찰, 오늘 다시 수색",
+    "company": "중앙일보",
+    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/c9d2d7a3-30f1-4b4e-9858-6ead61c43b84.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09245?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"악수는 사람하고 하는 것\"…'내 편'만 보는 정청래의 '위험한 독주'",
+    "company": "한국일보",
+    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/06/f7f4d0c9-7f81-4ad3-9e5f-a4c6ffe20199.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01068?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"배달거지 대응 어떻게 하나?\"…집에 먹을 게 없다며 반찬 2개씩 달라는 손님 [어떻게 생각하세요]",
+    "company": "파이낸셜뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/06/202508060600109496_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02058?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "10년 동결 담뱃값 1만원까지 인상 가능성, 시점은?",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508051639139360_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01315?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "정청래 \"차명 주식거래 의혹 이춘석 제명 조치하겠다\"",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025080514800001301_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08139?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희 특검 첫 소환조사에 맞불집회…\"힘내세요\" vs \"구속하라\"",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431381_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08740?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "34년 전 실종된 정유리양…'차에 탄 남녀'의 정체는 [그해 오늘]",
+    "company": "이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/ed/2025/08/06/PS25080600001.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00049?sect=sisa&list=rank&cate=interest"
+},
+{
     "title": "20대 직원이 없다 \"37세 막내가 A4출력 잔일\"",
     "company": "중앙일보",
     "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/89a6f975-8f27-4798-aa3d-09e4bd2f5178.jpg",
     "newsURL": "https://m.news.nate.com/view/20250806n00454?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "대한항공 '프리미엄석' 탄생…간격 '더 좁아진' 일반석",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805203836012001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34796?sect=sisa&list=rank&cate=interest"
+    "title": "\"김밥 한 줄로 30개국 점령했다\"…K푸드, 라면 이어 역사 계속 쓴다",
+    "company": "매일경제",
+    "image": "https://news.nateimg.co.kr/orgImg/mk/2025/08/06/news-p.v1.20250805.606fc29e0c4c463b91f76250300bd720_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n01862?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"개성입니다만?\"…폭염에도 5개월째 씻지 않는 중학생 딸",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805204550264001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36308?sect=sisa&list=rank&cate=interest"
+    "title": "역대 대통령 호감도 노무현·박정희·김대중…이대남은 이명박 꼽기도",
+    "company": "한국일보",
+    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/06/872b8046-defd-4f9a-9de0-fce7b00f1d7b.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n05779?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "초등 딸 폰에 섬뜩한 문자…태권도관장 수사하자",
-    "company": "SBS",
-    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098268_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35234?sect=sisa&list=rank&cate=interest"
+    "title": "김건희, 광화문 특검 사무실 도착…포토라인 입장 발표 주목",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7324840_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09947?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"지하철역 '40도 찜통'\" vs \"에어컨 설치비 600억, 누가 내죠?\" [어떻게 생각하십니까]",
-    "company": "세계일보",
-    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805516048.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34961?sect=sisa&list=rank&cate=interest"
+    "title": "정청래 \"이춘석 제명\"…후임 법사위원장 6선 추미애 내정(종합)",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430625_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09521?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"무료 체험이라더니…\" 나도 모르게 매달 돈 빠져나갔다",
-    "company": "SBS",
-    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098252_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34908?sect=sisa&list=rank&cate=interest"
+    "title": "\"테러글 작성자=촉법소년\" 신세계백화점 난감…매출 손실만 5~6억",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/mt_1754442485345_528329_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09174?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"수준 맞아야\" 아예 결정사 차린 반포 초고가 아파트…회비 무려",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250805.7a45dbad67d74cc99111c78600d0bfb3_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n33743?sect=sisa&list=rank&cate=interest"
+    "title": "李대통령, 취임 첫 광복절 특사 준비…'조국 사면' 심사숙고",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025073115210001300_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14179?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "'방문진법' 필리버스터 7시간만에 자동 종결…與 \"방송 독립보장\" 野 \"언론 통폐합 버금\"(종합)",
+    "title": "\"너무 추하다\"…가슴만 부각된 인어조각상, 결국 철거 결정",
+    "company": "파이낸셜뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/06/202508060631523086_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02462?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "李대통령, 이춘석 주식의혹에 \"엄중 인식…엄정히 수사하라\"",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025080515060001300_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15024?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "신세계백화점 폭파 테러 글 신고…하남·용인 등 전 지점 수색",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/6606305_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n06224?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "메밀 값 내렸는데…냉면 가격, 올해도 올랐다",
+    "company": "국민일보",
+    "image": "https://news.nateimg.co.kr/orgImg/kx/2025/08/06/2023040517493799953_1680684577_0028502909.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02429?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김병기 \"법사위원장, 가장 노련하고 경험 많은 분께 요청할 것\"",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430824_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03212?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "중부 최고 150mm 이상 폭우 주의…'호우예비특보' 발령",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080608230473576_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04576?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "헌정 첫 前영부인 공개소환…특검, 질문지 100쪽 준비",
+    "company": "중앙일보",
+    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/1bb0eb61-59ba-40f7-859d-b986ef098b71.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01279?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희 여사 특검 소환에 갈라진 광화문…석방 vs 구속 함성 교차",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/mt_1754448365162_299926_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16135?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "주진우 기자 \"김건희 발사진 단독 입수…235mm 추정\"",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508060814451628_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10728?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "이 대통령 \"이춘석 주식거래 의혹 엄중하게 인식…엄정 수사하라\"",
     "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/06/NISI20250805_0020918186_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00176?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/06/NISI20250801_0020912921_web.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15942?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "(영상) 비키니 입은 여성들 해변서 집단 난투극…\"이게 다 푸틴 때문\" ",
+    "company": "서울신문",
+    "image": "https://news.nateimg.co.kr/orgImg/no/2025/08/06/SSC_20250806094114_V.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08244?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"개 짖는다며 새벽배송 금지 요청\"…알고 보니 자기 집 개, 이웃의 황당 요구",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080523235392019_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01445?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "李대통령, '산재 반복' 포스코이앤씨 면허취소·입찰금지 검토 지시",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7429991_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15420?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "또 '인명사고' 포스코이앤씨…이번엔 사과로 안 끝난다",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080523472372297_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00971?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희 특검 \"金, 영상 녹화 조사 원치 않아…녹화 없이 조사 중\"",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/6606305_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16098?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "들통나기 힘든 '차명 주식거래'…이춘석, 보좌진 계좌 빌렸으면 '중범죄'",
+    "company": "뉴스핌",
+    "image": "https://news.nateimg.co.kr/orgImg/ni/2025/08/06/250805170421078.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n11492?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "이춘석, 징계 회피성 탈당?…정청래 \"즉각 제명 '패가망신' 확실히\"",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/06/20250806507773.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15411?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"죽은 남편 닮았어\" 유튜버에 1000만원 쏜 엄마…환불 요구했지만",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/mt_1754445604977_764847_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13271?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "李대통령, 포스코이앤씨에 \"면허취소·입찰금지 등 방안 찾으라\"",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025073114600001300_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15789?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"쿠폰이 남매 사이 녹여\" SNS에 잇단 \"정부, 고마워\" 글 작성자는 누구?",
+    "company": "헤럴드경제",
+    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/06/news-p.v1.20250804.354525d0cc9c418eb09d8b74d975641c_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15049?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "앞 가로막았다고 가위로 앞 사람 머리카락 자른 50대",
+    "company": "중앙일보",
+    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/a700cdd6-0b9e-4758-b8dd-276b7c6e93b2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14430?sect=sisa&list=rank&cate=interest"
 },
 {
     "title": "구치소 CCTV 윤석열 '반전'…특검 자리뜨자 '탈의' 찍혔다",
@@ -54,64 +396,16 @@
     "newsURL": "https://m.news.nate.com/view/20250805n32772?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"현금 1억이 30억 돼 경제적 은퇴\"…모두가 말릴 때 잠실 '이 집' 투자",
-    "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/5567157_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n20150?sect=sisa&list=rank&cate=interest"
+    "title": "8개월만 수장 물러난 포스코이앤씨, 최대 위기 맞았다",
+    "company": "더팩트",
+    "image": "https://news.nateimg.co.kr/orgImg/ss/2025/08/06/202515141754446972.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15607?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "배현진 의원, '나 혼자서'",
+    "title": "화이팅 외치는 한미 해병대",
     "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250805_0020917156_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n04702?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"음료 이름이 왜 이래?\" 찜질방 가면 꼭 있는 '전설의 음료'…1위 '기염'",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250804.4b0d894564d3414c9b0f814fa766e55c_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n16733?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "'주식 차명거래 의혹' 이춘석, 민주당 탈당…법사위원장도 사임(종합)",
-    "company": "아시아경제",
-    "image": "https://news.nateimg.co.kr/orgImg/ae/2025/08/05/ae_1754398384681_802761_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35863?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"'아내 역할에만 충실하겠다'더니…\" 김건희의 지난 3년",
-    "company": "SBS",
-    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098226_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34254?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "올해만 6명이 숨졌다…위험천만 '미지정 해변' 비극",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805202244604001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34196?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "여성 2명 살해하고 투신한 50대…범행동기 찾는 경찰",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805201723796001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34063?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"이런 건 처음 본다\" 폭우 그치자 도로에 '대형 버섯' 오싹, 정체 알고보니",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250805.fcd8757fc1af496587a43d90368a4c41_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n16847?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "'의사·교수' 고소득자들이…시가 52억 '위스키 밀수' 적발",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805202118623001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34143?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "집마당 덮친 벤츠에 숨진 12살 윤주은양…\"80대 차주, 사과 안해\"",
-    "company": "머니투데이",
-    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/05/2025080510372068153_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n12175?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/06/NISI20250806_0020918750_web.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14910?sect=sisa&list=rank&cate=interest"
 },
 {
     "title": "우산 든 손 보니…손흥민-데이비스 인터뷰 뒤늦게 온라인서 '와글'",
@@ -120,82 +414,34 @@
     "newsURL": "https://m.news.nate.com/view/20250805n30085?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "대출받아 유럽여행 가고픈 대학생…\"빚만 남는다\" vs \"새로운 경험\"",
-    "company": "머니투데이",
-    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/05/mt_1754351405425_598807_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n04747?sect=sisa&list=rank&cate=interest"
+    "title": "특검에 출석하는 김건희 여사",
+    "company": "뉴스핌",
+    "image": "https://news.nateimg.co.kr/orgImg/ni/2025/08/06/250806105245284_w.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13240?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "스위스 \"보복계획 없다\"…39％ 관세 이틀앞 대통령 미국행(종합)",
+    "title": "특검 출석위해 차량에서 내리는 김건희 여사",
+    "company": "뉴스핌",
+    "image": "https://news.nateimg.co.kr/orgImg/ni/2025/08/06/250806105239309_w.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13237?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희, 특검 피의자 조사…\"아무것도 아닌 사람…국민께 죄송\"(종합)",
     "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PRU20250804153101009_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34791?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025080602900001301_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n11394?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "경찰, 유튜버 '신의한수' 신혜식 자택 압수수색",
-    "company": "매일경제",
-    "image": "https://news.nateimg.co.kr/orgImg/mk/2025/08/05/news-p.v1.20250514.1d1c0af0e07d47a78225d1d17b2340f1_P1.jpeg",
-    "newsURL": "https://m.news.nate.com/view/20250805n15758?sect=sisa&list=rank&cate=interest"
+    "title": "통일교 前본부장 수첩에 '권성동' '큰거 1장 Supprt' 적혀있어",
+    "company": "동아일보",
+    "image": "https://news.nateimg.co.kr/orgImg/do/2025/08/06/132137515.1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15068?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"진짜 죽었나 보려고\"…대전 교제살인범, 빈소 찾은 충격 이유",
-    "company": "중앙일보",
-    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/05/2dea720c-14ef-47de-9077-6ab114b6857e.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32537?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"출고 5년 이내 신차는 순정 부품\"…소비자 반발에 후퇴",
-    "company": "SBS",
-    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098251_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34808?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"얼어붙은 한강 위~\" 그 꽁꽁캣, 처음 촬영한 기자가 입양했대",
-    "company": "한겨레",
-    "image": "https://news.nateimg.co.kr/orgImg/hn/2025/08/05/20250805503205.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28197?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "평택서 80대 몰던 렉서스 상가 돌진…50대 동승자 중상",
+    "title": "李대통령, 포스코이앤씨 면허 취소·공공입찰 금지 방안 검토 지시",
     "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7430648_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n25960?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "트럼프 \"의약품 관세 처음엔 낮지만 1년뒤 150%…이후 250%\"(종합)",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PEP20250802056701009_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36556?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "폭염에 '장당 20원' 전단지 주워 1만원…아파도 \"나와야 해\"",
-    "company": "경향신문",
-    "image": "https://news.nateimg.co.kr/orgImg/kh/2025/08/05/l_2025080601000127200011291.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34374?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "온도 낮추랬더니 송풍기로 '온도계'만 낮추는 쿠팡···폭염에 농성 시작한 노동자들",
-    "company": "경향신문",
-    "image": "https://news.nateimg.co.kr/orgImg/kh/2025/08/05/news-p.v1.20250804.bec6bb734b804e15929922a40d63fff4_P1.jpeg",
-    "newsURL": "https://m.news.nate.com/view/20250805n01886?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"눈 수술 후 '사시' 됐다\" 알리자…병원이 '명예훼손' 고소",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/9352814d-aac8-4ea6-8dae-1df12bd842c7.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02241?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "'입추' 앞둔 6일 전국에 많은 비…수도권 출근길 집중호우",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025071620560001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n30555?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "신발로 때리고 얼굴엔 커피를…'이주노동자 괴롭힘' 첫 통계 보니",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805193946975001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34253?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/6606305_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14999?sect=sisa&list=rank&cate=interest"
 },
 {
     "title": "부친 손웅정 뜻 따라 미국행…손흥민, 이르면 7일 LAFC행 발표",
@@ -204,76 +450,34 @@
     "newsURL": "https://m.news.nate.com/view/20250805n32989?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "나경원 \"정청래 당선, 김어준이 이재명 대통령에 승리한 것\"",
-    "company": "파이낸셜뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/05/202508041715572458_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02926?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "1000원짜리 팔아 이렇게까지…다이소 몸값 보니 '깜짝'",
-    "company": "한국경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hk/2025/08/05/AA.41321924.4.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31100?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "김계리 \"尹, 당뇨망막증, 경동맥협착…진료 제때 안 하면 실명 위험\"",
-    "company": "세계일보",
-    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805517216.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33273?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"권성동, 한학자 통일교 총재에 큰절하고 2차례 쇼핑백 받아\"",
-    "company": "한겨레",
-    "image": "https://news.nateimg.co.kr/orgImg/hn/2025/08/05/53_17543829599077_20250805503438.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n29928?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "김 일병 사망 당시…현장 지휘관은 차에 남아 '게임'",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805202509041001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34233?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "尹, 용산 집무실에 '초대형 침대' 설치…\"해외순방 때마다 매트리스 싣고 다녀 애 먹었다\"",
+    "title": "\"그냥 반응 궁금해서\"…신세계백화점 폭파 협박범 '촉법소년'이었다",
     "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250518.92aeeeb7c07b451b965368ec1de931a4_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34876?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/06/news-p.v1.20250806.fef3e3a1f6af4405beedbf22cdb315b4_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09015?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "대한항공, 프리미엄석 첫 도입…3000억원 들여 11대 전면 개조",
-    "company": "세계일보",
-    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805504235.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n07719?sect=sisa&list=rank&cate=interest"
+    "title": "\"전쟁난 줄\" 신호등 꺼지고 엘베 멈추고···제주에 무슨 일이?",
+    "company": "서울경제",
+    "image": "https://news.nateimg.co.kr/orgImg/se/2025/08/06/2GWIPV643B_1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n01267?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"프리미엄의 민낯\"…광주 초고급 아파트, 벽 타고 흐르는 물",
-    "company": "노컷뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/05/202508041758351219_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n17347?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "이종호 전 블랙펄 대표 구속…특검, 김건희 여사 압박 수위 높이기",
-    "company": "파이낸셜뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/05/202508051336435248_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34401?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"악수도 사람과 하는 것\"…국민의힘 때리는 정청래에 몰래 웃는 국힘",
-    "company": "머니투데이",
-    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/05/2025080508073529705_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n25686?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "이춘석 \"차명거래 사실 없다…신성한 본회의장서 물의 사과\"",
+    "title": "\"남편 차에서 여자 머리끈 나와 '한판'…블박 보고 둘 다 벙쪘다\"",
     "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7370767_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n24658?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431342_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n07831?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "野 밤만 샌 '시한부 필리버스터'…노종면 역공에 화력도 밀렸다",
+    "title": "600년 잠든 화산 깨어났다…규모 8.8 강진 후 '연쇄 폭발'",
+    "company": "서울신문",
+    "image": "https://news.nateimg.co.kr/orgImg/no/2025/08/06/SSC_20250806063018_V.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02444?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"누구도 날 지켜주지 않는다\"…채 상병 사건 후 뚝 끊긴 軍 대민 지원",
     "company": "한국일보",
-    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/05/8015da6d-cd55-42f6-9712-d7cdf997ebe7.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n30792?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/06/c0936d3d-b481-4b97-9b1a-6d250c0f515f.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01081?sect=sisa&list=rank&cate=interest"
 },
 {
     "title": "신세계百 허위 폭파글에 4천명 대피 소동…\"법적 책임 묻겠다\"",
@@ -282,220 +486,226 @@
     "newsURL": "https://m.news.nate.com/view/20250805n28317?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "'金숭아'도 20초만에 품절…복켓팅 아시나요 ",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250805.92bc683473d6478bb0fb7af53810ed35_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n10148?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "대통령실 \"포스코이앤씨 동일 사고, 李대통령 휴가 뒤 대응 있을 것\"",
+    "title": "또 신세계백화점에 폭발물 협박…이번엔 경남 하동서 피의자 검거(종합)",
     "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7429991_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n14543?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430534_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n12032?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "담보도 보증도 없이 '100억'…수협, 도이치에 '수상한 대출'",
+    "title": "'주식 양도세 논란' 기름 부은 이춘석…10일 고위당정 분수령될 듯",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430835_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n12576?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "윤호중 행안부 장관 \"소비쿠폰 반응 좋아…후속 대책 나온다\"",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508060736049853_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n07322?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"매물 씨 마른다\"…이사철 앞두고 수도권 이어 지방까지 전세난",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7406857_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10366?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "아이폰은 곧 접는데…계속 펴져있는 아이패드",
+    "company": "뉴시스",
+    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/06/NISI20250805_0001911389_web.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01996?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"현금 1억이 30억 돼 경제적 은퇴\"…모두가 말릴 때 잠실 '이 집' 투자",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/5567157_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n20150?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "\"개성입니다만?\"…폭염에도 5개월째 씻지 않는 중학생 딸",
     "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805191622345001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33005?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805204550264001.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n36308?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"안 키울 애완동물 기부해주세요\" 맹수 먹잇감으로 쓴다는 덴마크 동물원",
-    "company": "서울신문",
-    "image": "https://news.nateimg.co.kr/orgImg/no/2025/08/05/SSC_20250805074931_V.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n03113?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "본회의장에서 차명 주식 앱을…법사위원장 의혹 터지자",
-    "company": "SBS",
-    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098231_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34363?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "국민연금 月 200만원씩 받는다고 좋아했는데…'날벼락' [일확연금 노후부자]",
-    "company": "한국경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hk/2025/08/05/AA.24911813.1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n03305?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"5살이에요?\"⋯어린이 세트 시킨 '소식좌', 식당 직원에 면박당해",
-    "company": "아이뉴스24",
-    "image": "https://news.nateimg.co.kr/orgImg/in/2025/08/05/435693937b2a82.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n08728?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "연인 등 여성 2명 살해 50대 투신 사망…\"범행동기 수사\"",
-    "company": "연합뉴스TV",
-    "image": "https://news.nateimg.co.kr/orgImg/ny/2025/08/05/433015_1754392060.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33884?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "정청래 \"악수는 사람과 하는 것\"…윤리특위 합의도 파기",
-    "company": "SBS",
-    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098240_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34597?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "김건희 측 \"기억 그대로 다 말할 것…판단은 특검 몫\"",
-    "company": "연합뉴스TV",
-    "image": "https://news.nateimg.co.kr/orgImg/ny/2025/08/05/AKR20250805114151109_01_i.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n14991?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "경찰, 차명주식거래 의혹 與이춘석 입건…금융실명법 위반 혐의",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080515540001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32994?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"계좌 열면 현금 5만원\"…은행권 뺏고 빼앗기는 '연금 전쟁'",
+    "title": "\"배달 완료요\"사진 받고 30초만에 문 열었는데…없어진 음식",
     "company": "머니투데이",
-    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/05/2025080414372849842_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36565?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080610355650745_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14750?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "돈내면 관세 낮춘 트럼프에 NYT \"글로벌 강탈·교역인질과 협상\"",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PRU20250804097101009_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n01987?sect=sisa&list=rank&cate=interest"
+    "title": "약혼녀 비행기 태워 무전기로 청혼…\"예스\" 후 추락 (영상) ",
+    "company": "서울신문",
+    "image": "https://news.nateimg.co.kr/orgImg/no/2025/08/06/SSC_20250806001437_V.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00211?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "시작부터 난관 봉착한 정청래 대표",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080516470001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n29688?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "여성 2명 살해뒤 투신 사망 50대, 연인갈등·금전문제 범행 추정",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/AKR20250805096800052_01_i.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n19016?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "창원 마창대교서 투신 50대 남성은 여성 2명 살해 피의자",
-    "company": "한국일보",
-    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/05/5b6b21a3-f8aa-4124-b380-6471e8d2a3ee.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n23009?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "트럼프 \"폐쇄된 한국, 내가 개방했다…엄청난 사업 될 것\"",
-    "company": "매일경제",
-    "image": "https://news.nateimg.co.kr/orgImg/mk/2025/08/05/news-p.v1.20250805.d7ea64471e55402aaf3ec1a1c00cd5e2_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n36576?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "김건희 일가 요양원, 온갖 의혹에도 '정상 운영 중'",
+    "title": "대한항공 '프리미엄석' 탄생…간격 '더 좁아진' 일반석",
     "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805185726420001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33646?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805203836012001.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n34796?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"부장님, 할 줄 모르면 부끄러워야죠\"…챗GPT 사용시간, 유튜브 보다 많아졌다",
+    "title": "김계리 \"尹, 당뇨망막증, 경동맥협착…진료 제때 안 하면 실명 위험\"",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805517216.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n33273?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "홍진경, 결혼 22년 만 합의 이혼…\"남은 시간 따로 잘 살고자\"",
     "company": "매일경제",
-    "image": "https://news.nateimg.co.kr/orgImg/mk/2025/08/05/news-p.v1.20250805.f02aa161e72545648da7f99bbef843f7_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n06279?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/mk/2025/08/06/news-p.v1.20250806.bf2d48f2d98c4a659fba5e59c0ab7448_P1.jpeg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13042?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "폭염→폭우→폭염…혹독했던 7월, 한반도 하늘에선 무슨 일이 벌어졌나[세상&]",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250707.23a002526a04499ebed3fb43df391f34_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n08997?sect=sisa&list=rank&cate=interest"
+    "title": "\"지하철역 '40도 찜통'\" vs \"에어컨 설치비 600억, 누가 내죠?\" [어떻게 생각하십니까]",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805516048.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n34961?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "대전 교제살인 20대, 피해자 빈소에 간건 \"진짜 죽었는지 확인하려\"(종합)",
+    "title": "초등 딸 폰에 섬뜩한 문자…태권도관장 수사하자",
+    "company": "SBS",
+    "image": "https://news.nateimg.co.kr/orgImg/sv/2025/08/05/202098268_700.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n35234?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "집안에서 고기 굽다 '털썩'…에어컨 켜고 절대 하면 안 되는 행동",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/06/20250805518480.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01310?sect=sisa&list=rank&cate=interest"
+},
+{
+    "title": "김건희 여사, 특검 첫 출석",
     "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/6524426_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32043?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431515_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10298?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "'윤석열 위자료 10만원' 판결한 판사 \"전국민 대상 계엄, 손해배상 충분히 인정돼\"",
-    "company": "경향신문",
-    "image": "https://news.nateimg.co.kr/orgImg/kh/2025/08/05/news-p.v1.20250709.8c9de0a6124c4da093c3236581b8bc6e_P1.jpeg",
-    "newsURL": "https://m.news.nate.com/view/20250805n01734?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "공포의 오후 3시…\"신세계백화점 폭파\" 협박글 소동",
-    "company": "JTBC",
-    "image": "https://news.nateimg.co.kr/orgImg/jt/2025/08/05/20250805201540982001.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34026?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "'방문진법' 野 필리버스터 7시간만에 종료…8월 국회 처리 수순",
-    "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431037_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00142?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "수도권은 35도, 호남은 물폭탄…폭염·폭우 2개 중대본 동시 가동",
-    "company": "중앙일보",
-    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/05/ad267a39-ddb7-4844-a071-f67a70e959ed.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n18798?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "\"역시 세계 최강\" 韓 과학국가대표…국제정보올림피아드 전원 '금메달'",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250805.a7fd33fbe0604e5d98f5c252a6f74c94_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n10023?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "김계리 \"尹 실명 위험…당뇨·경동맥협착·심장혈관 질환 있다\"",
-    "company": "중앙일보",
-    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/06/81af0c76-5794-4ee0-8718-0f31a4794df1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00356?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "김문수 후보, 부산 당원과 간담회",
-    "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7430675_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n25980?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "허리통증 시술뒤 1명 숨지고 7명 쓰러졌다…강릉 의원서 무슨 일이",
-    "company": "중앙일보",
-    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/05/41618205-0ffb-4c2c-ab75-2fa69d442f7c.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n13213?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "이종섭, '채상병 사건' 경찰 이첩되자 \"尹에 보고해달라\" 요청",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2024090310930001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n30423?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "경찰, '주식 차명 거래' 의혹 이춘석 수사",
-    "company": "더팩트",
-    "image": "https://news.nateimg.co.kr/orgImg/ss/2025/08/05/202558651754374976.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31334?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "고혈압은 단양, 당뇨는 서천, 척추 통증은 해남",
-    "company": "조선일보",
-    "image": "https://news.nateimg.co.kr/orgImg/ch/2025/08/06/ch_1754408524520_810708_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00394?sect=sisa&list=rank&cate=interest"
-},
-{
-    "title": "구글, '가림 처리' 한국 위성사진 구매 검토",
+    "title": "1000원짜리 팔아 이렇게까지…다이소 몸값 보니 '깜짝'",
     "company": "한국경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hk/2025/08/05/02.41006365.1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n17567?sect=sisa&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/hk/2025/08/05/AA.41321924.4.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n31100?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "버스 좌석에 강아지 앉힌 견주…\"지적하니 오히려 노려봐\"",
-    "company": "헤럴드경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hr/2025/08/05/news-p.v1.20250805.ed2133c3f7a344c49414bc589a13bd26_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n17577?sect=sisa&list=rank&cate=interest"
+    "title": "\"호텔 들어가자마자 구석에 던진다\"…'세균 득실' 물건 뭐길래",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/mt_1754434925719_114615_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03636?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "\"180만원 내면 시험 대신 봐줍니다\"…부정 판치는 '토픽'",
-    "company": "조선일보",
-    "image": "https://news.nateimg.co.kr/orgImg/ch/2025/08/06/ch_1754408644454_915031_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00402?sect=sisa&list=rank&cate=interest"
+    "title": "'주식 차명거래 의혹' 이춘석, 민주당 탈당…법사위원장도 사임(종합)",
+    "company": "아시아경제",
+    "image": "https://news.nateimg.co.kr/orgImg/ae/2025/08/05/ae_1754431444547_614692_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n35863?sect=sisa&list=rank&cate=interest"
 },
 {
-    "title": "역시 호날두! \"휴대폰 방 밖에 두고 자더라\"…前 포르투갈 대표팀 동료의 회상",
-    "company": "인터풋볼",
-    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/06/665049_761924_3634.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00095?sect=spo&list=rank&cate=interest"
+    "title": "\"여자로서 현타 온다\"…손흥민, 때아닌 '노매너' 논란, 왜?",
+    "company": "파이낸셜뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/fn/2025/08/06/202508060527068948_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01597?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "손흥민, 미국 땅 밟자마자 '신기록 작성' BBC, 디 애슬레틱 \"MLS 역대 최고 이적료 경신 유력\"",
+    "company": "스포츠경향",
+    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/06/news-p.v1.20250725.2882ae7c969344d6b351de4a85dbb69b_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n09888?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "안우진 사태 충격 증언 \"벌칙성 개밥 훈련, 선수는 여러 차례 거절했다…실제 지시자는 오윤 감독대행\" [스춘 이슈]",
+    "company": "스포츠춘추",
+    "image": "https://news.nateimg.co.kr/orgImg/so/2025/08/06/112590_224185_2321.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n15163?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "초대박! 이강인(24·맨유), 이강인(24·나폴리) 빅클럽 러브콜 폭발…\"EPL과 세리에A, LEE 영입에 적극적\"",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754430000013365.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02748?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "추신수가 4명?…하원미, 완전체 가족샷 공개",
+    "company": "스포츠동아",
+    "image": "https://news.nateimg.co.kr/orgImg/sd/2025/08/06/132136163.1.jpeg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04388?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "손흥민, 미국 땅 밟았다!…공항 가득 현지 팬들 \"환영해요 SON\"[포토 스토리]",
+    "company": "스포츠한국",
+    "image": "https://news.nateimg.co.kr/orgImg/sh/2025/08/06/6906120_1155440_234.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10930?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'레전드' 손흥민의 절대적 '가치'…BBC, 'SON 없는' 토트넘에 엄중 경고 \"분명한 문제 있다\"",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080517485015585_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02440?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "김서현보다 높은 평가 받던 심준석, 마이애미 루키팀에서 방출",
+    "company": "일간스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/06/isp20250806000011.500x.0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03877?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "손흥민도 OUT, 양민혁도 OUT…설마 '프리미어리거 0명?' 韓 20년 만에 역대급 사태 나올까",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000353000044311.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01943?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "일본, 일본, 일본, 일본! 日 축구, 벨기에에서만 20명 넘게 뛴다…2005년생 기대주, '유럽행 교두보' 신트트라위던 이적 초읽기",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754406727392989.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01559?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'제2의 손흥민이라며?' 양민혁, 우리가 데려가고 싶습니다…미친 경쟁 대폭발",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000369900045991.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08162?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"누가 LA 가요?\" SON의 유쾌한 농담…BBC \"손흥민, MLS 최고 이적료 예약\"+빠르면 24시간 내 공식발표",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508061034773969_6892b308513f2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n12598?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "롯데, 나를 보낸 걸 후회하고 있나요…이제는 불러도 안 오나, 극적인 메이저리그 복귀?",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763142_1225695_3818.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16020?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "미쳤다! 백승호, 램파드-제라드 등번호 단다…'13번→8번' 전격 교체+주전 확정적, \"수준급 활약\" 언론도 극찬",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754401322732304.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00229?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "한국에 이런 '미친 리그'가 있습니다…6위와 11위 승점 차가 고작 '5'→'3연속 우승팀'도 강등 위기, 순위 싸움 '재시작'",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763048_1225484_4530.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00639?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'벌칙 펑고'에 꼬여버린 안우진 야구 인생…MLB 진출에도 적신호",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/6096777_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02049?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'8월 타율 5할 미쳤다!' 이정후, 행운의 2루타→5G 연속 안타 생산…웹, KKKKKKKKKK 10승 고지",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080610050599439_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09750?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "손흥민 드디어 美 LA 도착, LAFC 입단 공식 발표 '초읽기'",
+    "company": "더팩트",
+    "image": "https://news.nateimg.co.kr/orgImg/ss/2025/08/06/202536221754441950.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09490?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "1위 뺏긴 한화, 손아섭 대체 언제 올 수 있나…김경문 감독이 본 마지막 단계는",
@@ -504,76 +714,10 @@
     "newsURL": "https://m.news.nate.com/view/20250806n00045?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "양민혁도 GOOD BYE! 이제 토트넘에 한국인 없다…또다시 임대 결정→\"아직 배워야할게 많다\" 동료의 냉철한 평가",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000309900040151.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n24564?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손흥민 동료될 선수인데 심각한 찬밥대우…이적 발표에 무관심 \"SON 오피셜 발표해\"만 가득",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000321800041873.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28978?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "김혜진,'8등신 미녀 모델의 섹시 시구'",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508051840774267_6891d188629cb.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31970?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "'미국행' 손흥민 이건 예상 못했다! 인생 단짝과 3년 만에 극적 재회?…\"델레 알리, MLS 관심 받아\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000279700033331.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n10816?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "'55세 득녀' 양준혁 늦둥이 딸, 벌써 이렇게 컸어?…'찐폭풍 성장'",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000339300043342.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34922?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "휘문고 오타니 대체 언제 잘하나…황당 실책에 조성환 뿔났다, 경기 도중 문책성 교체 단행 [오!쎈 잠실]",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508052028770870_6891eb54980ae.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34332?sect=spo&list=rank&cate=interest"
-},
-{
     "title": "SON '오피셜'도 안 떴는데? LAFC, 일 처리 진짜 빠르네…韓 취재진에게 보도 자료 전달 시작→경기 리뷰 등 포함",
     "company": "스포티비뉴스",
     "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/762977_1225383_225.jpg",
     "newsURL": "https://m.news.nate.com/view/20250805n31936?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "안우진 부상, 너무 안타깝다, 그런데 왜 훈련 시킨 코치가 옷을 벗나…스타급 선수 어떻게 지도하나",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000348900044061.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28595?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손흥민 떠나니 이런 일이…'韓 축구 10년 만에 EPL 빅클럽 0명' 대참사→양민혁도 임대 유력",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000264800030681.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n01626?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "'혜성아 같이 가' 이정후도 韓 진기록 달성…이제야 이정후답다? 막판 대스퍼트 기대감",
-    "company": "스포티비뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/763074_1225535_2032.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36953?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "모델 김혜진 '강렬한 눈빛 시구'",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000326500042261.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31849?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손웅정 '아들이 가는 곳엔 언제나 함께'",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754388143962380.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32599?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "'명품 비율' 김혜진의 시구",
@@ -582,10 +726,100 @@
     "newsURL": "https://m.news.nate.com/view/20250805n31957?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "미국 출국길 손흥민, 200명 팬에게 30분 넘게 사인 '눈맞춤'",
-    "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7430953_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32889?sect=spo&list=rank&cate=interest"
+    "title": "샤워까지 마치고, 차에 탄 선수 끌어내려 벌칙 펑고? 안우진 충격 부상 문제의 그날, 사건의 재구성",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000379000046671.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15353?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'이건 기적이야' LG 2주 만에 5.5G차 뒤집다니, 한화 어떻게 2위로 끌어내렸나 \"우리는 늘 1위 욕심이 있었다\"",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508052221770737_68920858b91bf.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00612?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'눈물 줄줄' 영국 방송, 손흥민 위해 헌정곡 공개…\"당신은 우리 마음속에 영원할 거야\"",
+    "company": "인터풋볼",
+    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/06/665061_761952_3944.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02763?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"다들 150억원 달라고 하는거 아닌지\" 송성문 6년 120억원 '대박' 계약을 불편하게 바라보는 야구계, 왜",
+    "company": "스포츠경향",
+    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/06/rcv.YNA.20250804.PYH2025080405860000700_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16133?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'아들맘' 손연재, 준연이와 두 번째 여름…수영장서 비키니 톱+햇살 미소",
+    "company": "MK스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/06/news-p.v1.20250806.40fa1ac1650e4f808e9b0c447601fe4c_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n02264?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "후배가 먼저 \"쓰세요, 괜찮습니다\" 양보했다…'한화 이적' 손아섭, 등번호 34번→31번 변경완료 [대전 현장]",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754413877919824.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03839?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "산책하다, 아이 돌보다, 귀가하다 '악'…한순간에 '전력 이탈'",
+    "company": "문화일보",
+    "image": "https://news.nateimg.co.kr/orgImg/mh/2025/08/06/news-p.v1.20250806.bd261ceb204446adbffe9237a013c745_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14964?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "2002 월드컵서 안정환 막던 조르제 코스타, 심장마비로 사망…향년 53세",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080605485925533_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02332?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "양민혁도 GOOD BYE! 이제 토트넘에 한국인 없다…또다시 임대 결정→\"아직 배워야할게 많다\" 동료의 냉철한 평가",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000309900040151.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n24564?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"SON 따라잡는 건 불가능해\"…축구화까지 따라한 '토트넘 9살 동생' 솔직 고백→\"양발잡이 캡틴 조언으로 왼발 테크닉 향상\"",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763095_1225617_5420.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01877?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "일본도, 중국도 묵묵히 응원의 박수뿐…\"손흥민은 도저히 깎아내릴 수 없네\"",
+    "company": "스포츠동아",
+    "image": "https://news.nateimg.co.kr/orgImg/sd/2025/08/06/132135790.1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03051?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'이럴수가' 9→2위 급등, KIA 트레이드 초대박 터졌다…홀드 1위 없는 티가 안 난다",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080701000376600046491.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n37237?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "역시 호날두! \"휴대폰 방 밖에 두고 자더라\"…前 포르투갈 대표팀 동료의 회상",
+    "company": "인터풋볼",
+    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/06/665049_761924_3634.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00095?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"한국인이 이승우 FIFA에 밀고…바르사에서 더 크지 못했다\"→'코리안 메시' 3년 강제 휴식, 안타까운 사연",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754437444213581.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n05203?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"인도네시아 시절 연봉 28억, 울산에선 얼마 받나요?\" '인니 슈퍼스타' 신태용 일거수일투족 관심 대폭발",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000352300044261.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00409?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "안우진 부상, 너무 안타깝다, 그런데 왜 훈련 시킨 코치가 옷을 벗나…스타급 선수 어떻게 지도하나",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000348900044061.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n28595?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "토트넘 CB 드라구신, 등번호 교체…6번→3번 \"나를 가장 잘 대표하는 번호\"",
@@ -594,10 +828,94 @@
     "newsURL": "https://m.news.nate.com/view/20250805n33947?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "박승수 대박났다! 뉴캐슬 1군 입성 '시간문제'→\"프리시즌서 단연 돋보인 선수\"…하우 감독+코칭스태프 면밀히 관찰 \"깊은 인상 받았다\"",
+    "title": "미국 출국길 손흥민, 200명 팬에게 30분 넘게 사인 '눈맞춤'",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7430953_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n32889?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "한화 미치게 하는 공포의 수비, 한화전 다가오니 예열 시작했다…'127m 뜬공' 만든 수비의 달인",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763077_1225544_4032.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00201?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'55세 득녀' 양준혁 늦둥이 딸, 벌써 이렇게 컸어?…'찐폭풍 성장'",
     "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000292000036101.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n16287?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000339300043342.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n34922?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "이강인 초대박! 아틀레티코 마드리드 깜짝 입성?…\"루크먼의 완벽한 대안\"→PSG는 잔류 요청 \"선수가 거부\"",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763098_1225623_2037.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03189?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'지루는 실패작, 최고의 손흥민이 LAFC에 왔다'…SON 영입에 美 대흥분! 감독 전술에도 '최적'",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080514074344479_l.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n00656?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"메시급 영입 효과\" 손흥민, MLS 역대급 이적 위해 출국…\"이적료 367억, 며칠 안에 입단 예정\"",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754428301449376.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02486?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "강원FC 행보에 '반발' 춘천 결국 K리그에서 빠지나…개최지 공모 불참, 데드라인 12일",
+    "company": "스포츠서울",
+    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/06/news-p.v1.20250731.9af2fc4a0832421b9a3064e76fd2ace3_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16233?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "펑고를 왜…안우진 어깨 수술, WBC 류지현호도 날벼락",
+    "company": "스포츠한국",
+    "image": "https://news.nateimg.co.kr/orgImg/sh/2025/08/06/6906092_1155393_5138.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02409?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"40억 물어줘\" 울산, 아라비제 FIFA 소송에서 패소 '날벼락'…누구 책임인가",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080701000378900046662.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n11298?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'얼마나 미안했으면' 싹쓸이 맞은 김서현…문동주 위로에도 고개 못 들었다",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763083_1225576_4853.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00433?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "한때 '심준석 리그' 얘기까지 나왔는데…13G 23볼넷, 마이애미 루키팀에서 방출됐다",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763096_1225627_3431.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03384?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "누가 박동원에게 돌을 던질 수 있나…휴식 후 한화 정조준? 해결사로 돌아올까",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763111_1225645_3639.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08062?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"선물은 괜찮습니다\" 12년 고교 선배에게 먼저 연락, 등번호 양보한 후배…손아섭 '31번' 다시 달았다",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508051757779542_68924dcb654f7.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08206?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "안우진은 정녕 태극마크와 인연이 없는 것인가…20대 국가대표 커리어 최종무산, 다음 WBC는 2030년",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080516523587735_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02233?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "LA 공항에서 손흥민 기다리는 팬들",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/PYH2025080606450001300_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14806?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "베일-케인-손흥민 그리고 누구?…토트넘은 차기 '프랜차이즈 스타'를 걱정한다",
@@ -606,88 +924,22 @@
     "newsURL": "https://m.news.nate.com/view/20250805n32125?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "BBC 역대급 헌사 \"손흥민은 전 세계가 사랑하고 그리워할 선수\"",
-    "company": "인터풋볼",
-    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/05/665029_761880_476.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n27488?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "대박! \"맨체스터 유나이티드가 이강인 영입 관심\"…西 유력 매체 \"LEE, 제시된 옵션 검토하길 원해\"",
-    "company": "인터풋볼",
-    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/05/665042_761909_1829.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35504?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "7연승 LG, 한화 끌어내리고 52일 만의 단독 선두…후반기 14승 2패 [IS 잠실]",
-    "company": "일간스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/05/isp20250805000352.800x.0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35636?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "한글로 '한국'…\"감사하고, 즐거웠습니다\" '날강두' 호날두랑은 너무 다른 월드 클래스의 품격",
+    "title": "'한국 축구 대들보' 손흥민이 떠나버린 EPL→이젠 '韓 차기 에이스' 이강인 차례! \"맨체스터 유나이티드 관심 표명\"",
     "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000288900035942.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n15233?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000355400044491.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01061?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "'오늘 곰돌이 잡는 날!' LG '깜찍' 치어리더 우혜준",
+    "title": "KBO 재계약 실패한 투수가 ML 1위팀 선발 됐다…'벌써 7승+ERA 2점대' 새로운 KBO 역수출 신화 나왔다",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/762992_1225407_5218.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01490?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'황당 부상→美 진출 2년까지 늦어진다' 안우진의 모든 계획이 틀어졌다",
     "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080519453562080_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33544?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "'불법 촬영 혐의' 황의조, 알란야스포르와 재계약…2027년까지 튀르키예서 뛴다",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000326100042223.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31633?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "올해 1월, 6월 토트넘 재계약 제의 거절한 손흥민, 연장 옵션 선택도, 이적 시기 결정 모두 본인 의사…\"작은 소음도 싫었다\" 그저 토트넘만 생각한 '찐 레전드'→국내서 LAFC 협상 마무리",
-    "company": "스포츠동아",
-    "image": "https://news.nateimg.co.kr/orgImg/sd/2025/08/05/132126041.1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02393?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손흥민, 오늘 미국으로 출국…차기 행선지 LAFC 확정",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080311900001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n06964?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "\"언제나 캡틴, 언제나 레전드\" 양민혁, 대선배 손흥민의 뒤를 따른다···\"형처럼 진심으로 축구할게요\"",
-    "company": "스포츠경향",
-    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/05/news-p.v1.20250803.ca5dcb91f62a4e3eb0d7e716c9be3c3e_P1.jpeg",
-    "newsURL": "https://m.news.nate.com/view/20250805n18225?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "\"손흥민, 리오넬 메시 수준의 계약 체결\"→\"MLS 차세대 슈퍼스타\" SON 미국행 벌써 전설이다…\"역대 최고 이적료 경신\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000266100030775.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n04172?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "\"손흥민 이적, 너무 슬퍼···\" 토트넘 신입생 \"6개월 동안 독일어로 친해졌다, 그는 모두에 본보기, 레전드\"",
-    "company": "스포츠경향",
-    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/05/news-p.v1.20250805.440ae21d4af646a7b3333fc148e12485_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n15131?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "에인절스-탬파베이 경기 전 공연하는 그룹 '아이들'",
-    "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250805_0000541737_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n13762?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "\"SON은 싫어할 수 없다\"…'라이벌' 아스널 팬들마저 손흥민에 작별 인사 [스춘 해축]",
-    "company": "스포츠춘추",
-    "image": "https://news.nateimg.co.kr/orgImg/so/2025/08/05/112533_224085_5512.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n02371?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손흥민 끝내 울음 터졌다 '눈물의 인터뷰' 대공개…\"모두에게 작별할 시간, 완벽한 순간이었다\" 눈물 줄줄",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754396560920776.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35490?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080515500714635_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n30443?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "'베테랑' 지동원, 수원FC 떠나 호주 A리그행…\"대승적 차원에서 이적 합의\"",
@@ -696,70 +948,94 @@
     "newsURL": "https://m.news.nate.com/view/20250805n28286?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "손흥민, 시원하게 웃으며 200명 사인해주고 LA로 출국",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080517230001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32872?sect=spo&list=rank&cate=interest"
+    "title": "'여권 분실 아닌 휴가'…토트넘 양민혁, 영국으로 출국",
+    "company": "뉴시스",
+    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250803_0020915589_web.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n21672?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "'예비 FA' 조상우 환상이 깨진 지금…KIA에도 '갑툭튀' 1점대 불펜 있다, 현재+미래 다 잡을까",
+    "title": "휘문고 오타니 대체 언제 잘하나…황당 실책에 조성환 뿔났다, 경기 도중 문책성 교체 단행 [오!쎈 잠실]",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508052028770870_6891eb54980ae.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n34332?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "5연패 끊고 PS 불씨 살린 8위 삼성…비장의 무기는 따로 있었다",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060334770692_689250b1ac74f.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03006?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'6연승→敗→7연승' LG 대역전 우승 드라마 쓸까, 무리하지 않아 더욱 '공포 그 자체'",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080515381722400_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00789?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'158㎞ 괜히 지웠겠나' 폰세 다음 최고인데, KIA 총력전의 서막…\"김도영 왔고, 트레이드도 했고\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080701000369100045951.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01522?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "승부조작 의혹 남은 손준호 '주장 선임' 논란, 결국 팬들도 뿔났다 \"막무가내 운영 유감\"",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080523191475846_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02257?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "2루타→2루타→2루타→3루타→2루타! 이정후 장타 행진 멈출 줄 모르네, 시즌 OPS 0.736",
     "company": "스포티비뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/762903_1225253_3440.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n20391?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763107_1225653_5112.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09778?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "사실상 '오피셜' BBC급 확인 완료! 손흥민 뒤이을 '韓 최고 재능' 양민혁, 토트넘 주전 경쟁 대형 호재…\"英 특급 유망주 에버턴행 협상 중\"",
+    "title": "'심상치 않다' 절뚝이며 귀가했다, 롯데 2위 타자 햄스트링 부상 어쩌나",
     "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000292100036111.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n16362?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080701000369200045961.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00788?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "손흥민, 36분간 200명 사인해주고…LA행 비행기 올랐다",
-    "company": "뉴스핌",
-    "image": "https://news.nateimg.co.kr/orgImg/ni/2025/08/05/2508051940569540.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33447?sect=spo&list=rank&cate=interest"
+    "title": "울산 사령탑 맡게 된 신태용, 대한축구협회 부회장직 사임",
+    "company": "서울경제",
+    "image": "https://news.nateimg.co.kr/orgImg/se/2025/08/06/2GWIR1WJVU_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10085?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "손흥민의 '미친 낭만', '韓 캡틴은 사우디로 가지 않는다'…돈 아닌 '월드컵 라스트 댄스' 택했다→\"사우디 임금 훨씬 높다\"",
+    "title": "대박! '손흥민→김민재 교체?' 토트넘, KIM 영입에 관심 있다…\"뮌헨은 합당한 제안이 오면 매각 고려\"",
+    "company": "인터풋볼",
+    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/06/665056_761944_65.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03280?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'1위 탈환 LG, 어디까지 완벽해지나' 막강 선발-최강 타선에 불펜마저 평온. 두산전서 4이닝 2안타 6K 무실점 역전 발판[잠실 포커스]",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000345300043851.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n37026?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"감독님께서 따끔하게 조언해 주셔서\"…김영웅, 하루에 2홈런→후반기 12G 6홈런 비결은 [현장 인터뷰]",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754409309762027.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04393?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "생애 첫 10승은 실패, 하지만 더 귀중한 것 얻었다…'ERA 21.60' 천적 극복&LG 단독 1위 발판 ",
     "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025080511353082454_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n19065?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080519011870654_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14297?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "복귀가 빨랐나…하필 첫경기서 157km 마주한 김도영, 3삼진 굴욕[스한 이슈人]",
-    "company": "스포츠한국",
-    "image": "https://news.nateimg.co.kr/orgImg/sh/2025/08/05/6906088_1155382_133.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35392?sect=spo&list=rank&cate=interest"
+    "title": "빅리그서 사라졌던 日 사사키, 석 달 만에 입 열었다 \"왜 아픈지 원인을 찾았다\"",
+    "company": "일간스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/06/isp20250806000117.800x.0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n17000?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "\"우리랑 송성문 트레이드 하실래요?\" 문의 폭주, 탐냈던 구단 한둘이 아니다",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000305600039361.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n13802?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손 흔드는 손흥민",
-    "company": "연합뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080517420001300_P2.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32898?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "단 2주만에 5.5경기 뒤집었다…단독 1위 탈환한 LG, '6연승+7연승' 끝모를 상승세",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052136551031_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35672?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "K음바페 뉴캐슬 박승수 \"EPL서 후루룩 짭짭 라면 세리머니\"[단독 인터뷰]",
-    "company": "중앙일보",
-    "image": "https://news.nateimg.co.kr/orgImg/jo/2025/08/05/ed769ebf-0f8a-42d1-bf17-b1fd674e4eb4.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n19980?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "신구장 최초 160㎞! 주인공은 '역시 문동주'…2년 만에 다시 161㎞ 폭발, 개인 최다 10K까지",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000339800043383.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34541?sect=spo&list=rank&cate=interest"
+    "title": "손아섭, '한화 훈련복 입고 대전 구장에'",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/762904_1225274_364.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n20736?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "'롯데 초대형 악재' 절뚝거리며 나갔다…'햄스트링 통증' 전준우 지금 이탈하면 심각하다[부산 현장]",
@@ -768,94 +1044,106 @@
     "newsURL": "https://m.news.nate.com/view/20250805n33719?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "인상적인 한국 선수? 바르셀로나 플릭 감독 \"우린 우리 팀에만 집중\"···\"한국 투어에 대단히 만족\" ",
-    "company": "MK스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.380cb22454b4453fa1c556217e6e3f4d_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02113?sect=spo&list=rank&cate=interest"
+    "title": "WKBL 신인선수 드래프트 '역대 최다' 40명 지원…오는 20일 개최",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080611481869535_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16650?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "'토트넘과 결별' 손흥민, 오늘 미국 간다…LAFC 입단 초임박+6일 오피셜 예고까지",
-    "company": "일간스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/05/isp20250805000078.800x.0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n14646?sect=spo&list=rank&cate=interest"
+    "title": "손흥민, 시원하게 웃으며 200명 사인해주고 LA로 출국",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080517230001300_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n32872?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "'이럴 수가' SON과의 이별→후계자 '충격 영입' 신호탄…'1420억' FW, 토트넘이 여전히 원한다! 경쟁 참전",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025080514402864915_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n25261?sect=spo&list=rank&cate=interest"
+    "title": "'중국을 왜? 월드컵 못 나가는데' 中 대륙 좌절, 사실상 '오피셜' 공식발표 떴다…특급 재능, 중국 귀화 안 한다",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763084_1225572_463.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00202?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "손흥민, MLS 역사 다시 쓴다…LAFC 이적 위해 인천공항 출국→배웅하는 팬들에게 아낌없는 팬서비스까지",
+    "title": "'충격' EPL 전 아스날 MF, 강간 5건+성폭행 1건 혐의로 기소…조건부 보석 허가",
     "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508051826771211_6891daac9fb02.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32960?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508052117772104_6891f98cc07ec.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01584?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "\"2027년까지 알란야스포르에서 뛴다\" '풍운아'황의조,2년 재계약 성사",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000349400044091.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36878?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "어제는 4안타, 오늘은 2타점 3루타 '쾅'···달아오른 '바람의 손자', SF는 안타까운 '끝내기 역전패'",
-    "company": "스포츠경향",
-    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/05/rcv.YNA.20250805.PGT20250805044901009_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n11731?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "[단독+] 안우진 1년 OUT 대충격!…'황당한 펑고' 훈련, 최악의 불상사 초래했다",
+    "title": "韓 0명 vs 日 10명?…한국 축구 비상! 손흥민 OUT→EPL 코리안리거 전멸 위기→일본 최대 10명 가능성",
     "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754375914312394.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n24126?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754437270867003.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n06614?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "'3연승+다시 4위' 이범호 감독 \"원정 12연전 첫 경기 승리, 남은 44경기 잘 치르겠다\" ",
-    "company": "스포츠서울",
-    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/05/news-p.v1.20250409.ec6db3f9213b45c4b3d194e511c45d8a_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36176?sect=spo&list=rank&cate=interest"
+    "title": "플렉센 ML 드림 이대로 끝나나, KBO→ML 역수출 폭망 등극…7월 ERA 7.47 치명적, 어? 두산 보류권 끝",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025070615073311867_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n30793?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "모드리치 \"이제는 AC 밀란맨\"",
-    "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250805_0000541236_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n10239?sect=spo&list=rank&cate=interest"
+    "title": "'우연인가' 라리가 역대 이적료 TOP5, 싹 다 망했다…'2000억 먹튀' 바르셀로나만 3명이라니",
+    "company": "일간스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/06/isp20250806000021.800x.0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04565?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "지소연의 다음 목표 \"남성팀 이끄는 여성 지도자, 제가 해보겠습니다\"",
-    "company": "오마이뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/oh/2025/08/05/IE003503826_STD.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02339?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "충격 '전두환 얼굴 도발' 中 구단, AFC 철퇴 맞았다! '2년 대회 참가 금지' 중징계…'무려 12억' 손실까지",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080420283073335_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n01613?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "'7연승+단독 1위 탈환' 이끈 문보경 \"KIA전 승리 후 팀 분위기 탔다…오스틴 있으니 마음 편해\"",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052213371031_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36383?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "충격+황당, 안우진 어깨 수술로 재활 1년 예상…'벌칙 훈련' 해당 코치 사직 의사",
+    "title": "'훈련 똑바로 안 하면 영상 공개하겠다' 극대노한 아모림, 'PL 15위' 맨유의 썩은 정신 상태 고친다",
     "company": "스포티비뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/762913_1225276_3757.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n20813?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763136_1225683_1629.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14676?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "폰세 아닌 문동주? 바꿀 수 있는데, 명분도 있는데…한화는 LG보다 페넌트레이스를 봤다",
-    "company": "스포티비뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/762868_1225192_1946.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n10025?sect=spo&list=rank&cate=interest"
+    "title": "대박! \"맨체스터 유나이티드가 이강인 영입 관심\"…西 유력 매체 \"LEE, 제시된 옵션 검토하길 원해\"",
+    "company": "인터풋볼",
+    "image": "https://news.nateimg.co.kr/orgImg/fb/2025/08/05/665042_761909_1829.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n35504?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "대구-바르사전 '관중 수 논란', 스페인 기자도 놀랐다 \"절반도 안 찼는데 4만 5183명?\"",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080507383249014_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n04596?sect=spo&list=rank&cate=interest"
+    "title": "징계 못 피한 韓탁구 레전드들, 수위는?",
+    "company": "아시아투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/at/2025/08/06/2025080601000458700027801.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16737?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "벌써 트로피가 2개…'식사마'와 '독사'가 빚어낸 김상식 감독 리더십",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7430841_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02921?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "아직도 국적·이름 못 찾은 손기정",
+    "company": "세계일보",
+    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805516058.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n31437?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "시즌 개막이 코앞인데…'리빙 레전드' 손흥민 떠나보낸 토트넘, 부상자만 8명→프랑크 감독에 아름답지만 참 잔인한 축구",
+    "company": "스포츠동아",
+    "image": "https://news.nateimg.co.kr/orgImg/sd/2025/08/06/132132213.1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02599?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "손흥민 동료될 선수인데 심각한 찬밥대우…이적 발표에 무관심 \"SON 오피셜 발표해\"만 가득",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000321800041873.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n28978?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"포심 하나는 한국 1등\"…'158㎞ 강속구' MVP도 얼렸다, KIA 선수들 경악했다",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080701000376500046481.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n36703?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "리모컨 던지고, 어깨 밀치고…코치에 '폭언·위협' 김종민 도로공사 감독, KOVO 상벌위 회부",
+    "company": "스포츠춘추",
+    "image": "https://news.nateimg.co.kr/orgImg/so/2025/08/06/112576_224154_1656.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n03596?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "여자프로농구 신인 드래프트, 단일리그 역대 최다 40명 지원",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508061158180221_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16962?sect=spo&list=rank&cate=interest"
 },
 {
     "title": "'출국' 토트넘 양민혁 \"모든 순간이 배움이었고 영광…손흥민 형처럼 팀 사랑할 것\"",
@@ -864,232 +1152,232 @@
     "newsURL": "https://m.news.nate.com/view/20250805n16603?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "구단 잘못으로 다친 안우진, 보상은 누가 해주나",
+    "title": "많이 좋아졌다고 했는데…롯데 날벼락? 전준우, 햄스트링 통증 교체→경과 본 뒤 병원 검진 결정 ",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025072420394895997_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n33044?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'이정후 보상금 절반을 썼다' 송성문 파격 120억 전액 보장, 14년 전 이택근이 떠오른다",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000352500044271.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00482?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "이동거리만 9978km…탬파베이의 서부 원정 12연전, 축복일까 재앙일까",
+    "company": "MK스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/06/news-p.v1.20250806.232050e28e374eaab164c9a1c863de00_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01978?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "심준석, 미국 MLB 도전 3시즌 만에 마이애미서 방출",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/06/AKR20250806016400007_01_i.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03224?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "'초대박' 손흥민 LAFC 이적 마무리! \"역대 최고 이적료\"…한국 등에 업은 상징적 영입→\"MLS 근본적 변화 시발점\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000384000047001.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16589?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "\"김상식 나가\" 쩌렁쩌렁 울렸는데…'전북 1위' 김상식 감독의 생각은? \"애증은 없다, 다만 아쉬운 건…\"",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754368135978753.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00234?sect=spo&list=rank&cate=interest"
+},
+{
+    "title": "유망주 수집하면 뭐하냐…안우진 부상으로 드러난 키움의 안일한 선수단 관리",
     "company": "스포츠한국",
-    "image": "https://news.nateimg.co.kr/orgImg/sh/2025/08/05/6906074_1155362_4722.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n27619?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/sh/2025/08/06/6906081_1155370_3151.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n01831?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "156㎞ 지나가고 스윙한 김도영…명장 김태형이 살린 윤성빈, 롯데 접전 카드로",
-    "company": "스포츠동아",
-    "image": "https://news.nateimg.co.kr/orgImg/sd/2025/08/06/132135635.1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00032?sect=spo&list=rank&cate=interest"
+    "title": "손흥민, 목적지는 어디?",
+    "company": "연합뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yt/2025/08/05/PYH2025080516660001301_P2.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n31503?sect=spo&list=rank&cate=interest"
 },
 {
-    "title": "훈련을 가장한 체벌…키움의 '구태 야구'가 팀의 에이스를 망쳤다 ",
-    "company": "MK스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20230808.aefc99f1d43e4d4e9f00ec760d4d25cb_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n25043?sect=spo&list=rank&cate=interest"
+    "title": "홍진경, 결혼 22년만에 이혼…\"귀책 사유 없이, 서로 합의\"",
+    "company": "디스패치",
+    "image": "https://news.nateimg.co.kr/orgImg/th/2025/08/06/4f1df783-2b64-4c07-9c03-457c5ceff9a0.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n12347?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'승승승' KIA의 반격 시작되나? 이범호 감독 \"원정 12연전 첫 경기, 승리로 장식해 만족\" ",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025062521411801053_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36484?sect=spo&list=rank&cate=interest"
+    "title": "'이혼' 홍진경 측근 \"한 달 전쯤 먼저 알려. 정선희에 대한 신뢰로 3~4일 전 유튜브 녹화\"",
+    "company": "스포츠경향",
+    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/06/news-p.v1.20250806.2a2c71ebcc744cb2bf51af2e7606f156_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n15039?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'이정후가 NL 2위입니다' 2타점 3루타 폭발…'또 충격' SF, PIT에 4-1→4-5 끝내기 역전패 당했다",
+    "title": "'결혼' 이민우, 2세 임신 겹경사…♥예비신부는 6세 딸 키우는 싱글맘",
     "company": "스포티비뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/05/762865_1225169_5458.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n11097?sect=spo&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763085_1225570_4421.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09228?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'여권 분실 아닌 휴가'…토트넘 양민혁, 영국으로 출국",
-    "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250803_0020915589_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n21672?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "AC 밀란 팬들과 인사 나누는 루카 모드리치",
-    "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250805_0000541234_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n10105?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "괜히 야말이 아니더라…혀 내두른 대구 황재원·장성원 \"차원이 달라, 그런 템포·속도 변화·드리블 처음 봤다\"",
-    "company": "스포츠서울",
-    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/05/rcv.YNA.20250804.PYH2025080417170005300_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n05932?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "손흥민 직접 '오피셜' 감사 인사…'박수칠 때 떠난다' SON의 결정, 기꺼이 지지한 주인공 공개 \"항상 내 편이었어\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000293200037392.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n17537?sect=spo&list=rank&cate=interest"
-},
-{
-    "title": "\"스포 당했다\" '아이쇼핑', 티빙 대형 사고…6회 대신 마지막회 업로드",
-    "company": "TV리포트",
-    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/0973004c-978c-4be9-849d-3d37b606a7be.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n37072?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "유재석, 신생아급 수면 패턴 \"9시 30분 취침→4시 40분 기상\" (틈만나면)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052125431710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35423?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "추성훈, ♥야노 시호와 결혼 종말 위기…\"울면서 전화 와\"",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080520500797222_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36782?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "브라이언, '300평 대저택' 노키즈존 선언…\"애들은 출입 금지\" (이유있는건축)",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754398400298760.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36002?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"파리의 밤을 뜨겁게\"…블랙핑크 리사, 강렬한 의상과 퍼포먼스로 무대 압도",
-    "company": "스포츠서울",
-    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/05/news-p.v1.20250805.1020d6adf1fa4f739c6b2519516d002c_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n37000?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "한진희, '백혈병 투병' 7살 손자 떠나보낸 아픔 \"촬영 마친 후 빈소로 향해\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000346500043911.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36451?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "현영, 48세의 비현실적 모노키니 몸매 \"당당한 여자\" 자신감",
-    "company": "헤럴드POP",
-    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/05/news-p.v1.20250805.de32623f9d1141b48696f6e3cd39c150_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34875?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'서프라이즈 김태희' 김하영, 박상준과 9월13일 결혼 발표 \"진짜 시집 가요\" [★해시태그]",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754396717673488.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35494?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "반려견에 입술 물려도 뽀뽀 퍼붓는 보호자…강형욱 결국 분노 \"나라도 물 듯\"(개늑시)",
+    "title": "'이혼' 홍진경 \"시母, 라엘이 더 크면 발표하라 말려…미룰수 없었다\" 고백 ",
     "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508052115770250_68921019a00c9.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36788?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508061119770320_6892be17c64a8.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n15656?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "\"벌써 이렇게 컸어?\"…전소미, 동생 에블린 근황 깜짝 공개",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025080417084446006_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n18943?sect=ent&list=rank&cate=interest"
+    "title": "홍진경, 이혼 심경 고백 \"前남편, 남 되어서야 진짜 우정…좋은 오빠 됐다\"",
+    "company": "스포티비뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/su/2025/08/06/763137_1225687_1848.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n14988?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "애니, 가수 지망에 신세계家 반응? \"바람 불었다고…그 말 정말 싫더라\" (살롱드립2)",
+    "title": "\"구시대적\" 욕먹은 '한끼합쇼' 이진욱도 만회 못했다 [Oh!쎈 이슈]",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508052318773846_68921937de449.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03628?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "이민우, '♥싱글맘' 결혼 소식에 팬들 급분열…\"오빠가 왜?\"vs\"오지랖\" [엑's 이슈]",
     "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754386564353689.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32050?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754444864754031.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14909?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "이진욱, 촬영 중 탁재훈에 270만원 옷 플렉스 \"내돈내산 생일선물\"[★밤TView]",
+    "title": "홍진경, 22년만에 이혼 \"남편과 남 되고 진짜 우정 찾아…안타까워\"",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508061101777287_6892ba3b603cf.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14649?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "김준호, ♥김지민과 스킨십 발언 이래도 되나 \"키스, 시간 잴 수 없을 정도로 오래해\" (돌싱포맨)",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060824775550_689294863ba11.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n04900?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'47세 미혼' 박세리, 세계 20대 재벌 2세와 열애설 인정…\"덕분에 영어 빨리 늘어\" (남겨서 뭐하게)",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060753779376_68928c74b7cfb.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03784?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "박슬기, 음주 김영철 문자 공개 \"남편에게 보여줘도 된다고? 든든한 오래비\" 애틋",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508060614152110_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02564?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "방시혁, 사기적 부정거래 의혹 첫 입장 \"조속히 귀국해 조사 임할 것\"",
+    "company": "셀럽미디어",
+    "image": "https://news.nateimg.co.kr/orgImg/ab/2025/08/06/1754440966_504600.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08280?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "정우성이 결혼하는데 왜 문가비한테 악플이 달리나 [Oh!쎈 이슈]",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060019774242_68922c8e1af1f.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02962?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "정우성, 장기연애 중 문가비와 '혼외자 임신'?…겹치는 연애사, 왜",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080609570674686_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n12577?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "레이디제인, 쌍둥이 육아 고충 \"밤새도록 울다가, 이모님만 오시면…\"",
     "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080520495053536_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36249?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080610055174250_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n11990?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "제69회 미스코리아 '진' 정연우…시대 이끌 여성 리더의 탄생",
+    "title": "미스코리아 '진' 정연우 \"사랑을 베푸는 교육자가 꿈\" (인터뷰)",
     "company": "한국일보",
-    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/05/6616dd1e-ba92-4200-9e5c-4c29df9b4635.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35498?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/06/8307baff-7f96-4ff6-9445-113b68a17467.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n10017?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'박수홍♥' 김다예 백화점서 포착, 33㎏ 감량 후 되찾은 미모",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051906556310_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32840?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "이수근, 오늘(5일) 부친상 비보…\"숙환으로 별세\" ",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754401666819496.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36661?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "김희선, 19년 전 역대급 미모 공개…이진욱 \"신같은 존재\"",
+    "title": "故송영규 옆 故이선균…고은별 \"하루종일 먹먹함\" 슬픔 가득",
     "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080520494640823_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35517?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/tn_1754435705575_252365_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04194?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'한남동 60억 집주인' 키, LA서 입국하자마자 믹스매치 끝판왕…\"오늘 작정했어\"",
-    "company": "MK스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.5082a12d851d4837bb1cfa5a8111ca64_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n33234?sect=ent&list=rank&cate=interest"
+    "title": "이수근 부친상, 내일(7일) '아는형님' 녹화 취소",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754440953184598.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n09473?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "고은별, 故 이선균 옆 송영규 생전사진 공개 \"이틀 전 통화했는데, 더 관심가져 줄 걸…\"",
+    "title": "신화 이민우, 6세 딸 있는 싱글맘과 결혼 \"2세 임신 중, '살림남'서 공개\"",
     "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000328000042381.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31221?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000382700046901.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15147?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "한예슬 10살 연하 남편, 결혼 1년 만에 대형 사고…\"이거 맞나요?\" 경악",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508051657771155_6891bcbbf3cae.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28830?sect=ent&list=rank&cate=interest"
+    "title": "김남일♥김보민, 폭풍성장 아들 공개…\"190㎝ 돼 보여\"",
+    "company": "뉴시스",
+    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/06/NISI20250806_0001911777_web.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13485?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "손연재, 유모차 153만 원+의자 70만 원 자랑…\"육아는 장비 빨\" [RE:뷰]",
+    "title": "\"BTS+임영웅까지 꺾었다\"…변우석, 브랜드평판 1위 '대세 굳히기'",
     "company": "TV리포트",
-    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/dd0a6d2e-10ce-4ab7-9255-a517aa9742ea.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n30427?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/06/af29cd70-56a4-4d45-9192-cd94ae5d177a.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08826?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "추성훈 \"日에서는 두 번은 이혼해야 남자…고로 나는 가짜 남자\"('돌싱포맨')",
-    "company": "헤럴드POP",
-    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/05/news-p.v1.20250805.d473f1bfd4744d5e942bb2d016237071_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36850?sect=ent&list=rank&cate=interest"
+    "title": "방탄소년단 정국 '3D', 프랑스음반협회 '골드' 인증 획득…개인 통산 4번째 '월클 인기'",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080606385711683_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02602?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'44kg' 한혜연, 16kg 빼더니 '인형핏'이네…한여름 올블랙에 완벽 각선미",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025080515441356450_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n24215?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'거미♥' 조정석, 둘째가 복덩인가…'좀비딸' 손익분기점 초고속 돌파 ",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025063011213396147_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34265?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'신세계 3세' 애니 \"한국서 연습생 생활 불가, 美서 4년간 비대면 트레이닝 받아\" ('살롱2')",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000328100042392.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31998?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "조윤희, '이동건과 이혼' 5년만 이상형 만났다…\"너무 떨려\" 소감 (개늑시)",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754403035133726.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00098?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "올데이프로젝트 애니 '군살 제로 복부 드러내고 입국' ",
-    "company": "MK스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.9e077da9a2734f0a92c9ee82f2f0b5e9_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31404?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "트와이스 정연, 아픔 딛고 되찾은 건강미…롤라팔루자 시카고 압도",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051704145710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28480?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "정우성 아내, '문가비 혼외자' 220만원 양육비도 포용한 ♥ [엑's 이슈]",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754361760534224.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n15612?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "정우성 \"♥아내에 상처될까 걱정\" 혼인신고설 부인NO…관심 자제요청 ",
+    "title": "이재명 대통령, ♥김혜경 여사와 '동상이몽' 출연 \"굉장히 중요한 자료\"[Oh!쎈 이슈]",
     "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508050901775651_68914e1d8bc28.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n08273?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060747771037_68928a3f5d1b5.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03644?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'암 투병' 민지영, 전신마취 후유증 호소 \"20kg 찌고 멀미·어지럼증 생겨\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080701000356800044551.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01956?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "홍진경, 22년 만에 이혼 \"귀책 사유 없이 합의…딸 라엘이도 부모 선택 존중\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000380500046771.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14243?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "정우성, 혼인신고 기정사실화 \"돈 많은 여자친구\" 재조명",
+    "company": "bnt뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/bn/2025/08/06/bnt202508050471.680x.0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00029?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "카더가든, 힐링아기 이진이와 재회…다시 터진 힐링 케미",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080417321496505_l.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n00803?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "이동건과 이혼 5년만…조윤희, 이상형 만났다 \"귀여움·카리스마 겸비\" ('개늑시')",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080701000357200044591.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01888?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "이경규, 약물 운전 논란 후 SBS 새예능 '마이턴'으로 복귀",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060928774167_6892a38f45fcc.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n07906?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "故 송영규 발인…오대환 \"힘든 일 있어도 잘 참으라 했는데 허망\"",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754442563718945.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15958?sect=ent&list=rank&cate=interest"
 },
 {
     "title": "박지현 \"진짜 큰 싸움 나서 헤어져\"…이별 이유 고백",
@@ -1098,40 +1386,292 @@
     "newsURL": "https://m.news.nate.com/view/20250805n36871?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "김범, 이은지와 핑크빛 1주년 챙겼다…\"또 나만 진심이었지\"",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080519244818472_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n33966?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "추성훈, 블랙카드 공개…\"현금 1500만 원 들고 다녀\"",
-    "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7431079_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36986?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "김지민 \"시끄럽게 죄송하다\" 더니…성적취향+축의금 논쟁?",
+    "title": "홍진경, 오늘(6일) 정선희 유튜브서 이혼 직접 발표한다",
     "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508050010773477_6890d0ee93cb8.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02629?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508061050777910_6892b5e029b8a.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13248?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "손연재, 아들과 커플 잠옷→비키니 자태…\"행복하고 힘든 여행\"",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080518335652806_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32113?sect=ent&list=rank&cate=interest"
+    "title": "\"최소 1천만원 현금 늘 소지\" 추성훈, 블랙카드 연회비만 500만원(돌싱포맨)",
+    "company": "스포츠투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/st/2025/08/06/05_1018832_48543.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02802?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "김가은♥윤선우, 10년 열애 하더니…닮았단 말에 견제(KIMGAEUN)",
+    "title": "제69회 미스코리아 '진' 정연우…시대 이끌 여성 리더의 탄생",
+    "company": "한국일보",
+    "image": "https://news.nateimg.co.kr/orgImg/hi/2025/08/05/6616dd1e-ba92-4200-9e5c-4c29df9b4635.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n35498?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "\"브라이언 평택 대저택, 단풍나무 허세 아냐\" 전현무 감탄 (이유 있는 건축)",
     "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051715376310_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n29321?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508060510431710_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02226?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "\"죽지마\" 원진아, 김진영이 쏜 총에 맞은 오승준에 오열 ('아이쇼핑') ",
+    "title": "이민정, 무인 택시 탑승 \"나만 무섭나\" 공포…텅 빈 운전석에 행인도 '깜짝' (MJ)",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754440522357415.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n08230?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "홍진경, 결혼 22년만 남편과 결별 \"이혼 맞다\" ",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508061047202410_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13661?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "한예슬 남편, '대형 사고' 쳤다…\"뒷수습은 아내 몫인가\" [RE:스타]",
     "company": "TV리포트",
-    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/06/dadc7b0e-1613-4b37-96fa-9b4d053ffb35.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250806n00300?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/06/f6409d1a-1c22-416a-9832-2469a5c2e43d.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n11205?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'서프라이즈 김태희' 김하영, 박상준과 9월13일 결혼 발표 \"진짜 시집 가요\" [★해시태그]",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754396717673488.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n35494?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'남자와 키스 300번' 남윤수 \"동성애? 관심 없어…여자가 좋아\"",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/2025080600481083631_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00456?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "손연재, 유모차 153만 원+의자 70만 원 자랑…\"육아는 장비 빨\" [RE:뷰]",
+    "company": "TV리포트",
+    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/dd0a6d2e-10ce-4ab7-9255-a517aa9742ea.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n30427?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "김진우, 머리·임파선까지 번진 대상포진에 극심한 고통 \"병원 안 왔다면…\"",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754436721277903.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n05310?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'40세' 현봉식, 노안 비애 \"'동갑 친구' 유연석 자꾸 존댓말\" ",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080607435463942_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03728?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'박성광♥' 이솔이, 보이스피싱 피해당할 뻔…\"의심도 못 해\"",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080611363468979_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16462?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "홍진경, 결혼 22년만 이혼 \"귀책사유 없어, 딸 라엘도 존중\"",
+    "company": "스포츠서울",
+    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/06/news-p.v1.20250806.68e98d0d1f9b42a98764c1fbc1d3eaa1_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13332?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "트와이스 정연, 건강 회복 후 점점 되찾는 미모…퍼포먼스도 '호평' ",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/7431811_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15443?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "\"늘 든든했던 아버지\" 이주영, 故 송영규 발인 날 전한 그리움",
+    "company": "스포츠서울",
+    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/06/news-p.v1.20250806.8dfe8c04642a47d4b129e3a08a65d194_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n07934?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "이진욱, '오겜' 분량 아쉬움에 입 열었다 \"주변서 왜 출연했냐고\"[★밤TV]",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/06/2025080600053496970_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03047?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'결혼 발표' 이민우, ♥예비신부와 2세 임신설…'살림남'서 공개하나 \"확인중\" ",
+    "company": "스포츠서울",
+    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/06/news-p.v1.20250806.f622676f359f42d0a0f6cc1276b99bf3_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n11971?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "\"스포 당했다\" '아이쇼핑', 티빙 대형 사고…6회 대신 마지막회 업로드",
+    "company": "TV리포트",
+    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/0973004c-978c-4be9-849d-3d37b606a7be.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n37072?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "\"벌써 보고싶고 그리워\"…故 송영규 발인, 유족·동료들 배웅 속 영면(종합)",
+    "company": "헤럴드POP",
+    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/06/news-p.v1.20250806.c181c933d0984f28a3c98a37764806f4_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15200?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "홍콩댁 강수정, 경사 났다 \"내 입으로 자랑 부끄러워\" 모교 연세대 위원 위촉",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508060611332110_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n13977?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "\"파리의 밤을 뜨겁게\"…블랙핑크 리사, 강렬한 의상과 퍼포먼스로 무대 압도",
+    "company": "스포츠서울",
+    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/05/news-p.v1.20250805.1020d6adf1fa4f739c6b2519516d002c_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n37000?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "[팝업★]故송영규, 남궁민·조정석·손석구 등 추모 속 영원히 잠든다…오늘(6일) 발인",
+    "company": "헤럴드POP",
+    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/06/news-p.v1.20250805.a8324cb2e34a429ab09c5d0f153d131e_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01959?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "이선영 아나운서, 20년 몸담은 KBS 퇴사…\"정리는 이틀\"",
+    "company": "일간스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/06/isp20250806000009.647x.0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03622?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'가평 별장 침수' 서효림, 폭우에 차량 반파까지…\"미치겠다, 자연재해 실감\"",
+    "company": "MK스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/06/news-p.v1.20250806.1a1380dcd5c34fb8928b6dc936538179_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n02736?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'신세계 3세' 애니 \"한국서 연습생 생활 불가, 美서 4년간 비대면 트레이닝 받아\" ('살롱2')",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000328100042392.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n31998?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "공효진♥케빈오, 한국 떠나더니 길거리서 당당한 애정행각…틈새 하나 없는 밀착 모멘트",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060015772480_68922189d5fb5.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00248?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "올데이프로젝트 애니 '군살 제로 복부 드러내고 입국' ",
+    "company": "MK스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.9e077da9a2734f0a92c9ee82f2f0b5e9_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n31404?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "윤진이, 24시간 육아+살림하는 애둘맘 \"화장은 사치, 청소도 빨리 해야\"(진짜 윤진이)",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508060921166310_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n07855?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "[기자의 눈] \"혼인신고는 사생활\" 입장 회피한 정우성…30년 톱스타의 모순",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/06/5637112_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n15771?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "한진희, '백혈병 투병' 7살 손자 떠나보낸 아픔 \"촬영 마친 후 빈소로 향해\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000346500043911.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n36451?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "역시 신세경! 자신의 생일을 기념하는 날에 팬들에게 정성 가득한 '역조공' 해…",
+    "company": "스포츠서울",
+    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/06/news-p.v1.20250805.409022cffd61493f8d7a77006569b98e_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02221?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "배우들 구설이어 '스포'까지…'아이쇼핑' 마지막회 업로드 방송사고",
+    "company": "머니투데이",
+    "image": "https://news.nateimg.co.kr/orgImg/mt/2025/08/06/mt_1754433604754_3634_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n01728?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'한남동 60억 집주인' 키, LA서 입국하자마자 믹스매치 끝판왕…\"오늘 작정했어\"",
+    "company": "MK스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.5082a12d851d4837bb1cfa5a8111ca64_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250805n33234?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "정은혜♥조영남, 저소득층 장애인 임대주택서 새출발…\"지원금 2천만원\" (니얼굴)",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754404831053920.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00149?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "\"세상이 그리 싫었소?\" 故송영규, 오늘(6일) 발인…유족·동료 배웅 속 영면",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080701000367300045822.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n06218?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "정우성, 혼외자 둔 유부남?…깜짝 소식→문가비 SNS에 응원vs악플 [엑's 이슈]",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754433873955826.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03541?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'박수홍♥' 김다예 백화점서 포착, 33㎏ 감량 후 되찾은 미모",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051906556310_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n32840?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "고은별, 故 이선균 옆 송영규 생전사진 공개 \"이틀 전 통화했는데, 더 관심가져 줄 걸…\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080601000328000042381.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n31221?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'김태현♥' 미자, 갑작스러운 건강 이상에 눈물 펑펑 \"피에 검은 토까지\"",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060005770042_68921f77c5fbb.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00173?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "신세계 3세 애니, 母 정유경 사랑받는 타잔 질투? \"애교 많아 예뻐해\" (살롱드립2)",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051750111110_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n37487?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "'아이쇼핑' 아이들을 노리는 양부모vs또 사냥감이 된 아이들",
+    "company": "뉴스엔",
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508060742132410_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n03519?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "BTS 뷔, 이 근육 감당 가능? 태평양 어깨에 티셔츠 숨 못쉬네 [MD★스타]",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080516293609946_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00110?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "션, 초췌해진 얼굴로 의미심장 인사 \"그동안 감사했습니다\"",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000362400045401.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n04808?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "조수빈, 운동 후 적나라한 생얼 몰라 보겠네…\"먹는 걸 못 참아\"",
+    "company": "OSEN",
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060742772045_68928a0f4f9e6.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n03674?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "이수근, 가슴저린 부친상…\"유년기 단둘이 지낸 애틋한 아버지\"",
+    "company": "SBS연예뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/yy/2025/08/06/30001007426_700.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n06709?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "김희선, 19년 전 역대급 미모 공개…이진욱 \"신같은 존재\"",
+    "company": "스타뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/2025080520494640823_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n35517?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "되로 주고 말로 받은' 김준호, \"결혼식 왜 안 왔냐\"에 추성훈 \"왜 안 불렀어?\" 일침",
+    "company": "MK스포츠",
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/06/news-p.v1.20250806.f6693a5d7db445a4aad1e054b3f393f1_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n02615?sect=ent&list=rank&cate=interest"
 },
 {
     "title": "현봉식 \"S전자 설치 기사 교육 중 연기 흥미…진상 고객 상황극\"",
@@ -1140,136 +1680,34 @@
     "newsURL": "https://m.news.nate.com/view/20250805n35493?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "\"서프라이즈\" 김하영, 보컬트레이너와 9월 15일 결혼 발표",
-    "company": "티브이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/tv/2025/08/05/1754401497_1758478.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36599?sect=ent&list=rank&cate=interest"
+    "title": "정우성, 혼인신고 '맞다'·'아니다' 말도 못해…혹시 제작발표회 때? [홍세영의 어쩌다]",
+    "company": "스포츠동아",
+    "image": "https://news.nateimg.co.kr/orgImg/sd/2025/08/05/130512826.3.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n33916?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'연정훈♥' 한가인, 사대부가 숨결 깃든 한복 자태…'해품달' 그대로 시간 멈춘 듯",
-    "company": "MK스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.b1431755bf304cbd9e84b056777ce2cb_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n35325?sect=ent&list=rank&cate=interest"
+    "title": "홍진경 결혼 22년 만에 파경…\"이혼한 것 맞다\"",
+    "company": "노컷뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/cb/2025/08/06/202508061138337681_0.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16076?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "55세 김혜수, 어디든 '청룡' 만드는 드레스 자태…시간 멈춘 몸매에 감탄 절로",
+    "title": "박은혜, 전남편 따라 떠난 쌍둥이에 \"잘 커줘 고마워\" 역대급 생파 열었다",
     "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508050708532110_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02522?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/06/202508060612052110_1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n07381?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'첫, 사랑을 위하여' 염정아, 첫사랑 박해준과 재회…김민규, 최윤지 목숨 구했다 ",
+    "title": "신화 이민우, 아빠 된다…\"임신 중인 ♥예비신부=6살 딸 둔 싱글맘\" ",
     "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754398741051585.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36106?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754443149091132.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14539?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "김준호 \"내 결혼식 왜 안 왔냐\" 추궁에 추성훈 황당 \"왜 안 불렀어?\" (돌싱포맨)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052309571710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36834?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "김성주, 반려견에 집 내주는 보호자에 문화충격 \"정도껏 해야지 왜 저렇게 사냐\"(개늑시)",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508052115773108_68920443ebc92.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36330?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"아이가 제일 불쌍\"…정우성 아내, 혼외자 220만 원 양육비+훗날 재산싸움도 감내한 ♥[★FOCUS]",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/tn_1754377325424_64178_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n22482?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "구성환 사는 동네, 국가유공자 모인 곳이었다 \"父 베트남 참전 용사\"(나혼산)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051430216710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n21453?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "경찰에 테이저건 맞은 추성훈 \"근육 찢어지는 느낌\"(돌싱포맨)",
-    "company": "스포츠투데이",
-    "image": "https://news.nateimg.co.kr/orgImg/st/2025/08/05/05_1018829_22916.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36889?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "72년생 김성주, 강형욱 '13살 동생'이란 말에 화들짝 \"느낌은 형\"(개늑시)",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508052114774981_6891f8d6bc07c.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35468?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"죽음과 싸우는 중\"…김동성, 생활고 고백하더니 뜻밖에 전해진 충격 근황",
-    "company": "세계일보",
-    "image": "https://news.nateimg.co.kr/orgImg/sg/2025/08/05/20250805514593.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34895?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'송도맘' 현영, 신이 내린 각선미…\"합성 아니죠?\" 분분",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025080518262140763_l.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n31627?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'싱글맘' 조윤희, 이상형 밝혔다 \"부드러움, 강인함…두 카리스마 공존\"(개늑시)",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508052115771306_6891fd6dc1c49.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35889?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "조정석 옆 故송영규, 생전 이렇게 밝았는데…'행복의 나라' 홍보 때 다시 보니",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508051533773482_6891a8ad2fcfe.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n29331?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "김희선, 압구정서 '♥비밀 연애' 연예인 목격 \"누구라고 말은 안 하겠는데…\" (한끼합쇼)",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754395776375204.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35135?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'서프라이즈 김태희' 김하영, 진짜 결혼한다 \"돌고 돌아 만난 인연, 알콩달콩 살 것\"",
-    "company": "TV리포트",
-    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/3f969e44-422c-42b8-b721-dc4f8fa61250.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36103?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"재벌 1세 같아\" 홍진경, 브라이언 300평 평택 대저택에 감탄(이유있는건축)",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000340700043452.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35261?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "올데프 애니, 음방 1위에 테디 연락 기다렸다 \"축하한다 얘들아\" 감격 (살롱드립2)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051749591110_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31675?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'9세 연상 금융맨♥' 손연재, 확고한 둘째 출산 계획 \"내년쯤\"",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051211272510_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n16633?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "남보라, 이혼설 입열었다 \"소문은 소문일 뿐\"",
-    "company": "티브이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/tv/2025/08/05/051758415.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n20037?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "추성훈, 엄청난 부내…'연회비 500' 블랙카드에 억대 시계→현금 1500만원('돌싱포맨')",
-    "company": "스포츠한국",
-    "image": "https://news.nateimg.co.kr/orgImg/sh/2025/08/05/6906096_1155397_5626.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n37111?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "배우 정우성, 여자친구와 혼인신고 마쳤다",
-    "company": "마이데일리",
-    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/05/2025080500245884087_l.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n02400?sect=ent&list=rank&cate=interest"
+    "title": "추성훈, 블랙카드 공개…\"현금 1500만 원 들고 다녀\"",
+    "company": "뉴스1",
+    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7431079_high.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n36986?sect=ent&list=rank&cate=interest"
 },
 {
     "title": "'결혼' 김준호♥김지민, 수위 높은 신혼 일기까지…'미우새' 정체성까지 흔들 [엑's 이슈]",
@@ -1278,237 +1716,87 @@
     "newsURL": "https://m.news.nate.com/view/20250805n26083?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "애니, 신세계 회장 딸인데 연관검색어 똥 \"내 커리어\"→변비약 광고 욕심 (살롱드립2)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051750151110_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31359?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "서효림, 폭우 덮친 '가평집' 처참하네…\"어떻게 이래\" 망연자실 (효림&조이)",
+    "title": "\"원샷이 버릇\"…'세븐♥' 이다해, 다이어트 음료까지 해명 [★해시태그]",
     "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754393532581107.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34412?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754446831576214.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n14946?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'모솔연애' 하정목, 최커됐던 박지연과 결별 고백 \"미워하지 말아달라\"",
+    "title": "추성훈 \"日에서는 두 번은 이혼해야 남자…고로 나는 가짜 남자\"('돌싱포맨')",
+    "company": "헤럴드POP",
+    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/05/news-p.v1.20250805.d473f1bfd4744d5e942bb2d016237071_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n36850?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "홍진경, 결혼 22년 만에 합의 이혼",
+    "company": "비즈엔터",
+    "image": "https://news.nateimg.co.kr/orgImg/ez/2025/08/06/20240114133855_1974949_1200_1723.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n16712?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "강형욱 \"송중기와 동갑인데\"…김성주, 13살 동생이란 말에 '깜짝'",
     "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000301000038571.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n20722?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000354300044421.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02073?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'장동건♥' 고소영, 손흥민 경기장서 모자 푹 눌러쓰고 브이…\"레전드 응원합니다\"",
+    "title": "조윤희, '이동건과 이혼' 5년만 이상형 만났다…\"너무 떨려\" 소감 (개늑시)",
+    "company": "엑스포츠뉴스",
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754403035133726.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n00098?sect=ent&list=rank&cate=interest"
+},
+{
+    "title": "박주미, \"1번은 용서\"…바람도 넘어선 품격 뉴욕룩",
     "company": "MK스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/05/news-p.v1.20250805.2bc601d1d6a64d43b2fff7888d248b64_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28591?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/aa/2025/08/06/news-p.v1.20250806.3954ed08753041fc99499f9017842a3b_P1.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02301?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "정우성, 오랜 연인과 혼인신고…혼외자 상속은 어떻게?",
-    "company": "한국경제",
-    "image": "https://news.nateimg.co.kr/orgImg/hk/2025/08/05/01.41317712.1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n17819?sect=ent&list=rank&cate=interest"
+    "title": "'음주운전' 곽도원, 논란 3년만에 연극무대 복귀",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080607074590681_l.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02984?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'서프라이즈 걔' 김하영, 9월 결혼한다…\"서프라이즈 아님\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000338400043271.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34711?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "유연석 \"현봉식, 동갑인데 일어나서 인사+존댓말 쓰게 돼\" (틈만나면)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052132531710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35579?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'음주운전 자숙' 곽도원, 3년 만에 본업 복귀…연극으로 컴백",
+    "title": "이수근, ♥박지연 신장 재이식 앞두고 부친상…깊은 슬픔에도 웃음·힐링의 '뼈그맨' ",
     "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508051647770158_6891b9d79a263.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28143?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/06/202508060936773429_6892a80a1b920.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n10385?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "고소영, 손흥민 고별전서 포착…숨길 수 없는 여신 미모",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051336441910_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n18099?sect=ent&list=rank&cate=interest"
+    "title": "감춰야 했던 주근깨가 대세? 수지 이어 조이까지 '주근깨 메이크업' 열풍",
+    "company": "마이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/my/2025/08/06/2025080416251399688_l.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n02427?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'혼외자 출산' 정우성, 일반인 연인과 혼인신고 마쳤다…소속사 \"사생활 영역\" ",
-    "company": "스타뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/tn/2025/08/05/tn_1754350687718_314161_0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n03219?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "바비킴, '♥15살 연하' 아내 얼마나 미인이길래…\"너무 아름다워 말도 못 붙였다\" (라스)",
+    "title": "'상위1% 재력' 추성훈, ♥야노시호와 생활비 반반…\"수입 속인다\" 폭로 (돌싱포맨)",
     "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754367467375247.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n20263?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/06/1754437366834200.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n05435?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "이진욱, 파트너 정채연 서운하겠네 \"김희선 더 예뻐\" 돌직구 고백 (한끼합쇼)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052001441110_51.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35431?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'모태솔로지만' 노재윤, 모솔 탈출했다 \"아리가또\"",
-    "company": "셀럽미디어",
-    "image": "https://news.nateimg.co.kr/orgImg/ab/2025/08/05/05504547.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n19618?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"네가 뭔데\" 안보현, 욕 듣고도 지킨 임윤아 옆자리…'상의 탈의 無' 백수 변신 [엑's 이슈]",
+    "title": "소녀시대 수영, 유리 저격 \"어떡하자는 거야\"…'18주년'에 무슨 일? [★해시태그]",
     "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754359918753940.jpeg",
-    "newsURL": "https://m.news.nate.com/view/20250805n18910?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754372798498538.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n22627?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "염정아, 첫사랑 박해준과 재회 \"놀려도 소신껏 좋아해\" ('첫, 사랑을 위하여')",
-    "company": "TV리포트",
-    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/6bd1d65c-e31c-4a28-98c1-08f957e6abcb.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35569?sect=ent&list=rank&cate=interest"
+    "title": "이수근, 오늘(5일) 부친상",
+    "company": "티브이데일리",
+    "image": "https://news.nateimg.co.kr/orgImg/tv/2025/08/05/1754399234_14114017-d.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250805n36255?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'동상이몽2' 이재명♥김혜경 대통령 내외, '운명 부부 1호'로 '첫 예능 출연' 영상 공개",
-    "company": "SBS연예뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yy/2025/08/05/30001007221_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n03319?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"얼굴이 웰던\"…'♥이병헌' 이민정, 10살 아들 준후와 LA 일상 공개 ('MJ')",
-    "company": "OSEN",
-    "image": "https://news.nateimg.co.kr/orgImg/pt/2025/08/05/202508051846779822_6891d9b8cbea9.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n33119?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'이수근♥' 박지연, 신장 재이식 앞두고 눈물 펑펑…\"다 잘될 거니 걱정 말기\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000263000030571.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n01944?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "귀엽던 강미나, 마동석 손 잡더니 \"사냥개가 사냥하는 듯 액션\"(트웰브)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051649086710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n27953?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "뮤지컬배우 황만익, 故 송영규 비보에 애통 \"이러면 안 되는 거잖아\"",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051015366310_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n10334?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "故송영규, 영정사진 속 미소…남궁민→조정석·염정아 등 동료들의 근조화환 추모 [엑's 이슈]",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754373951564605.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n22563?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "현빈·류승룡·손석구…故송영규 빈소에 이어진 추모, 환한 미소 영정사진 '먹먹' ",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754375049506763.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n31151?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "김준호 결혼반지 공개, 탁재훈 빼앗아 끼고 \"안 빠져\" (돌싱포맨)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052301001710_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36718?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'동상이몽2' 이지혜, 운명 부부 90쌍 중 1쌍 이혼 소식에 \"확률이 1%도 안 돼\"",
-    "company": "SBS연예뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/yy/2025/08/05/30001007220_700.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n03434?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "김현정 \"세 달 만에 8㎏ 빼, 바나나 토마토→저지방 우유만 먹었다\"(두데)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508051219440310_1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n21057?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "이수근 오늘(5일) 부친상…소속사 \"장례 조용히 치를 예정\" ",
-    "company": "일간스포츠",
-    "image": "https://news.nateimg.co.kr/orgImg/is/2025/08/05/ispa7f42a66-dda2-48f3-baee-494af03054e0.800x.0.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36596?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'170cm 49kg' 한다감, 고혹 미모에 반전 글래머 인증",
-    "company": "스포츠서울",
-    "image": "https://news.nateimg.co.kr/orgImg/sp/2025/08/05/news-p.v1.20250805.df9b9eec04004094a702b0950c1a19c8_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n20080?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "한예슬 결혼 1년 만 남편 류성재에 당황 \"이거 맞나\"",
-    "company": "뉴시스",
-    "image": "https://news.nateimg.co.kr/orgImg/ns/2025/08/05/NISI20250805_0001911335_web.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n28816?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "임창정♥서하얀, 결혼반지 첫 공개 \"9년차 부부 금반지\"",
-    "company": "스포츠조선",
-    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/05/2025080501000327600042341.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32198?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "전현무, SNS 핫플 끝물 만든다 \"성수동 땅값 눌러놔야\"('이유 있는 건축')(종합)",
-    "company": "헤럴드POP",
-    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/05/news-p.v1.20250805.dbbd5f3469c14183adde9d516f7a1a6c_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n36256?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "박나래, '나혼산' 미장 두고 갑론을박…\"존경스럽다 vs 노동 소비 불편\"",
-    "company": "TV리포트",
-    "image": "https://news.nateimg.co.kr/orgImg/tr/2025/08/05/1a024607-75f2-4eb0-bf54-65645350a385.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n19360?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "올데프 애니 \"타잔 없으면 팀 분위기 차이 나\"…'살롱드립2' 출격",
-    "company": "뉴스1",
-    "image": "https://news.nateimg.co.kr/orgImg/na/2025/08/05/7430945_high.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n32039?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "류효영, 햇살 아래 수영복 자태…여름 감성 가득",
-    "company": "스포츠월드",
-    "image": "https://news.nateimg.co.kr/orgImg/sw/2025/08/05/20250805517932.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n34794?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "정채연, 예능 울렁증 얼마나 심하면 \"5시간 동안 입 안 열어\" (한끼합쇼)",
-    "company": "뉴스엔",
-    "image": "https://news.nateimg.co.kr/orgImg/nn/2025/08/05/202508052002001110_51.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35688?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "'혼외자 인정' 정우성, ♥혼인신고? \"모두를 위해 침묵 선택\" 문가비 만남 재조명 ",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754361290943219.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n22574?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "\"'걸그룹 성추행 의혹' 이용학 대표, 사과 없이 파렴치한 행태\"",
+    "title": "'22년만 이혼' 홍진경, 새출발 심경 \"시母는 발표 말렸지만…\"",
     "company": "스포츠경향",
-    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/05/news-p.v1.20250805.933d548ed9d347249c4035512e73f587_P1.png",
-    "newsURL": "https://m.news.nate.com/view/20250805n34287?sect=ent&list=rank&cate=interest"
+    "image": "https://news.nateimg.co.kr/orgImg/kz/2025/08/06/news-p.v1.20250806.9ea9b6db753447518b92acac0431fa7c_P1.png",
+    "newsURL": "https://m.news.nate.com/view/20250806n17026?sect=ent&list=rank&cate=interest"
 },
 {
-    "title": "'첫, 사랑을 위하여' 김민규, 바다에 빠진 최윤지 구했다",
-    "company": "엑스포츠뉴스",
-    "image": "https://news.nateimg.co.kr/orgImg/xs/2025/08/05/1754396950178894.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n35532?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "故 송영규, '아이쇼핑'서 쓸쓸한 퇴장…작품 남기고 떠났다",
-    "company": "스타in",
-    "image": "https://news.nateimg.co.kr/orgImg/es/2025/08/05/PS25080500073.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n06156?sect=ent&list=rank&cate=interest"
-},
-{
-    "title": "수지, 퇴폐미까지 생긴 국민첫사랑…예쁘다 말하기도 지쳐",
-    "company": "헤럴드POP",
-    "image": "https://news.nateimg.co.kr/orgImg/hm/2025/08/05/news-p.v1.20250805.b53de2412f594d5b9067a873c47231dc_P1.jpg",
-    "newsURL": "https://m.news.nate.com/view/20250805n30263?sect=ent&list=rank&cate=interest"
+    "title": "트와이스 정연, 49kg 돌아왔나…스테로이드 부작용 딛고 롤라팔루자 홀린 근황",
+    "company": "스포츠조선",
+    "image": "https://news.nateimg.co.kr/orgImg/sc/2025/08/06/2025080601000358400044661.jpg",
+    "newsURL": "https://m.news.nate.com/view/20250806n02434?sect=ent&list=rank&cate=interest"
 }
 ]
