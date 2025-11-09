@@ -1,0 +1,19 @@
+name: News
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # UTC 22:00 = 한국시간 오전 07:00
+  workflow_dispatch:  # 수동 실행 버튼도 활성화
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
+          delete_workflow_pattern: 'sub.yml'
