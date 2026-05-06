@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         # 개인 토큰을 사용할 것인지 말 것인지
-        persist-credentials: false 
+        persist-credentials: false
     - name: Upgrade pip
       run: python -m pip install --upgrade pip
     - name: apt-get update
