@@ -2,12 +2,17 @@ name: News
 
 on: # [push]
   schedule:
-    - cron: '55 19 * * *'	# 매일 04:55 실행 (UTC+9) [UTC기준 매일 19:55 실행시작]
-    # - cron: '55 23 31 2 6'	# 실행되지 않아야 하지만 ➡️ GitHub에서 2월중 토요일(6) 실행됨 / 마지막 * 면 계속 실행됨
+    - cron: '55 19 * * *'  # 매일 04:55 실행 (UTC+9) [UTC기준 매일 19:55 실행시작]
+    # - cron: '55 23 31 2 6'  # 실행되지 않아야 하지만 ➡️ GitHub에서 2월중 토요일(6) 실행됨 / 마지막 * 면 계속 실행됨
+
+concurrency:
+  group: news-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v5
       with:
@@ -17,7 +22,7 @@ jobs:
         submodules: true
     - name: Requirements
       run: |
-        git pull
+        git pull --ff-only
         git submodule update --remote --recursive
         cp -fp ./news/requirements.txt ./requirements.txt
         cp -fp ./news/config.json ./nate_news/nate_news/config.json
@@ -25,10 +30,15 @@ jobs:
       run: |
         git config --local user.email "hjpyooo@gmail.com"
         git config --local user.name "Jay"
-        if [ $(git status -s | wc -m) -eq 0 ]; then
+        git add -- news requirements.txt nate_news/nate_news/config.json
+        if git diff --cached --quiet; then
           echo "Nothing to commit, working tree clean"
+        elif [ "$(git log -1 --format=%B)" = "News" ]; then
+          echo "Amending the existing CI-generated News commit"
+          git commit --amend -m "News"
         else
-          git commit -am "News" --amend
+          echo "Preserving the non-CI tip and creating a new News commit"
+          git commit -m "News"
         fi
     - name: Push changes
       uses: ad-m/github-push-action@master

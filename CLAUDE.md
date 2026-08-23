@@ -79,10 +79,12 @@ Workflows in [.github/workflows/](.github/workflows/) are deliberately separated
 | File | Triggers | Role |
 | --- | --- | --- |
 | `main.yml` | cron `44 01,06,11,20 * * *` (4×/day) + `workflow_dispatch` | Run the spider, regenerate `nate_result.json` and `newsURL.json`, commit & push |
-| `sub.yml` | cron `55 19 * * *` (1×/day) | Pull submodule, copy `requirements.txt` and `config.json` into place, **`git commit --amend` + `force_with_lease` push** |
+| `sub.yml` | cron `55 19 * * *` (1×/day) | Pull submodule, copy `requirements.txt` and `config.json`, then amend an existing CI `News` tip or create a new `News` commit |
 | `side.yml` | cron `0 22 * * *` (1×/day) + `workflow_dispatch` | Delete `sub.yml` workflow run history via `Mattraks/delete-workflow-runs` |
 
-`sub.yml` amends rather than creating a new commit (this is why `side.yml` exists — to keep the run history clean since the amend leaves orphan runs). Do not change `sub.yml` to a normal commit without also updating `side.yml`.
+`main.yml` and `sub.yml` share the `news-${{ github.ref }}` concurrency group so repository-writing runs do not overlap. The `sub.yml` job is capped at 10 minutes so a stalled sync cannot hold that group indefinitely. It pulls with `--ff-only` and only amends when the complete tip commit message is exactly `News`, which identifies a CI-generated commit under this repository's commit convention. If a human-authored commit is the tip, it creates a new `News` commit instead of rewriting that history. The push remains `force_with_lease` because the CI-tip path still amends; a concurrent remote update therefore fails safely rather than being overwritten.
+
+`side.yml` does not join that concurrency group because it only deletes `sub.yml` workflow-run history and does not modify repository contents. Its cleanup job is independently capped at 10 minutes to prevent a stalled API action from consuming the default six-hour job allowance.
 
 ## Project-specific gotchas
 

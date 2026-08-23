@@ -8,6 +8,7 @@ on:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@v2
