@@ -7,6 +7,10 @@ on: # [push]
     - cron: '44 01,06,11,20 * * *'
     # - cron: '55 23 31 2 6'	# 실행되지 않아야 하지만 ➡️ GitHub에서 2월중 토요일(6) 실행됨 / 마지막 * 면 계속 실행됨
 
+concurrency:
+  group: news-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,143 +20,18 @@ jobs:
       with:
         # 개인 토큰을 사용할 것인지 말 것인지
         persist-credentials: false
-    - name: Upgrade pip
-      run: python -m pip install --upgrade pip
-    - name: apt-get update
+    - name: requirements
       timeout-minutes: 5
       run: |
-        sudo apt-get \
-          -o Acquire::Retries=3 \
-          -o Acquire::http::Timeout=30 \
-          -o Acquire::https::Timeout=30 \
-          update
-    - name: Defendency
-      timeout-minutes: 10
-      run: |
-        sudo apt-get install python3 python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libssl-dev
-    - name: requirements
-      run: |
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Verify static HTML crawl path
-      if: github.event_name == 'workflow_dispatch'
-      continue-on-error: true
-      timeout-minutes: 3
-      run: |
-        python3 - <<'PY'
-        from urllib.parse import urljoin
-        from urllib.request import Request, urlopen
-
-        from parsel import Selector
-
-        rank_pages = {
-            "sisa-1": "https://m.news.nate.com/rank/list?page=1",
-            "sisa-2": "https://m.news.nate.com/rank/list?page=2",
-            "spo-1": "https://m.news.nate.com/rank/list?section=spo",
-            "spo-2": "https://m.news.nate.com/rank/list?section=spo&page=2",
-            "ent-1": "https://m.news.nate.com/rank/list?section=ent",
-            "ent-2": "https://m.news.nate.com/rank/list?section=ent&page=2",
-        }
-        headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/151.0 Safari/537.36"
-            )
-        }
-
-        def fetch(url):
-            request = Request(url, headers=headers)
-            with urlopen(request, timeout=15) as response:
-                encoding = response.headers.get_content_charset() or "euc-kr"
-                return response.read().decode(encoding, "replace")
-
-        first_article = None
-        for page_name, page_url in rank_pages.items():
-            selector = Selector(text=fetch(page_url))
-            links = selector.css(
-                "#contents > div.rank_news > ol > li > a::attr(href)"
-            ).getall()
-            print(f"{page_name}: {len(links)} article links")
-            if len(links) < 45:
-                raise SystemExit(
-                    f"{page_name} exposed only {len(links)} article links in raw HTML"
-                )
-            if first_article is None:
-                first_article = urljoin(page_url, links[0])
-
-        article = Selector(text=fetch(first_article))
-        title = article.css("#artcTitle::text").get()
-        company = article.css(
-            "#contents > div.responsive_wrap > section.rwd_left > div > "
-            "header > div.medium > div > em > b::text"
-        ).get()
-        if not title or not company:
-            raise SystemExit(
-                "Raw article HTML is missing the title or company selector"
-            )
-        print(f"Raw article HTML verified: {title} | {company}")
-        PY
+        python -m pip install -r nate_news/requirements.txt
+        python -m pip check
     - name: Execution
       run: |
         git pull
         if [ -f nate_result.json ]; then rm -f nate_result.json; fi
+        if [ -f crawl_metrics.json ]; then rm -f crawl_metrics.json; fi
         scrapy crawl nate_news_rank
-        python3 - <<'PY'
-        import json
-        import sys
-        from collections import Counter
-        from urllib.parse import parse_qs, urlparse
-
-        with open("nate_result.json", encoding="utf-8") as result:
-            items = json.load(result)
-
-        if not isinstance(items, list):
-            print("Spider result is not a JSON list; failing before commit.")
-            sys.exit(1)
-
-        sections = Counter()
-        for item in items:
-            query = parse_qs(urlparse(item.get("newsURL", "")).query)
-            sections[query.get("sect", [""])[0]] += 1
-
-        minimum_total = 200
-        minimum_per_section = 51
-        required_sections = ("sisa", "spo", "ent")
-        print(f"Spider produced {len(items)} items: {dict(sections)}")
-
-        unexpected_sections = {
-            section: count
-            for section, count in sections.items()
-            if section not in required_sections
-        }
-        if unexpected_sections:
-            print(
-                f"Unexpected or missing section values: {unexpected_sections}; "
-                "failing before commit."
-            )
-            sys.exit(1)
-
-        if len(items) < minimum_total:
-            print(
-                f"Expected at least {minimum_total} items, got {len(items)}; "
-                "failing before commit."
-            )
-            sys.exit(1)
-
-        incomplete = [
-            section
-            for section in required_sections
-            if sections[section] < minimum_per_section
-        ]
-        if incomplete:
-            counts = ", ".join(
-                f"{section}={sections[section]}" for section in incomplete
-            )
-            print(
-                f"Expected at least {minimum_per_section} items per section; "
-                f"got {counts}. Failing before commit."
-            )
-            sys.exit(1)
-        PY
+        python3 validate_result.py nate_result.json crawl_metrics.json
         cp -fp nate_result.json ../newsURL.json
       working-directory: ./nate_news
     - name: Commit files

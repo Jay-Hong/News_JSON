@@ -4,42 +4,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project purpose
 
-Crawl Nate (네이트) mobile news rankings (politics + sports + entertainment, top 100 each) with Scrapy + Selenium and publish the result as JSON. GitHub Actions runs the crawler on a cron schedule and commits the updated JSON back to the repo so external consumers can read it as a static asset.
+Crawl Nate (네이트) mobile news rankings (politics + sports + entertainment, top 100 each) with Scrapy and publish the result as JSON. GitHub Actions runs the crawler on a cron schedule and commits the updated JSON back to the repo so external consumers can read it as a static asset.
 
 ## Common commands
 
-The single spider lives in [nate_news/](nate_news/) — the Scrapy project root where `scrapy.cfg` sits. `requirements.txt` is at the **repo root**, not inside the Scrapy project, so install from there.
+The single spider lives in [nate_news/](nate_news/) — the Scrapy project root where `scrapy.cfg` and the News-specific `requirements.txt` sit.
 
 ```bash
 # From repo root — install deps
-pip install -r requirements.txt
+pip install -r nate_news/requirements.txt
 
 # Then cd into the Scrapy project to run the spider
 cd nate_news
 
-# Run the only spider — writes to nate_result.json via FEED_URI in settings.py
+# Run the only spider — writes to nate_result.json via FEEDS in settings.py
 scrapy crawl nate_news_rank
 
-# Run with verbose log to debug Selenium / selectors
+# Run with verbose log to debug requests / selectors
 scrapy crawl nate_news_rank -L DEBUG
 ```
 
-There is no test suite, no linter config, and no build step. Selenium drives a real headless Chrome — `webdriver_manager` downloads the matching driver on first run, so the first invocation needs network access.
+There is no test suite, no linter config, and no build step. The spider reads Nate's server-rendered EUC-KR HTML directly through Scrapy; no browser or ChromeDriver is used.
 
 ## Architecture
 
-### Hybrid Scrapy + Selenium design
+### Sequential Scrapy design
 
-The spider [nate_news/nate_news/spiders/nate_news_rank.py](nate_news/nate_news/spiders/nate_news_rank.py) is unusual. Scrapy still performs the **initial fetch** of `start_urls` through its own downloader, but inside `parse(self, response)` the `response` body is discarded — only `response.url` is used as a seed. All real page navigation is done by a Selenium `webdriver.Chrome` instantiated in `__init__`, hitting six hard-coded ranking pages.
+The spider [nate_news/nate_news/spiders/nate_news_rank.py](nate_news/nate_news/spiders/nate_news_rank.py) requests six hard-coded ranking pages in this order: politics page 1/2, sports page 1/2, entertainment page 1/2. It collects links in DOM order, then requests one article at a time. Each callback schedules only the next request, and [settings.py](nate_news/nate_news/settings.py) keeps downloader concurrency at one.
 
-Scrapy initializes its downloader middleware before sending that initial request. During this startup, `RetryMiddleware` resolves its configured exception classes; loading the HTTP/1.1 tunnel handler also imports Scrapy's TLS modules and `service_identity`. An incompatible dependency in this import chain can therefore stop the spider before any request is sent, even when `start_urls` is empty.
+The sequential chain is intentional. It preserves ranking order in the JSON feed and preserves the `DuplicatesPipeline` rule that the first occurrence of a title wins. Exact duplicate requests use `dont_filter=True` so Scrapy's duplicate filter cannot break the callback chain before the title-based pipeline sees them.
 
-Net effect: the data the spider yields comes from Selenium, not from Scrapy's response. Scrapy is kept for the Item / Pipeline / FeedExporter machinery and for that one initial request.
+Scrapy handles download timeouts and transport/HTTP retries. A ranking-page request or selector failure closes the spider and produces incomplete metrics, while an article failure is recorded and the chain continues with the next article. Title or company selector misses receive one explicit parse retry.
 
-Implications:
-
-- Editing `start_urls` only changes which URL receives that single Scrapy fetch (whose body is unused). To change crawl targets, edit the `self.driver.get(...)` calls inside `parse()`.
-- `DOWNLOAD_DELAY` and downloader middlewares affect only that single initial request — they do not throttle or modify the Selenium-driven traffic.
+The spider writes `crawl_metrics.json` on close. CI compares the final section counts and URL order with the links discovered during that same run, rejects pipeline errors, requires at least 90% coverage, and only publishes after all six ranking pages completed successfully.
 
 ### Per-article fallback chain
 
@@ -52,17 +49,17 @@ Defined in [nate_news/nate_news/pipelines.py](nate_news/nate_news/pipelines.py),
 1. `NateNewsPipeline` (300) — drops items with empty `title` or `newsURL`.
 2. `DuplicatesPipeline` (400) — drops items whose `title` was already seen.
 
-Note the dedup block at [nate_news_rank.py:106-107](nate_news/nate_news/spiders/nate_news_rank.py#L106-L107) (`newsURL_set = newsURL_list; newsURL_list = newsURL_set`) is a no-op — it does **not** convert to a `set`. Actual dedup happens in `DuplicatesPipeline` by title. Don't "fix" the spider-side block without checking the pipeline still does the work you expect.
+The spider intentionally sends exact duplicate URLs with `dont_filter=True`. Actual dedup happens in `DuplicatesPipeline` by title, and the sequential request chain makes the first ranking occurrence win deterministically.
 
 ### Two-track data flow
 
 ```text
-[m.news.nate.com] → Selenium → Spider → Pipelines → nate_news/nate_result.json
-                                                             │
-                                                             └─ (CI) cp → newsURL.json (repo root)
+[m.news.nate.com] → Scrapy Spider → Pipelines → nate_news/nate_result.json
+                          │                              │
+                          └─ crawl_metrics.json          └─ (CI) cp → newsURL.json
 ```
 
-`nate_result.json` (CI output, inside the Scrapy project) and `newsURL.json` (repo root) are intentionally separate files — the workflow copies one to the other so external consumers can hit a stable path at the repo root.
+`nate_result.json` (CI output, inside the Scrapy project) and `newsURL.json` (repo root) are intentionally separate files — the workflow copies one to the other so external consumers can hit a stable path at the repo root. `crawl_metrics.json` is a transient CI validation file and is not committed.
 
 ### Configuration sourced from a submodule
 
@@ -72,6 +69,8 @@ Note the dedup block at [nate_news_rank.py:106-107](nate_news/nate_news/spiders/
 - `news/config.json` → copied to `nate_news/nate_news/config.json`
 
 This means **editing `requirements.txt` or `nate_news/nate_news/config.json` directly will be overwritten on the next `sub.yml` run**. To make those changes stick, update them in the submodule repo first.
+
+The repo-root shared requirements currently still include `selenium` and `webdriver_manager` for the submodule repository, but `main.yml` deliberately installs [nate_news/requirements.txt](nate_news/requirements.txt) instead. News_JSON therefore no longer installs, imports, or uses the browser packages. Keep these two dependency files distinct unless the cross-repository sync design is changed.
 
 ### Three-workflow CI split
 
@@ -88,6 +87,8 @@ Workflows in [.github/workflows/](.github/workflows/) are deliberately separated
 ## Project-specific gotchas
 
 - **`ROBOTSTXT_OBEY = False`** in settings.py is intentional for this target site; do not flip it without checking the deploy scenario.
+- **Keep the request chain sequential** — `CONCURRENT_REQUESTS`, `CONCURRENT_REQUESTS_PER_DOMAIN`, and `CONCURRENT_ITEMS` are all one so feed order and title-dedup first-wins behavior stay deterministic.
+- **Do not publish without `crawl_metrics.json` validation** — CI requires all six source pages, 1–50 links per page with at least 45 on each first page, at least 51 links per section and 200 overall, zero pipeline errors, preserved URL order, and 90% coverage against that run's discovered links. Second pages may be naturally short in dawn runs, so their dynamic discovery count remains the coverage baseline.
 - **`config.json` is ~285KB** and large diffs in it are normal (it is regenerated by the submodule). Don't review it line-by-line.
 - **Do not force-install old `pyOpenSSL` / `cryptography` versions after [requirements.txt](requirements.txt)** — doing so can invalidate the dependency set that pip just resolved. In August 2026, this caused Scrapy 2.18.0 to be combined with incompatible `pyOpenSSL==24.2.1` and `cryptography==43.0.3` versions. If constraints become necessary, resolve the complete dependency set in one install operation and verify it with `python -m pip check`.
 - **Commit messages**: CI-generated commits are literally `"News"` (set inside [main.yml](.github/workflows/main.yml)). Human-authored commits use the `<type>: <subject>` form (`fix:`, `chore:`, `docs:` …) per the user's global commit convention. Keep the two distinct so `git log` stays readable.
