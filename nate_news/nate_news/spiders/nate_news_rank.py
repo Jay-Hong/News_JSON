@@ -57,9 +57,12 @@ class NateNewsRankSpider(scrapy.Spider):
     # from Nate. Local outcomes such as IgnoreRequest, cancellation, an
     # unsupported scheme, an aborted connect attempt (twisted UserError), or a
     # local bind failure are deliberately excluded so they cannot open the
-    # circuit breaker. The twisted entries are concrete transport errors that
-    # Scrapy's wrap_twisted_exceptions() passes through unwrapped; the
-    # ConnectError base class is avoided because it also covers local errors.
+    # circuit breaker. The twisted entries are concrete transport errors:
+    # TCPTimedOutError, NoRouteError, SSLError and ConnectionLost pass through
+    # Scrapy's wrap_twisted_exceptions() unwrapped, while TimeoutError and
+    # ConnectionRefusedError are normally converted by it and are listed only
+    # in case a raw one reaches the errback. The ConnectError base class is
+    # avoided because it also covers local errors.
     TRANSPORT_FAILURES = (
         DownloadTimeoutError,
         DownloadConnectionRefusedError,
