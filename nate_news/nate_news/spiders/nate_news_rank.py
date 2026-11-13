@@ -6,7 +6,15 @@ from urllib.parse import parse_qs, urlparse
 
 import scrapy
 from scrapy import signals
-from scrapy.exceptions import CloseSpider
+from scrapy.exceptions import (
+    CannotResolveHostError,
+    CloseSpider,
+    DownloadConnectionRefusedError,
+    DownloadFailedError,
+    DownloadTimeoutError,
+    ResponseDataLossError,
+)
+from twisted.internet import error as twisted_error
 
 from nate_news.items import NateNewsItem
 
@@ -45,6 +53,29 @@ class NateNewsRankSpider(scrapy.Spider):
         "#one_content_img > a > img",
     )
 
+    # Download failures that left the spider without a complete HTTP response
+    # from Nate. Local outcomes such as IgnoreRequest, cancellation, an
+    # unsupported scheme, an aborted connect attempt (twisted UserError), or a
+    # local bind failure are deliberately excluded so they cannot open the
+    # circuit breaker. The twisted entries are concrete transport errors that
+    # Scrapy's wrap_twisted_exceptions() passes through unwrapped; the
+    # ConnectError base class is avoided because it also covers local errors.
+    TRANSPORT_FAILURES = (
+        DownloadTimeoutError,
+        DownloadConnectionRefusedError,
+        CannotResolveHostError,
+        DownloadFailedError,
+        ResponseDataLossError,
+        twisted_error.TimeoutError,
+        twisted_error.TCPTimedOutError,
+        twisted_error.ConnectionRefusedError,
+        twisted_error.NoRouteError,
+        twisted_error.SSLError,
+        twisted_error.ConnectionLost,
+    )
+    DEFAULT_TRANSPORT_FAILURE_LIMIT = 3
+    TRANSPORT_FAILURE_LIMIT_SETTING = "NATE_MAX_CONSECUTIVE_TRANSPORT_FAILURES"
+
     THUMBNAIL_PREFIX = re.compile(r"thumbnews\.nateimg\.co\.kr/view610///")
     SQUARE_BRACKET_PREFIX = re.compile(
         r"\[[ㄱ-ㅣ가-힣A-Za-z0-9\t\n\r\f\v]+\]\s*"
@@ -59,15 +90,45 @@ class NateNewsRankSpider(scrapy.Spider):
         self.article_failures = 0
         self.article_items_yielded = 0
         self.next_article_index = 0
+        self.consecutive_transport_failures = 0
+        self.max_consecutive_transport_failures = 0
+        self.transport_failure_limit = self.DEFAULT_TRANSPORT_FAILURE_LIMIT
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
+        spider.transport_failure_limit = cls._read_transport_failure_limit(
+            crawler.settings
+        )
         crawler.signals.connect(
             spider._record_item_error,
             signal=signals.item_error,
         )
+        # response_downloaded fires before RetryMiddleware sees the response,
+        # so an HTTP 5xx that is later retried still proves Nate answered.
+        crawler.signals.connect(
+            spider._record_article_response,
+            signal=signals.response_downloaded,
+        )
         return spider
+
+    @classmethod
+    def _read_transport_failure_limit(cls, settings):
+        # settings.getint() would silently turn 1.5 or True into 1, so validate
+        # the raw value: a positive int, or a digit string from `-s KEY=VALUE`.
+        raw = settings.get(
+            cls.TRANSPORT_FAILURE_LIMIT_SETTING,
+            cls.DEFAULT_TRANSPORT_FAILURE_LIMIT,
+        )
+        value = raw
+        if isinstance(value, str) and re.fullmatch(r"[0-9]+", value):
+            value = int(value)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+            raise ValueError(
+                f"{cls.TRANSPORT_FAILURE_LIMIT_SETTING} must be a positive "
+                f"integer, got {raw!r}"
+            )
+        return value
 
     async def start(self):
         yield self._rank_request(0)
@@ -239,9 +300,29 @@ class NateNewsRankSpider(scrapy.Spider):
             repr(failure.value),
         )
 
+        if failure.check(*self.TRANSPORT_FAILURES):
+            self.consecutive_transport_failures += 1
+            self.max_consecutive_transport_failures = max(
+                self.max_consecutive_transport_failures,
+                self.consecutive_transport_failures,
+            )
+            # Checked before scheduling the next article so that reaching the
+            # limit on the final article still ends with a non-finished reason.
+            if self.consecutive_transport_failures >= self.transport_failure_limit:
+                raise CloseSpider(
+                    reason=(
+                        "article_transport_failures:"
+                        f"{self.consecutive_transport_failures}"
+                    )
+                )
+
         next_request = self._next_article_request()
         if next_request is not None:
             yield next_request
+
+    def _record_article_response(self, response, request, spider):
+        if "nate_article" in request.meta:
+            self.consecutive_transport_failures = 0
 
     @staticmethod
     def _extract_text(response, selector):
@@ -294,6 +375,10 @@ class NateNewsRankSpider(scrapy.Spider):
             "article_parse_retries": stats.get_value(
                 "nate/article_parse_retries", 0
             ),
+            "max_consecutive_transport_failures": (
+                self.max_consecutive_transport_failures
+            ),
+            "transport_failure_limit": self.transport_failure_limit,
         }
         metrics_path = Path(
             self.crawler.settings.get(
@@ -307,7 +392,8 @@ class NateNewsRankSpider(scrapy.Spider):
         )
         self.logger.info(
             "Crawl metrics written to %s: discovered=%d, yielded=%d, "
-            "scraped=%d, dropped=%d, item_errors=%d, article_failures=%d",
+            "scraped=%d, dropped=%d, item_errors=%d, article_failures=%d, "
+            "max_consecutive_transport_failures=%d/%d",
             metrics_path,
             metrics["articles_discovered"],
             metrics["article_items_yielded"],
@@ -315,4 +401,6 @@ class NateNewsRankSpider(scrapy.Spider):
             metrics["item_dropped_count"],
             metrics["item_error_count"],
             metrics["article_failures"],
+            metrics["max_consecutive_transport_failures"],
+            metrics["transport_failure_limit"],
         )

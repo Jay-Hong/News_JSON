@@ -26,6 +26,7 @@ jobs:
         python -m pip install -r nate_news/requirements.txt
         python -m pip check
     - name: Execution
+      id: execution
       run: |
         git pull
         if [ -f nate_result.json ]; then rm -f nate_result.json; fi
@@ -34,6 +35,30 @@ jobs:
         python3 validate_result.py nate_result.json crawl_metrics.json
         cp -fp nate_result.json ../newsURL.json
       working-directory: ./nate_news
+    - name: Network diagnostics
+      # Only when the Execution step failed (git pull, crawl, validation, or
+      # copy), so a dependency-install failure never sends extra requests to
+      # Nate. No `-e`: every probe runs even if an earlier one fails, and the
+      # job is already failing anyway.
+      if: failure() && steps.execution.outcome == 'failure'
+      timeout-minutes: 2
+      working-directory: ./nate_news
+      shell: bash {0}
+      run: |
+        url="https://m.news.nate.com/rank/list?page=1"
+        ua="$(python3 -c 'from nate_news.settings import USER_AGENT; print(USER_AGENT)')"
+        fmt='code=%{http_code} ip=%{remote_ip} dns=%{time_namelookup} connect=%{time_connect} tls=%{time_appconnect} ttfb=%{time_starttransfer} total=%{time_total}\n'
+        echo "nate probe start: $(date -u +%FT%TZ)"
+        curl -sS -o /dev/null --http1.1 --max-time 20 -A "$ua" -w "nate: $fmt" "$url"
+        echo "nate curl exit=$? end: $(date -u +%FT%TZ)"
+        curl -sS -o /dev/null --max-time 20 -w "github (control): $fmt" https://github.com
+        echo "github curl exit=$?"
+        timeout 10 getent hosts m.news.nate.com
+        echo "getent exit=$?"
+        echo "runner public IP: $(curl -sS --max-time 5 https://checkip.amazonaws.com)"
+        if [ -f crawl_metrics.json ]; then
+          python3 -c 'import json; m = json.load(open("crawl_metrics.json")); print({k: m.get(k) for k in ("close_reason", "rank_pages_completed", "articles_discovered", "article_items_yielded", "article_failures", "max_consecutive_transport_failures", "transport_failure_limit")})'
+        fi
     - name: Commit files
       run: |
         git config --local user.email "hjpyooo@gmail.com"

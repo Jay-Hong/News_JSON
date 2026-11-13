@@ -31,7 +31,12 @@ CONCURRENT_ITEMS = 1
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0.5
+# Since 2026-10-23, crawls from GitHub-hosted runners at ~100 requests/min have
+# hit persistent download/connection timeouts after 11-95 s of normal
+# responses and never recovered within a run. 2.0 (randomized to 1.0-3.0 s
+# between request starts) is an experimental value, not a known threshold;
+# revisit it with the CI diagnostics after several runs.
+DOWNLOAD_DELAY = 2.0
 RANDOMIZE_DOWNLOAD_DELAY = True
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -41,6 +46,11 @@ CLOSESPIDER_TIMEOUT = 35 * 60
 RETRY_ENABLED = True
 RETRY_TIMES = 2
 RETRY_HTTP_CODES = [408, 429, 500, 502, 503, 504, 522, 524]
+# Close the spider once this many articles in a row end in a transport failure
+# after retries. Once these timeouts start, no run has ever recovered, so
+# waiting for CLOSESPIDER_TIMEOUT only adds ~30 minutes of failing retries.
+# Must be a positive integer; the spider rejects anything else at startup.
+NATE_MAX_CONSECUTIVE_TRANSPORT_FAILURES = 3
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
