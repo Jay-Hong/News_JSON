@@ -13,7 +13,9 @@
 
       launchctl bootout gui/$(id -u)/local.newsjson.publish
 
-  Times are local time and mirror main.yml (05:44, 10:44, 15:44, 20:44 KST).
+  Times are local time (05:44, 10:44, 15:44, 20:44 KST). main.yml runs one hour
+  after each of them as a fallback, and tools/freshness_gate.py lists the same
+  four times.
   A run missed while the Mac slept starts once on wake; a run missed while it
   was powered off or logged out is skipped. caffeinate -i only holds off idle
   sleep while a run is in progress; closing the lid still suspends it, and a

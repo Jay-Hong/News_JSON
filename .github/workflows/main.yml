@@ -1,11 +1,32 @@
 name:  News
 
+# Fallback collector. The local publisher (tools/local_publish.py) is the
+# primary source and runs at 05:44, 10:44, 15:44 and 20:44 KST. This workflow
+# runs an hour after each of those slots and does nothing when that slot was
+# already published. Otherwise it runs the degraded fallback crawl, because
+# GitHub-hosted runners lose access to Nate partway through a full crawl.
 on: # [push]
   workflow_dispatch:
+    inputs:
+      ignore_gate:
+        description: 'Crawl even if the due slot was already published (such a run never publishes)'
+        type: boolean
+        default: false
+      publish:
+        description: 'Commit and push a validated result'
+        type: boolean
+        default: true
+      max_article_requests:
+        description: 'Upper limit on article page requests (empty = every missing one)'
+        type: string
+        default: ''
   schedule:
-    # 매일 06, 11, 16, 21 시 16분 전 (UTC+9) [UTC기준 매일 21, 02, 07, 12 시 16분 전]
-    - cron: '44 01,06,11,20 * * *'
+    # 매일 06, 11, 16, 21 시 44분 (UTC+9) [UTC기준 매일 21, 02, 07, 12 시 44분] — 로컬 게시 슬롯 1시간 뒤
+    - cron: '44 02,07,12,21 * * *'
     # - cron: '55 23 31 2 6'	# 실행되지 않아야 하지만 ➡️ GitHub에서 2월중 토요일(6) 실행됨 / 마지막 * 면 계속 실행됨
+
+permissions:
+  contents: write
 
 concurrency:
   group: news-${{ github.ref }}
@@ -14,37 +35,87 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v5
       with:
         # 개인 토큰을 사용할 것인지 말 것인지
         persist-credentials: false
+    - name: Freshness gate
+      id: gate
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        IGNORE_GATE: ${{ inputs.ignore_gate }}
+      run: |
+        git pull --ff-only
+        base="$(git rev-parse HEAD)"
+        echo "base=$base" >> "$GITHUB_OUTPUT"
+        # Ask for history starting at the commit this run is based on, so a
+        # publish that lands later cannot be mistaken for the data in this
+        # checkout. Any error here stops the run: unknown is not fresh.
+        last="$(gh api "repos/$GITHUB_REPOSITORY/commits?sha=$base&path=newsURL.json&per_page=1" --jq '.[0].commit.author.date')" \
+          || { echo "gate_unknown: the GitHub API did not return the last data commit"; exit 1; }
+        # Exits 2 with gate_unknown on an unusable or future date.
+        decision="$(python3 tools/freshness_gate.py --last "$last")"
+        if [ "$IGNORE_GATE" = "true" ]; then
+          echo "gate ignored by workflow_dispatch input (decision was: $decision)"
+          decision="stale=true"
+        fi
+        echo "$decision" >> "$GITHUB_OUTPUT"
+        echo "freshness gate: $decision (base $base, last data commit $last)" >> "$GITHUB_STEP_SUMMARY"
     - name: requirements
+      if: steps.gate.outputs.stale == 'true'
       timeout-minutes: 5
       run: |
         python -m pip install -r nate_news/requirements.txt
         python -m pip check
     - name: Execution
       id: execution
+      if: steps.gate.outputs.stale == 'true'
+      shell: bash
+      env:
+        MAX_ARTICLE_REQUESTS: ${{ inputs.max_article_requests }}
       run: |
-        git pull
-        if [ -f nate_result.json ]; then rm -f nate_result.json; fi
+        run_id="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+        snapshot="$RUNNER_TEMP/fallback_snapshot_${run_id}.json"
+        result="$RUNNER_TEMP/nate_result_${run_id}.json"
         if [ -f crawl_metrics.json ]; then rm -f crawl_metrics.json; fi
-        scrapy crawl nate_news_rank
-        python3 validate_result.py nate_result.json crawl_metrics.json
+        cap=()
+        if [ -n "$MAX_ARTICLE_REQUESTS" ]; then
+          cap=(-s "NATE_FALLBACK_MAX_ARTICLE_REQUESTS=$MAX_ARTICLE_REQUESTS")
+        fi
+        scrapy crawl nate_news_fallback \
+          -s "NATE_FALLBACK_RUN_ID=$run_id" \
+          -s "NATE_FALLBACK_SNAPSHOT_PATH=$snapshot" \
+          -s "NATE_FALLBACK_PREVIOUS_PATH=../newsURL.json" \
+          "${cap[@]}"
+        python3 -m nate_news.fallback --snapshot "$snapshot" --previous ../newsURL.json \
+          --run-id "$run_id" --out "$result" --metrics crawl_metrics.json | tee -a "$GITHUB_STEP_SUMMARY"
+        python3 validate_result.py --mode fallback "$result" crawl_metrics.json
+        cp -f "$result" nate_result.json
         cp -fp nate_result.json ../newsURL.json
       working-directory: ./nate_news
     - name: Network diagnostics
-      # Only when the Execution step failed (git pull, crawl, validation, or
-      # copy), so a dependency-install failure never sends extra requests to
-      # Nate. No `-e`: every probe runs even if an earlier one fails, and the
-      # job is already failing anyway.
+      # Only when a ranking page request got no answer at all (a transport
+      # failure). That is the one failure a network probe explains, and by
+      # then the crawl has sent at most six requests, so the single probe
+      # below stays inside the request budget. A refusal (403/429), any other
+      # HTTP error, a short ranking page or a failed validation sends nothing
+      # more to Nate. No `-e`: every probe runs even if an earlier one fails,
+      # and the job is already failing anyway.
       if: failure() && steps.execution.outcome == 'failure'
       timeout-minutes: 2
       working-directory: ./nate_news
       shell: bash {0}
       run: |
+        snapshot="$RUNNER_TEMP/fallback_snapshot_${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+        reason="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1])).get("close_reason", ""))' "$snapshot" 2>/dev/null)"
+        echo "fallback close reason: ${reason:-unknown (no snapshot)}"
+        case "$reason" in
+          rank_page_transport_failed:*) ;;
+          *) echo "no network probe for this failure"; exit 0 ;;
+        esac
         url="https://m.news.nate.com/rank/list?page=1"
         ua="$(python3 -c 'from nate_news.settings import USER_AGENT; print(USER_AGENT)')"
         fmt='code=%{http_code} ip=%{remote_ip} dns=%{time_namelookup} connect=%{time_connect} tls=%{time_appconnect} ttfb=%{time_starttransfer} total=%{time_total}\n'
@@ -56,21 +127,56 @@ jobs:
         timeout 10 getent hosts m.news.nate.com
         echo "getent exit=$?"
         echo "runner public IP: $(curl -sS --max-time 5 https://checkip.amazonaws.com)"
-        if [ -f crawl_metrics.json ]; then
-          python3 -c 'import json; m = json.load(open("crawl_metrics.json")); print({k: m.get(k) for k in ("close_reason", "rank_pages_completed", "articles_discovered", "article_items_yielded", "article_failures", "max_consecutive_transport_failures", "transport_failure_limit")})'
-        fi
+    - name: Keep the crawl record
+      if: always() && steps.gate.outputs.stale == 'true'
+      # A failed upload must not discard a validated result.
+      continue-on-error: true
+      uses: actions/upload-artifact@v7
+      with:
+        name: fallback-crawl
+        path: |
+          ${{ runner.temp }}/fallback_snapshot_*.json
+          nate_news/crawl_metrics.json
+        retention-days: 7
+        if-no-files-found: ignore
     - name: Commit files
+      id: commit
+      # Never from a test branch, never when the run was asked not to, and
+      # never when the gate was ignored: that would put a degraded result on
+      # top of a slot that was already published.
+      if: >-
+        steps.gate.outputs.stale == 'true'
+        && github.ref == 'refs/heads/master'
+        && (github.event_name != 'workflow_dispatch' || (inputs.publish && !inputs.ignore_gate))
+      shell: bash
+      env:
+        BASE: ${{ steps.gate.outputs.base }}
       run: |
         git config --local user.email "hjpyooo@gmail.com"
         git config --local user.name "Jay"
         if git diff --quiet -- nate_news/nate_result.json newsURL.json; then
           echo "Nothing to commit, working tree clean"
-        else
-          git add nate_news/nate_result.json newsURL.json
-          git commit -m "News"
+          echo "push=false" >> "$GITHUB_OUTPUT"
+          exit 0
         fi
-        git pull --rebase
+        git add nate_news/nate_result.json newsURL.json
+        git commit -m "News"
+        # This result was built on $BASE. If the branch moved since then,
+        # someone published in the meantime (normally the local publisher,
+        # with complete data), so this degraded result is dropped instead of
+        # being rebased on top of theirs.
+        tip="$(git ls-remote origin "$GITHUB_REF" | cut -f1)"
+        if [ "$tip" = "$BASE" ]; then
+          echo "push=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "remote moved from $BASE to ${tip:-unknown}; dropping this result"
+          echo "remote moved during the fallback crawl; result dropped" >> "$GITHUB_STEP_SUMMARY"
+          echo "push=false" >> "$GITHUB_OUTPUT"
+        fi
     - name: Push changes
+      if: steps.commit.outputs.push == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        # Same branch the tip check above compared with; never forced.
+        branch: master
