@@ -637,7 +637,32 @@ class LocalPublishTest(unittest.TestCase):
         for name in ("PYTHONPATH", "PIP_INDEX_URL", "SCRAPY_SETTINGS_MODULE", "GIT_DIR"):
             self.assertNotIn(name, environment)
         self.assertEqual(environment["GIT_TERMINAL_PROMPT"], "0")
-        self.assertIn("PYTHONPYCACHEPREFIX", environment)
+        # pip compiles into PYTHONPYCACHEPREFIX, so only pinned-code processes get it.
+        self.assertNotIn("PYTHONPYCACHEPREFIX", environment)
+        run_dir = self.state / "runs" / "x"
+        pinned = local_publish.Publisher(self.state).pinned_code_env(run_dir)
+        self.assertEqual(Path(pinned["PYTHONPYCACHEPREFIX"]).parent, run_dir)
+
+    def test_stale_bytecode_in_the_checkout_is_never_imported(self):
+        # A git-ignored __pycache__ survives the cleanliness check; make sure
+        # the validator still runs from source. The planted .pyc would exit 0.
+        import py_compile
+        cache = self.state / "code" / "nate_news" / "__pycache__"
+        cache.mkdir()
+        (self.state / "code" / ".git" / "info" / "exclude").write_text("__pycache__/\n")
+        evil = self.tmp / "validate_result.py"
+        evil.write_text("print('Validation passed: forged')\n")
+        source = self.state / "code" / "nate_news" / "validate_result.py"
+        stat = source.stat()
+        os.utime(evil, (stat.st_atime, stat.st_mtime))
+        tag = sys.implementation.cache_tag
+        py_compile.compile(str(evil), cfile=str(cache / f"validate_result.{tag}.pyc"))
+        self.mode = "blocked"
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["reason"]), (1, "validation_failed"))
+        self.assertEqual(self.origin_tip(), self.pin)
+        for run_dir in (self.state / "runs").iterdir():
+            self.assertFalse((run_dir / "pycache-never-written").exists())
 
     def test_history_and_last_success_are_recorded(self):
         self.run_publisher()

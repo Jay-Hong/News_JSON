@@ -180,9 +180,18 @@ class Publisher:
         # Never block an unattended run on a credential or passphrase prompt.
         environment["GIT_TERMINAL_PROMPT"] = "0"
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
-        # Point bytecode lookups at a directory nothing writes to, so a stale
-        # (git-ignored) __pycache__ in the checkout can never be imported.
-        environment["PYTHONPYCACHEPREFIX"] = str(self.state_dir / "pycache-unused")
+        return environment
+
+    def pinned_code_env(self, run_dir):
+        """Environment for processes that import the pinned checkout.
+
+        Bytecode lookups go to a path inside this run's directory that is
+        never created, so a stale (git-ignored) __pycache__ in the checkout
+        cannot be imported. This is not applied to pip, which compiles the
+        packages it installs into whatever prefix is set.
+        """
+        environment = self.child_env()
+        environment["PYTHONPYCACHEPREFIX"] = str(run_dir / "pycache-never-written")
         return environment
 
     def git(self, cwd, *args, reason, check=True):
@@ -380,7 +389,7 @@ class Publisher:
     def crawl(self, run_dir):
         result = run_dir / "nate_result.json"
         metrics = run_dir / "crawl_metrics.json"
-        environment = self.child_env()
+        environment = self.pinned_code_env(run_dir)
         # Stream to the file so a timed-out crawl still leaves its log behind.
         with open(run_dir / "spider.log", "w", encoding="utf-8") as spider_log:
             try:
@@ -408,6 +417,7 @@ class Publisher:
             cwd=self.code_dir / "nate_news",
             timeout=120,
             reason="validation_failed",
+            env=self.pinned_code_env(result.parent),
             check=False,
         )
         summary = completed.stdout.strip().splitlines()[-1:] or [""]
