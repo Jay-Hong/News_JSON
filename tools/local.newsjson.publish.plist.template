@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  LaunchAgent template for tools/local_publish.py.
+
+  Replace every __STATE_DIR__ with the absolute state directory (for example
+  /Users/NAME/Library/Application Support/NewsJSON), save the result as
+  ~/Library/LaunchAgents/local.newsjson.publish.plist, then load it with:
+
+      launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.newsjson.publish.plist
+
+  Stop and remove it with:
+
+      launchctl bootout gui/$(id -u)/local.newsjson.publish
+
+  Times are local time and mirror main.yml (05:44, 10:44, 15:44, 20:44 KST).
+  A run missed while the Mac slept starts once on wake; a run missed while it
+  was powered off or logged out is skipped. No credentials belong in this
+  file: git uses the login keychain through the user's credential helper.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>local.newsjson.publish</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>__STATE_DIR__/venv/bin/python</string>
+        <string>__STATE_DIR__/code/tools/local_publish.py</string>
+        <string>--state-dir</string>
+        <string>__STATE_DIR__</string>
+        <string>run</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>44</integer></dict>
+        <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>44</integer></dict>
+        <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>44</integer></dict>
+        <dict><key>Hour</key><integer>20</integer><key>Minute</key><integer>44</integer></dict>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>RunAtLoad</key>
+    <false/>
+    <key>StandardOutPath</key>
+    <string>__STATE_DIR__/launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>__STATE_DIR__/launchd.log</string>
+</dict>
+</plist>

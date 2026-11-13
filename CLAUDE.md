@@ -24,7 +24,7 @@ scrapy crawl nate_news_rank
 scrapy crawl nate_news_rank -L DEBUG
 ```
 
-There is no test suite, no linter config, and no build step. The spider reads Nate's server-rendered EUC-KR HTML directly through Scrapy; no browser or ChromeDriver is used.
+The spider itself has no test suite, linter config, or build step; only the local publisher has offline tests (`python3 -m unittest discover -s tools -p 'test_local_publish.py'`, which use a local bare repository and a fake crawler and send nothing to Nate or GitHub). The spider reads Nate's server-rendered EUC-KR HTML directly through Scrapy; no browser or ChromeDriver is used.
 
 ## Architecture
 
@@ -90,6 +90,33 @@ When the `main.yml` Execution step fails (git pull, crawl, validation, or copy),
 
 `side.yml` does not join that concurrency group because it only deletes `sub.yml` workflow-run history and does not modify repository contents. Its cleanup job is independently capped at 10 minutes to prevent a stalled API action from consuming the default six-hour job allowance.
 
+### Local publisher (launchd)
+
+Because GitHub-hosted runners lose access to Nate mid-crawl, [tools/local_publish.py](tools/local_publish.py) can do the `main.yml` job from a local machine: crawl, run `validate_result.py`, and push one data commit. On 2026-11-13 the same code and settings collected 300/300 articles from a Korean residential connection while three GitHub runners were cut off after 9–24 responses.
+
+It runs from a state directory outside any working repository (default `~/Library/Application Support/NewsJSON`): `code/` is a detached checkout of one pinned, reviewed commit, `publish/` is a clean clone used only for the data commit, `venv/` holds the dependencies, and `runs/`, `state.json`, `history.jsonl` keep per-run output and outcomes. [tools/local.newsjson.publish.plist.template](tools/local.newsjson.publish.plist.template) is the LaunchAgent template (same KST times as `main.yml`).
+
+```bash
+python3 tools/local_publish.py init --sha <reviewed full SHA>   # clone, venv, record pin
+"$STATE/venv/bin/python" "$STATE/code/tools/local_publish.py" check-auth   # dry-run push
+"$STATE/venv/bin/python" "$STATE/code/tools/local_publish.py" run          # one cycle
+"$STATE/venv/bin/python" "$STATE/code/tools/local_publish.py" status
+python3 tools/local_publish.py repin --sha <new reviewed full SHA>
+```
+
+Rules the publisher enforces, and that changes to it must keep:
+
+- Nothing is pulled or installed during a run. The code checkout must equal the pin with no local changes, and `pip freeze --all` must match the fingerprint recorded at `init`/`repin` (a missing fingerprint is a configuration error). The fingerprint detects a changed package set; it does not prove the integrity of installed files.
+- `run`, `init`, and `repin` share one lock. `repin` builds the new venv beside the old one and switches code, venv, and fingerprint together; if a step raises an error, the previous combination is restored. A process killed in the middle of the switch is not covered, so rerun `repin` after such an interruption.
+- Compared with the pin, the remote tip may differ only in the two data files and the paths `sub.yml` syncs (`news`, `requirements.txt`, `nate_news/nate_news/config.json`), and the two data paths must be regular files (not symlinks). **Any other net difference between the pin and the remote tip, including a docs-only one, stops publishing with `remote_code_changed` until someone reviews it and runs `repin`.** The check compares the two trees, so a change that was later reverted is not detected.
+- Only validated output is published, as a single commit that touches exactly `nate_news/nate_result.json` and `newsURL.json`; identical data creates no commit.
+- If the remote branch moved while crawling, the run aborts with `remote_moved` instead of rebuilding on the new tip, so an older crawl never replaces a newer publish. The push is never forced.
+- One crawl per run and no automatic retry; a failed run waits for the next scheduled slot. Failures raise a macOS notification and are recorded in `state.json`.
+- Git authenticates through the user's existing credential helper. No token is written to the plist, the environment, or the state directory. `check-auth` is a dry-run push: it proves authentication, not that the server will accept a real push.
+- The LaunchAgent uses the machine's local time, so the template's 05:44/10:44/15:44/20:44 only match `main.yml` when the Mac's time zone is Asia/Seoul.
+
+The publisher's scheduled commits use the message `News`, like `main.yml`, because it replaces that CI job.
+
 ## Project-specific gotchas
 
 - **`ROBOTSTXT_OBEY = False`** in settings.py is intentional for this target site; do not flip it without checking the deploy scenario.
@@ -98,4 +125,4 @@ When the `main.yml` Execution step fails (git pull, crawl, validation, or copy),
 - **Do not publish without `crawl_metrics.json` validation** — CI requires all six source pages, 1–50 links per page with at least 45 on each first page, at least 51 links per section and 200 overall, zero pipeline errors, preserved URL order, and 90% coverage against that run's discovered links. Second pages may be naturally short in dawn runs, so their dynamic discovery count remains the coverage baseline.
 - **`config.json` is ~285KB** and large diffs in it are normal (it is regenerated by the submodule). Don't review it line-by-line.
 - **Do not force-install old `pyOpenSSL` / `cryptography` versions after [requirements.txt](requirements.txt)** — doing so can invalidate the dependency set that pip just resolved. In August 2026, this caused Scrapy 2.18.0 to be combined with incompatible `pyOpenSSL==24.2.1` and `cryptography==43.0.3` versions. If constraints become necessary, resolve the complete dependency set in one install operation and verify it with `python -m pip check`.
-- **Commit messages**: CI-generated commits are literally `"News"` (set inside [main.yml](.github/workflows/main.yml)). Human-authored commits use the `<type>: <subject>` form (`fix:`, `chore:`, `docs:` …) per the user's global commit convention. Keep the two distinct so `git log` stays readable.
+- **Commit messages**: automatically generated data commits are literally `"News"` — set inside [main.yml](.github/workflows/main.yml) and `sub.yml` for CI, and by [tools/local_publish.py](tools/local_publish.py) for the local scheduled publisher. Human-authored commits, including a manual data refresh, use the `<type>: <subject>` form (`fix:`, `chore:`, `docs:` …) per the user's global commit convention. Keep the two distinct so `git log` stays readable.
