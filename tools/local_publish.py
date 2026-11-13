@@ -41,8 +41,11 @@ import hashlib
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
+import time
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -63,6 +66,16 @@ ALLOWED_DRIFT = frozenset(DATA_FILES + SYNCED_PATHS)
 CRAWL_TIMEOUT_SECONDS = 40 * 60
 GIT_TIMEOUT_SECONDS = 120
 RUNS_TO_KEEP = 40
+# A run right after wake can start before the network is back.
+PREFLIGHT_FETCH_ATTEMPTS = 3
+PREFLIGHT_FETCH_WAIT_SECONDS = 20
+# time.monotonic() stops while a Mac sleeps; time.time() does not. A gap this
+# large between the two since the crawl began means the machine was suspended
+# (or the system clock was moved), so the ranking may be stale.
+MAX_SUSPENDED_SECONDS = 120
+# Inherited variables that could redirect git, Python, pip, or Scrapy away
+# from the pinned checkout and venv.
+STRIPPED_ENV_PREFIXES = ("GIT_", "PYTHON", "PIP_", "SCRAPY_")
 
 
 class Abort(Exception):
@@ -76,6 +89,23 @@ class Abort(Exception):
 
 def utc_now():
     return datetime.now(timezone.utc)
+
+
+@contextlib.contextmanager
+def deferred_interrupt():
+    """Hold Ctrl-C back until a multi-step switch has finished or rolled back."""
+    pending = []
+    try:
+        previous = signal.signal(signal.SIGINT, lambda signum, frame: pending.append(signum))
+    except ValueError:  # signals can only be handled from the main thread
+        yield
+        return
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGINT, previous)
+        if pending:
+            raise KeyboardInterrupt
 
 
 def is_hex(value, length):
@@ -103,6 +133,7 @@ class Publisher:
         self.lock_path = self.state_dir / "lock"
         self._log_handle = log
         self.config = {}
+        self._crawl_clock = None  # (wall, monotonic) at crawl start
 
     # -- small helpers -----------------------------------------------------
 
@@ -115,10 +146,7 @@ class Publisher:
 
     def run_command(self, args, *, cwd, timeout, reason, env=None, check=True):
         """Run a command, logging its output; raise Abort(reason) on failure."""
-        full_env = dict(os.environ)
-        # Never block an unattended run on a credential or passphrase prompt.
-        full_env["GIT_TERMINAL_PROMPT"] = "0"
-        full_env["PYTHONDONTWRITEBYTECODE"] = "1"
+        full_env = self.child_env()
         if env:
             full_env.update(env)
         try:
@@ -143,6 +171,19 @@ class Publisher:
                 + " | ".join(tail),
             )
         return completed
+
+    def child_env(self):
+        environment = {
+            key: value for key, value in os.environ.items()
+            if not key.startswith(STRIPPED_ENV_PREFIXES)
+        }
+        # Never block an unattended run on a credential or passphrase prompt.
+        environment["GIT_TERMINAL_PROMPT"] = "0"
+        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        # Point bytecode lookups at a directory nothing writes to, so a stale
+        # (git-ignored) __pycache__ in the checkout can never be imported.
+        environment["PYTHONPYCACHEPREFIX"] = str(self.state_dir / "pycache-unused")
+        return environment
 
     def git(self, cwd, *args, reason, check=True):
         return self.run_command(
@@ -209,19 +250,27 @@ class Publisher:
         expected = self.config["freeze_sha256"]
         actual = self.freeze_fingerprint(self.python)[1]
         if actual != expected:
-            raise Abort("dependency_drift", f"pip freeze {actual} != {expected}")
+            raise Abort("dependency_drift", f"fingerprint {actual} != {expected}")
 
-    def remote_tip(self):
+    def remote_tip(self, attempts=1):
         branch = self.config["branch"]
-        self.git(
-            self.publish_dir,
-            "fetch",
-            "--no-tags",
-            "--no-recurse-submodules",
-            "origin",
-            f"+refs/heads/{branch}:refs/remotes/origin/{branch}",
-            reason="fetch_failed",
-        )
+        for attempt in range(1, attempts + 1):
+            try:
+                self.git(
+                    self.publish_dir,
+                    "fetch",
+                    "--no-tags",
+                    "--no-recurse-submodules",
+                    "origin",
+                    f"+refs/heads/{branch}:refs/remotes/origin/{branch}",
+                    reason="fetch_failed",
+                )
+                break
+            except Abort as abort:
+                if attempt == attempts:
+                    raise
+                self.log(f"fetch attempt {attempt} failed, retrying: {abort.detail[:160]}")
+                time.sleep(PREFLIGHT_FETCH_WAIT_SECONDS)
         return self.git(
             self.publish_dir,
             "rev-parse",
@@ -273,6 +322,34 @@ class Publisher:
             if mode != "100644":
                 raise Abort("data_path_not_regular_file", f"{relative} has mode {mode}")
 
+    def check_not_suspended(self):
+        """Abort if the wall clock ran ahead of the awake clock since the crawl began."""
+        if self._crawl_clock is None:
+            return
+        wall_start, awake_start = self._crawl_clock
+        gap = (time.time() - wall_start) - (time.monotonic() - awake_start)
+        if gap > MAX_SUSPENDED_SECONDS:
+            raise Abort("suspended_or_clock_jump",
+                        f"wall clock ran {int(gap)}s ahead of awake time since the crawl began")
+
+    def prepare_publish_clone(self, tip):
+        """Put the publish clone exactly at tip, discarding leftovers.
+
+        --force matters: staged files from an interrupted publish would
+        otherwise block the checkout on every later run.
+        """
+        for args in (
+            ("checkout", "--quiet", "--force", "--detach", tip),
+            ("reset", "--quiet", "--hard", tip),
+            ("clean", "--quiet", "-fd"),
+        ):
+            self.git(self.publish_dir, *args, reason="publish_prepare_failed")
+
+    def check_push_auth(self, tip):
+        """Dry-run push: fail before crawling if this context cannot authenticate."""
+        self.git(self.publish_dir, "push", "--dry-run", "origin",
+                 f"{tip}:refs/heads/{self.config['branch']}", reason="push_auth_failed")
+
     # -- crawl and validate ------------------------------------------------
 
     def crawl_command(self, result, metrics):
@@ -303,8 +380,7 @@ class Publisher:
     def crawl(self, run_dir):
         result = run_dir / "nate_result.json"
         metrics = run_dir / "crawl_metrics.json"
-        environment = dict(os.environ)
-        environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        environment = self.child_env()
         # Stream to the file so a timed-out crawl still leaves its log behind.
         with open(run_dir / "spider.log", "w", encoding="utf-8") as spider_log:
             try:
@@ -348,8 +424,7 @@ class Publisher:
             # Rule 5: someone published while we crawled. Do not rebuild.
             raise Abort("remote_moved", f"{base_tip} -> {tip}")
 
-        self.git(self.publish_dir, "checkout", "--quiet", "--detach", tip, reason="publish_prepare_failed")
-        self.git(self.publish_dir, "reset", "--quiet", "--hard", tip, reason="publish_prepare_failed")
+        self.prepare_publish_clone(tip)
         root = self.publish_dir.resolve()
         for relative in DATA_FILES:
             target = self.publish_dir / relative
@@ -375,7 +450,9 @@ class Publisher:
         if not staged:
             self.log("publish: data identical to remote; nothing to commit")
             return None
-        if sorted(staged) != sorted(DATA_FILES):
+        # One of the two may already match (for example after a manual fix);
+        # the blob comparison below still proves both equal the validated file.
+        if not set(staged) <= set(DATA_FILES):
             raise Abort("unexpected_staged_paths", ", ".join(staged))
         message = self.config.get("commit_message", DEFAULT_COMMIT_MESSAGE)
         self.git(self.publish_dir, "commit", "--quiet", "-m", message, reason="commit_failed")
@@ -393,25 +470,30 @@ class Publisher:
             ).stdout.strip()
             if blob != expected_blob:
                 raise Abort("published_blob_mismatch", relative)
+        # Last check before the data leaves the machine: fetch, reset, and
+        # commit above take time, and the lid may have been closed meanwhile.
+        self.check_not_suspended()
         # No leading '+': a non-fast-forward update is rejected by the remote.
-        self.git(
-            self.publish_dir,
-            "push",
-            "origin",
-            f"{commit}:refs/heads/{branch}",
-            reason="push_failed",
-        )
+        try:
+            self.git(
+                self.publish_dir,
+                "push",
+                "origin",
+                f"{commit}:refs/heads/{branch}",
+                reason="push_failed",
+            )
+        except Abort:
+            # The client can fail (timeout, dropped connection) after the
+            # server accepted the push. Ask the remote before calling it failed.
+            if self.remote_tip() != commit:
+                raise
+            self.log("push reported an error but the remote has the commit")
         return commit
 
     # -- bookkeeping -------------------------------------------------------
 
     def record(self, entry):
-        state = {}
-        if self.state_path.is_file():
-            try:
-                state = json.loads(self.state_path.read_text(encoding="utf-8"))
-            except json.JSONDecodeError:
-                state = {}
+        state = self.read_state()
         state["last_run"] = entry
         if entry["outcome"] in ("published", "unchanged"):
             state["last_success"] = entry
@@ -420,6 +502,14 @@ class Publisher:
         temporary.replace(self.state_path)
         with open(self.history_path, "a", encoding="utf-8") as handle:
             handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+    def read_state(self):
+        """Return state.json as a dict; a damaged file must not break a run."""
+        try:
+            state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+        return state if isinstance(state, dict) else {}
 
     def prune_runs(self):
         runs = sorted(path for path in self.runs_dir.iterdir() if path.is_dir())
@@ -461,14 +551,19 @@ class Publisher:
                 entry["code_sha"] = self.config["pin_sha"]
                 self.check_code_pin()
                 self.check_dependencies()
-                base_tip = self.remote_tip()
+                base_tip = self.remote_tip(attempts=PREFLIGHT_FETCH_ATTEMPTS)
                 entry["remote_tip"] = base_tip
                 self.check_remote_matches_pin(base_tip)
+                # Everything that can fail without Nate is checked before crawling.
+                self.prepare_publish_clone(base_tip)
+                self.check_push_auth(base_tip)
                 self.log(f"preflight ok: pin {self.config['pin_sha'][:8]}, remote {base_tip[:8]}")
 
+                self._crawl_clock = (time.time(), time.monotonic())
                 result, metrics = self.crawl(run_dir)
                 self.validate(result, metrics)
                 entry["data_sha256"] = sha256_file(result)
+                self.check_not_suspended()  # checked again right before the push
 
                 commit = self.publish(result, base_tip)
                 entry["outcome"] = "published" if commit else "unchanged"
@@ -479,10 +574,20 @@ class Publisher:
                 entry["detail"] = abort.detail[:500]
                 self.log(f"ABORT {abort.reason}: {abort.detail[:500]}")
                 self.notify("News_JSON publish failed", abort.reason)
+            except Exception as error:  # a bug or an unexpected OS error
+                entry["reason"] = "internal_error"
+                entry["detail"] = f"{type(error).__name__}: {error}"[:500]
+                self.log(f"ABORT internal_error: {entry['detail']}")
+                self.log(traceback.format_exc())
+                self.notify("News_JSON publish failed", "internal_error")
             finally:
                 entry["finished"] = utc_now().isoformat()
-                self.record(entry)
-                self.prune_runs()
+                try:
+                    self.record(entry)
+                    self.prune_runs()
+                except Exception as error:
+                    # Bookkeeping must not hide or change the run outcome.
+                    self.log(f"bookkeeping failed: {type(error).__name__}: {error}")
                 self._log_handle = None
         return 0 if entry["outcome"] in ("published", "unchanged") else 1
 
@@ -496,25 +601,37 @@ class Publisher:
     def init(self, sha, repo_url, branch, base_python):
         self.require_full_sha(sha)
         with self.exclusive():
-            if self.config_path.exists():
-                raise Abort("already_initialized", str(self.config_path))
+            created = (self.code_dir, self.publish_dir, self.venv_dir)
+            existing = [str(path) for path in (*created, self.config_path) if path.exists()]
+            if existing:
+                raise Abort("already_initialized", ", ".join(existing))
             self.runs_dir.mkdir(exist_ok=True)
             self.config = {"pin_sha": sha, "repo_url": repo_url, "branch": branch}
-            for target in (self.code_dir, self.publish_dir):
-                self.git(self.state_dir, "clone", "--quiet", "--no-recurse-submodules",
-                         repo_url, target, reason="clone_failed")
-            self.git(self.code_dir, "checkout", "--quiet", "--detach", sha,
-                     reason="pin_checkout_failed")
-            self.config["freeze_sha256"] = self.build_venv(base_python, self.venv_dir)
-            self.write_config()
+            try:
+                for target in (self.code_dir, self.publish_dir):
+                    self.git(self.state_dir, "clone", "--quiet", "--no-recurse-submodules",
+                             repo_url, target, reason="clone_failed")
+                self.git(self.code_dir, "checkout", "--quiet", "--detach", sha,
+                         reason="pin_checkout_failed")
+                self.config["freeze_sha256"] = self.build_venv(base_python, self.venv_dir)
+                self.write_config()
+            except BaseException:
+                # Remove only what this call created, so init can be rerun.
+                for path in created:
+                    shutil.rmtree(path, ignore_errors=True)
+                raise
             self.log(f"initialized {self.state_dir} at pin {sha}")
 
     def repin(self, sha, base_python):
         """Move the pin to another reviewed commit.
 
-        Code, venv, and config switch together. If any step raises, the
-        previous combination is restored before the error is reported. A
-        process killed mid-switch is not covered; rerun repin in that case.
+        Code, venv, and config switch together. An error or Ctrl-C while the
+        new venv is being built restores the previous combination. During the
+        final swap Ctrl-C is held back until the swap has completed or been
+        rolled back. A process killed outright mid-switch is not covered: keep the
+        state directory as it is and inspect code/, venv*/, and config.json
+        before repairing by hand, because run and repin both refuse a checkout
+        that does not match the pin.
         """
         self.require_full_sha(sha)
         with self.exclusive():  # never swap code or venv under a running crawl
@@ -526,30 +643,47 @@ class Publisher:
             retired = self.state_dir / "venv.old"
             shutil.rmtree(staging, ignore_errors=True)
             shutil.rmtree(retired, ignore_errors=True)
-            old_venv_retired = False
+
+            def restore_checkout():
+                shutil.rmtree(staging, ignore_errors=True)
+                self.git(self.code_dir, "checkout", "--quiet", "--detach", previous,
+                         reason="pin_restore_failed")
+
+            # Phase 1 (interruptible): only the checkout and a side directory
+            # change, so undoing it is always the same two steps.
             try:
                 self.git(self.code_dir, "fetch", "--quiet", "--no-tags", "origin",
                          reason="fetch_failed")
                 self.git(self.code_dir, "checkout", "--quiet", "--detach", sha,
                          reason="pin_checkout_failed")
                 fingerprint = self.build_venv(base_python, staging)
-                self.venv_dir.rename(retired)
-                old_venv_retired = True
-                # Only `python -m ...` is used from the venv, so renaming is safe.
-                staging.rename(self.venv_dir)
-                self.config = dict(previous_config, pin_sha=sha, freeze_sha256=fingerprint)
-                self.write_config()  # atomic: the last step that can fail
-            except Exception as error:
-                self.config = previous_config
-                if old_venv_retired:
-                    shutil.rmtree(self.venv_dir, ignore_errors=True)
-                    retired.rename(self.venv_dir)
-                shutil.rmtree(staging, ignore_errors=True)
-                self.git(self.code_dir, "checkout", "--quiet", "--detach", previous,
-                         reason="pin_restore_failed")
-                if isinstance(error, Abort):
+            except BaseException as error:
+                restore_checkout()
+                if not isinstance(error, Exception) or isinstance(error, Abort):
                     raise
                 raise Abort("repin_failed", f"{type(error).__name__}: {error}") from error
+
+            # Phase 2: swap the venv and save the config. Ctrl-C is held back
+            # so the switch either completes or is rolled back as a whole; the
+            # atomic config save is the commit point.
+            with deferred_interrupt():
+                old_venv_retired = False
+                try:
+                    self.venv_dir.rename(retired)
+                    old_venv_retired = True
+                    # Only `python -m ...` is used from the venv, so renaming is safe.
+                    staging.rename(self.venv_dir)
+                    self.config = dict(previous_config, pin_sha=sha, freeze_sha256=fingerprint)
+                    self.write_config()
+                except Exception as error:
+                    self.config = previous_config
+                    if old_venv_retired:
+                        shutil.rmtree(self.venv_dir, ignore_errors=True)
+                        retired.rename(self.venv_dir)
+                    restore_checkout()
+                    if isinstance(error, Abort):
+                        raise
+                    raise Abort("repin_failed", f"{type(error).__name__}: {error}") from error
             shutil.rmtree(retired, ignore_errors=True)
             self.log(f"pin moved {previous[:8]} -> {sha}")
 
@@ -557,7 +691,14 @@ class Publisher:
         frozen = self.run_command([python, "-m", "pip", "freeze", "--all"],
                                   cwd=self.state_dir, timeout=120,
                                   reason="dependency_check_failed").stdout
-        return frozen, hashlib.sha256(frozen.encode("utf-8")).hexdigest()
+        # The venv's python is a link to a base interpreter that can be
+        # upgraded behind its back, so identify that interpreter as well.
+        interpreter = self.run_command(
+            [python, "-c",
+             "import os, sys; print(sys.version); print(os.path.realpath(sys.base_prefix))"],
+            cwd=self.state_dir, timeout=60, reason="dependency_check_failed").stdout
+        listing = frozen + "# interpreter\n" + interpreter
+        return listing, hashlib.sha256(listing.encode("utf-8")).hexdigest()
 
     def build_venv(self, base_python, venv_dir):
         """Create venv_dir from the checked-out requirements; return its fingerprint."""
@@ -590,15 +731,12 @@ class Publisher:
         """Dry-run push: checks authentication only, not server-side push rules."""
         self.load_config()
         tip = self.remote_tip()
-        self.git(self.publish_dir, "push", "--dry-run", "origin",
-                 f"{tip}:refs/heads/{self.config['branch']}", reason="push_auth_failed")
+        self.check_push_auth(tip)
         self.log(f"dry-run push authentication ok (remote {tip[:8]})")
 
     def status(self):
         self.load_config()
-        state = {}
-        if self.state_path.is_file():
-            state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        state = self.read_state()
         print(json.dumps({"pin_sha": self.config["pin_sha"], **state}, ensure_ascii=False, indent=2))
 
 
@@ -625,6 +763,14 @@ def main(argv=None):
     publisher = Publisher(args.state_dir)
     try:
         if args.command == "run":
+            # A scheduled run must be the pinned script under the pinned venv;
+            # otherwise the recorded code_sha would not describe what ran.
+            script = (publisher.code_dir / "tools" / "local_publish.py").resolve()
+            interpreter_dir = (publisher.venv_dir / "bin").resolve()
+            if (Path(__file__).resolve() != script
+                    or Path(sys.executable).parent.resolve() != interpreter_dir):
+                raise Abort("not_pinned_invocation",
+                            f"run {publisher.venv_dir}/bin/python {script} instead")
             return publisher.run()
         if args.command == "init":
             publisher.init(args.sha, args.repo_url, args.branch, args.python)

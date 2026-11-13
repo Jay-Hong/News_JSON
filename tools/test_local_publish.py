@@ -53,6 +53,13 @@ json.dump(metrics, open(sys.argv[4], "w"))
 '''
 
 
+TEST_GIT_ENV = {
+    "GIT_AUTHOR_NAME": "Test", "GIT_AUTHOR_EMAIL": "test@example.invalid",
+    "GIT_COMMITTER_NAME": "Test", "GIT_COMMITTER_EMAIL": "test@example.invalid",
+    "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
+}
+
+
 def git(cwd, *args):
     return subprocess.run(
         ["git", *args], cwd=str(cwd), check=True, text=True,
@@ -79,6 +86,13 @@ class FakeCrawlPublisher(local_publish.Publisher):
         if self.real_dependency_check:
             super().check_dependencies()
 
+    def child_env(self):
+        # Production strips GIT_* from the environment; the tests still need a
+        # commit identity and isolation from the developer's own git config.
+        environment = super().child_env()
+        environment.update(TEST_GIT_ENV)
+        return environment
+
 
 class LocalPublishTest(unittest.TestCase):
     def setUp(self):
@@ -86,11 +100,7 @@ class LocalPublishTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
         self._old_env = dict(os.environ)
         self.addCleanup(self._restore_env)
-        os.environ.update({
-            "GIT_AUTHOR_NAME": "Test", "GIT_AUTHOR_EMAIL": "test@example.invalid",
-            "GIT_COMMITTER_NAME": "Test", "GIT_COMMITTER_EMAIL": "test@example.invalid",
-            "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
-        })
+        os.environ.update(TEST_GIT_ENV)
 
         self.origin = self.tmp / "origin.git"
         git(self.tmp, "init", "--quiet", "--bare", "--initial-branch=master", self.origin)
@@ -293,15 +303,15 @@ class LocalPublishTest(unittest.TestCase):
         original_remote_tip = publisher.remote_tip
         calls = []
 
-        def remote_tip_then_plant_symlink():
-            tip = original_remote_tip()
+        def remote_tip_then_plant_symlink(**kwargs):
+            tip = original_remote_tip(**kwargs)
             calls.append(tip)
             if len(calls) == 2:  # the call inside publish()
                 original_git = publisher.git
 
                 def git_then_plant(cwd, *args, **kwargs):
                     out = original_git(cwd, *args, **kwargs)
-                    if args[:1] == ("reset",):
+                    if args[:1] == ("clean",):  # last step of prepare_publish_clone
                         target = self.state / "publish" / "newsURL.json"
                         target.unlink()
                         target.symlink_to(outside)
@@ -419,6 +429,215 @@ class LocalPublishTest(unittest.TestCase):
         code, run = self.run_publisher()
         self.assertEqual((code, run["outcome"]), (0, "published"))
         self.assertEqual(git(self.origin, "rev-parse", f"{self.origin_tip()}^"), self.pin)
+
+    def test_leftover_staged_data_does_not_block_later_runs(self):
+        publisher = self.make_publisher()
+        real_git = publisher.git
+
+        def fail_commit_once(cwd, *args, **kwargs):
+            if args[:1] == ("commit",):
+                publisher.git = real_git
+                raise local_publish.Abort("commit_failed", "simulated")
+            return real_git(cwd, *args, **kwargs)
+
+        publisher.git = fail_commit_once
+        code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "commit_failed"))
+        self.assertTrue(git(self.state / "publish", "status", "--porcelain"), "clone left dirty")
+        other = self.push_from_seed("newsURL.json", '["someone else"]\n', "chore: manual refresh")
+        self.seed_name = "b"
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        self.assertEqual(git(self.origin, "rev-parse", f"{self.origin_tip()}^"), other)
+
+    def test_unusable_publish_clone_aborts_before_crawling(self):
+        (self.state / "publish" / ".git" / "index.lock").write_text("")
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["reason"]), (1, "publish_prepare_failed"))
+        self.assertFalse(self.marker.exists(), "must stop before crawling")
+
+    def test_push_auth_failure_aborts_before_crawling(self):
+        publisher = self.make_publisher()
+        real_git = publisher.git
+
+        def deny_dry_run(cwd, *args, **kwargs):
+            if "--dry-run" in args:
+                raise local_publish.Abort(kwargs["reason"], "simulated auth failure")
+            return real_git(cwd, *args, **kwargs)
+
+        publisher.git = deny_dry_run
+        code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "push_auth_failed"))
+        self.assertFalse(self.marker.exists())
+
+    def test_push_error_after_remote_accepted_counts_as_published(self):
+        publisher = self.make_publisher()
+        real_git = publisher.git
+
+        def push_then_report_failure(cwd, *args, **kwargs):
+            out = real_git(cwd, *args, **kwargs)
+            if args[:1] == ("push",) and "--dry-run" not in args:
+                raise local_publish.Abort("push_failed", "simulated client timeout")
+            return out
+
+        publisher.git = push_then_report_failure
+        code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        self.assertEqual(self.origin_tip(), run["published_commit"])
+
+    def test_crawl_suspended_by_sleep_is_not_published(self):
+        publisher = self.make_publisher()
+        original_crawl = publisher.crawl
+        real_time = local_publish.time.time
+        offset = [0.0]
+
+        def crawl_while_machine_sleeps(run_dir):
+            outputs = original_crawl(run_dir)
+            offset[0] = 3 * 3600  # wall clock jumps, monotonic clock does not
+            return outputs
+
+        publisher.crawl = crawl_while_machine_sleeps
+        with mock.patch.object(local_publish.time, "time", lambda: real_time() + offset[0]):
+            code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "suspended_or_clock_jump"))
+        self.assertEqual(self.origin_tip(), self.pin)
+
+    def test_suspension_while_preparing_the_publish_is_not_pushed(self):
+        publisher = self.make_publisher()
+        real_git = publisher.git
+        real_time = local_publish.time.time
+        offset = [0.0]
+
+        def sleep_during_commit(cwd, *args, **kwargs):
+            out = real_git(cwd, *args, **kwargs)
+            if args[:1] == ("commit",):
+                offset[0] = 3 * 3600  # lid closed after the first check passed
+            return out
+
+        publisher.git = sleep_during_commit
+        with mock.patch.object(local_publish.time, "time", lambda: real_time() + offset[0]):
+            code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "suspended_or_clock_jump"))
+        self.assertEqual(self.origin_tip(), self.pin, "nothing was pushed")
+        code, run = self.run_publisher()  # the leftover local commit does not block the next run
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+
+    def test_ctrl_c_during_the_final_repin_swap_is_deferred_until_consistent(self):
+        import signal
+        real_rename, real_replace = Path.rename, Path.replace
+
+        def interrupt_after(method, name):
+            def wrapper(path, destination):
+                result = method(path, destination)
+                if path.name == name:
+                    os.kill(os.getpid(), signal.SIGINT)
+                return result
+            return wrapper
+
+        cases = (
+            ("after first rename", mock.patch.object(Path, "rename", interrupt_after(real_rename, "venv"))),
+            ("after config save", mock.patch.object(Path, "replace", interrupt_after(real_replace, "config.json.tmp"))),
+        )
+        expected_pin = self.pin
+        for index, (label, patcher) in enumerate(cases):
+            target = self.push_from_seed("README.md", f"{index}\n", f"docs: {index}")
+            with self.subTest(label):
+                with patcher, self.assertRaises(KeyboardInterrupt):
+                    local_publish.Publisher(self.state).repin(target, sys.executable)
+                expected_pin = target  # the swap completed before the interrupt surfaced
+                config = json.loads((self.state / "config.json").read_text())
+                self.assertEqual(config["pin_sha"], expected_pin)
+                self.assertEqual(git(self.state / "code", "rev-parse", "HEAD"), expected_pin)
+                self.assertTrue((self.state / "venv" / "bin" / "python").exists())
+                self.assertFalse((self.state / "venv.new").exists())
+                publisher = local_publish.Publisher(self.state)
+                publisher.load_config()
+                publisher.check_code_pin()
+                publisher.check_dependencies()
+
+    def test_ctrl_c_while_building_the_new_venv_restores_the_old_environment(self):
+        target = self.push_from_seed("README.md", "x\n", "docs: x")
+        config_before = (self.state / "config.json").read_text()
+
+        def interrupted_build(self_, base_python, venv_dir):
+            venv_dir.mkdir()
+            raise KeyboardInterrupt
+
+        with mock.patch.object(local_publish.Publisher, "build_venv", interrupted_build):
+            with self.assertRaises(KeyboardInterrupt):
+                local_publish.Publisher(self.state).repin(target, sys.executable)
+        self.assert_previous_environment_intact(config_before)
+
+    def test_unexpected_exception_is_recorded_and_lock_released(self):
+        publisher = self.make_publisher()
+        notices = []
+        publisher.notify = lambda title, text: notices.append(text)
+
+        def explode(run_dir):
+            raise OSError(28, "No space left on device")
+
+        publisher.crawl = explode
+        code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["outcome"], run["reason"]), (1, "failed", "internal_error"))
+        self.assertIn("No space left", run["detail"])
+        self.assertEqual(notices, ["internal_error"])
+        log = (self.state / "runs" / run["run_id"] / "publish.log").read_text()
+        self.assertIn("Traceback", log)
+        code, run = self.run_publisher()  # lock was released, next run works
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+
+    def test_damaged_state_file_does_not_break_a_run(self):
+        for damaged in (b"[]", b"\xff\xfe not json", b"{broken"):
+            (self.state / "state.json").write_bytes(damaged)
+            self.seed_name = self.seed_name + "x"
+            code, run = self.run_publisher()
+            self.assertEqual((code, run["outcome"]), (0, "published"), damaged)
+
+    def test_single_changed_data_file_is_published(self):
+        self.run_publisher()
+        current = git(self.origin, "show", f"{self.origin_tip()}:newsURL.json")
+        self.push_from_seed("nate_news/nate_result.json", "[]\n", "chore: break one copy")
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        tip = self.origin_tip()
+        self.assertEqual(git(self.origin, "diff", "--name-only", f"{tip}^", tip), "nate_news/nate_result.json")
+        self.assertEqual(git(self.origin, "show", f"{tip}:nate_news/nate_result.json"), current)
+
+    def test_fingerprint_covers_the_base_interpreter(self):
+        publisher = local_publish.Publisher(self.state)
+        listing, digest = publisher.freeze_fingerprint(sys.executable)
+        self.assertIn("# interpreter", listing)
+        self.assertIn(sys.version.splitlines()[0], listing)
+        self.assertTrue(local_publish.is_hex(digest, 64))
+
+    def test_failed_init_removes_what_it_created_and_can_be_rerun(self):
+        fresh = self.tmp / "fresh-state"
+        publisher = local_publish.Publisher(fresh)
+        with self.assertRaises(local_publish.Abort) as caught:
+            publisher.init("f" * 40, str(self.origin), "master", sys.executable)
+        self.assertEqual(caught.exception.reason, "pin_checkout_failed")
+        for name in ("code", "publish", "venv", "config.json"):
+            self.assertFalse((fresh / name).exists(), name)
+        local_publish.Publisher(fresh).init(self.pin, str(self.origin), "master", sys.executable)
+        self.assertEqual(json.loads((fresh / "config.json").read_text())["pin_sha"], self.pin)
+        with self.assertRaises(local_publish.Abort) as caught:
+            local_publish.Publisher(fresh).init(self.pin, str(self.origin), "master", sys.executable)
+        self.assertEqual(caught.exception.reason, "already_initialized")
+
+    def test_run_command_refuses_an_unpinned_script_or_interpreter(self):
+        code = local_publish.main(["--state-dir", str(self.state), "run"])
+        self.assertEqual(code, 1)
+        self.assertFalse(self.marker.exists())
+        self.assertFalse((self.state / "state.json").exists())
+
+    def test_inherited_tool_variables_are_not_passed_to_children(self):
+        with mock.patch.dict(os.environ, {"PYTHONPATH": "/evil", "PIP_INDEX_URL": "http://evil",
+                                           "SCRAPY_SETTINGS_MODULE": "evil", "GIT_DIR": "/evil"}):
+            environment = local_publish.Publisher(self.state).child_env()
+        for name in ("PYTHONPATH", "PIP_INDEX_URL", "SCRAPY_SETTINGS_MODULE", "GIT_DIR"):
+            self.assertNotIn(name, environment)
+        self.assertEqual(environment["GIT_TERMINAL_PROMPT"], "0")
+        self.assertIn("PYTHONPYCACHEPREFIX", environment)
 
     def test_history_and_last_success_are_recorded(self):
         self.run_publisher()

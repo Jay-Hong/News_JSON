@@ -15,8 +15,11 @@
 
   Times are local time and mirror main.yml (05:44, 10:44, 15:44, 20:44 KST).
   A run missed while the Mac slept starts once on wake; a run missed while it
-  was powered off or logged out is skipped. No credentials belong in this
-  file: git uses the login keychain through the user's credential helper.
+  was powered off or logged out is skipped. caffeinate -i only holds off idle
+  sleep while a run is in progress; closing the lid still suspends it, and a
+  run that was suspended mid-crawl refuses to publish. No credentials belong
+  in this file: git uses whatever credential helper the user already has
+  configured for github.com.
 -->
 <plist version="1.0">
 <dict>
@@ -24,6 +27,8 @@
     <string>local.newsjson.publish</string>
     <key>ProgramArguments</key>
     <array>
+        <string>/usr/bin/caffeinate</string>
+        <string>-i</string>
         <string>__STATE_DIR__/venv/bin/python</string>
         <string>__STATE_DIR__/code/tools/local_publish.py</string>
         <string>--state-dir</string>
