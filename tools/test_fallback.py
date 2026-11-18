@@ -5,11 +5,13 @@ from a local HTTP proxy and are skipped unless the Scrapy version pinned in
 nate_news/requirements.txt is installed.
 """
 
+import hashlib
 import importlib
 import json
 import os
 import plistlib
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -33,7 +35,7 @@ sys.path.insert(0, str(PROJECT))
 
 import freshness_gate  # noqa: E402  (needs sys.path above)
 import validate_result  # noqa: E402
-from nate_news import fallback  # noqa: E402
+from nate_news import fallback, reuse  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
 # A day that can never be the real date, so a spider that ignores the
@@ -790,10 +792,45 @@ class ValidatorModeTest(unittest.TestCase):
             make_snapshot(ranking, pc_rows), [], "run-1"
         )
 
-    def rejects(self, items, metrics, mode):
+    def rejects(self, items, metrics, mode, coverage_only=False):
+        """Assert a rejection and return its message.
+
+        In fallback mode the same input is also checked with
+        check_coverage=False, the reuse check for earlier local runs: it must
+        give the same rejection unless the only problem is one of the two
+        coverage thresholds (coverage_only), in which case it must pass.
+        """
         with self.assertRaises(validate_result.ValidationError) as caught:
             validate_result.validate_result(items, metrics, mode)
+        if mode == "fallback":
+            if coverage_only:
+                validate_result.validate_result(items, metrics, mode, check_coverage=False)
+            else:
+                with self.assertRaises(validate_result.ValidationError) as relaxed:
+                    validate_result.validate_result(items, metrics, mode, check_coverage=False)
+                self.assertEqual(str(relaxed.exception), str(caught.exception))
         return str(caught.exception)
+
+    def test_coverage_can_only_be_relaxed_by_keyword_in_fallback_mode(self):
+        with self.assertRaises(TypeError):
+            validate_result.validate_result(self.items, self.metrics, "fallback", False)
+        items, metrics = full_crawl(self.counts, failures=11)
+        with self.assertRaises(ValueError) as caught:
+            validate_result.validate_result(items, metrics, "full", check_coverage=False)
+        self.assertNotIsInstance(caught.exception, validate_result.ValidationError)
+        # The command line has no switch for it: a short result still fails.
+        ranking = ranking_rows(self.counts)
+        pc_rows = [{"id": row["id"], "company": "가", "image": ""} for row in ranking[11:]]
+        items, metrics = fallback.assemble(make_snapshot(ranking, pc_rows), [], "run-1")
+        with tempfile.TemporaryDirectory() as work:
+            items_path, metrics_path = Path(work) / "items.json", Path(work) / "metrics.json"
+            items_path.write_text(json.dumps(items), encoding="utf-8")
+            metrics_path.write_text(json.dumps(metrics), encoding="utf-8")
+            arguments = [str(items_path), str(metrics_path), "--mode", "fallback"]
+            self.assertEqual(validate_result.main(arguments), 1)
+            for switch in ("--check-coverage=false", "--no-check-coverage", "--no-coverage"):
+                with self.assertRaises(SystemExit):
+                    validate_result.main(arguments + [switch])
 
     def changed(self, **updates):
         metrics = json.loads(json.dumps(self.metrics))
@@ -874,7 +911,9 @@ class ValidatorModeTest(unittest.TestCase):
         # 11 of 100 politics rows have no company: 89 is under the 90% floor.
         pc_rows = [{"id": row["id"], "company": "가", "image": ""} for row in ranking[11:]]
         items, metrics = fallback.assemble(make_snapshot(ranking, pc_rows), [], "run-1")
-        self.assertIn("Section coverage", self.rejects(items, metrics, "fallback"))
+        self.assertIn(
+            "Section coverage", self.rejects(items, metrics, "fallback", coverage_only=True)
+        )
         # A ranking that stopped after three pages is rejected.
         short = ranking_rows({"sisa": 100, "spo": 50, "ent": 0})
         pc_rows = [{"id": row["id"], "company": "가", "image": ""} for row in short]
@@ -886,7 +925,18 @@ class ValidatorModeTest(unittest.TestCase):
         small = ranking_rows({"sisa": 51, "spo": 51, "ent": 51})
         pc_rows = [{"id": row["id"], "company": "가", "image": ""} for row in small]
         items, metrics = fallback.assemble(make_snapshot(small, pc_rows), [], "run-1")
-        self.assertIn("at least 200", self.rejects(items, metrics, "fallback"))
+        self.assertIn(
+            "at least 200", self.rejects(items, metrics, "fallback", coverage_only=True)
+        )
+        # A section whose ranking exposed fewer than 51 articles is a source
+        # problem, not a coverage miss, so it is rejected with or without
+        # the coverage thresholds.
+        metrics = self.changed(**{
+            "discovered_by_section__spo": 50,
+            "discovered_by_page__spo-1": 49,
+            "discovered_by_page__spo-2": 1,
+        })
+        self.assertIn("too few articles", self.rejects(self.items, metrics, "fallback"))
         # Reordered output.
         items = [dict(item) for item in self.items]
         items[0], items[1] = items[1], items[0]
@@ -930,6 +980,128 @@ class ValidatorModeTest(unittest.TestCase):
             article_requests__not_requested=8,
         )
         self.assertIn("does not match the article requests", self.rejects(self.items, metrics, "fallback"))
+
+
+class ReuseTest(unittest.TestCase):
+    """nate_news.reuse: which earlier local results are added, and how."""
+
+    RUN = "20200102T000000.000000Z"
+
+    def setUp(self):
+        self.work = Path(tempfile.mkdtemp(prefix="reuse-test-"))
+        self.addCleanup(shutil.rmtree, self.work, ignore_errors=True)
+        # A cut-off run: 30 of the 100 politics rows have no company, the
+        # first two of their article pages timed out and the transport
+        # breaker closed the crawl, so coverage fails while every other rule
+        # holds.
+        ranking = ranking_rows({"sisa": 100, "spo": 60, "ent": 100})
+        pc_rows = [{"id": row["id"], "company": "가", "image": ""} for row in ranking[30:]]
+        plan = [row["id"] for row in ranking[:30]]
+        failed = {"status": "failed", "reason": "TimeoutError()"}
+        snapshot = make_snapshot(ranking, pc_rows, articles={plan[0]: failed, plan[1]: failed},
+                                 plan=plan, close_reason="fallback_transport_failures:2")
+        snapshot["run_id"] = self.RUN
+        self.items, self.metrics = fallback.assemble(snapshot, [], self.RUN)
+        self.assertEqual(self.metrics["stop_reason"], "transport_breaker")
+        self.assertEqual(self.metrics["article_requests"]["not_requested"], 28)
+        with self.assertRaises(validate_result.ValidationError):
+            validate_result.validate_result(self.items, self.metrics, "fallback")
+        self.run_dir = self.write_run(self.RUN, self.items, self.metrics)
+
+    def write_run(self, name, items, metrics):
+        run_dir = self.work / name
+        run_dir.mkdir()
+        (run_dir / reuse.RESULT_FILE).write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
+        (run_dir / reuse.METRICS_FILE).write_text(json.dumps(metrics), encoding="utf-8")
+        return run_dir
+
+    def test_a_cut_off_run_is_accepted_with_the_hashes_of_the_bytes_read(self):
+        items, result_sha256, metrics_sha256 = reuse.check_run(self.run_dir)
+        self.assertEqual(items, self.items)
+        self.assertEqual(len(items), 230)
+        self.assertEqual(self.metrics["run_id"], self.RUN)
+        for path, value in ((reuse.RESULT_FILE, result_sha256), (reuse.METRICS_FILE, metrics_sha256)):
+            self.assertEqual(value, hashlib.sha256((self.run_dir / path).read_bytes()).hexdigest())
+
+    def test_previous_publish_comes_first_and_the_date_rule_still_applies(self):
+        day = date(2020, 1, 2)
+        previous = [{"title": "이전 제목", "company": "이전일보", "image": "",
+                     "newsURL": self.items[0]["newsURL"]}]
+        merged, report = reuse.merge(previous, [self.run_dir], day)
+        self.assertEqual(merged, previous + self.items)
+        self.assertEqual(report["added_ids"], 229)
+        self.assertEqual(fallback.build_cache(merged, day)[fallback.article_id(previous[0]["newsURL"])]["company"],
+                         "이전일보")
+        # Two days later the same run is still sound, but none of its
+        # articles may be reused any more.
+        merged, report = reuse.merge(previous, [self.run_dir], day + timedelta(days=2))
+        self.assertEqual([entry["run_id"] for entry in report["accepted"]], [self.RUN])
+        self.assertEqual(report["added_ids"], 0)
+        self.assertEqual(fallback.build_cache(merged, day + timedelta(days=2)), {})
+
+    def test_unsound_or_foreign_runs_are_rejected_with_a_reason(self):
+        full_items, full_metrics = full_crawl({"sisa": 100, "spo": 60, "ent": 100})
+        full_metrics["run_id"] = "20200102T010000.000000Z"
+        cases = {
+            "unsound": self.write_run("20200102T010000.000000Z", full_items, full_metrics),
+            "run_id_mismatch": self.write_run("20200102T020000.000000Z", self.items, self.metrics),
+        }
+        broken = self.write_run("20200102T030000.000000Z", self.items, self.metrics)
+        (broken / reuse.METRICS_FILE).write_text("{", encoding="utf-8")
+        cases["unreadable"] = broken
+        missing = self.write_run("20200102T040000.000000Z", self.items, self.metrics)
+        (missing / reuse.RESULT_FILE).unlink()
+        cases["missing"] = missing
+        # Errors other than ValidationError reject only that run.
+        name = "20200102T100000.000000Z"
+        odd_url = {**self.metrics, "run_id": name,
+                   "discovered_urls": ["https://[m.news.nate.com/view/x?sect=sisa"]
+                   + self.metrics["discovered_urls"][1:]}
+        cases["unsound (urlparse ValueError)"] = self.write_run(name, self.items, odd_url)
+        name = "20200102T110000.000000Z"
+        deep = self.write_run(name, self.items, {**self.metrics, "run_id": name})
+        (deep / reuse.RESULT_FILE).write_text("[" * 100000 + "]" * 100000, encoding="utf-8")
+        cases["unreadable (nesting)"] = deep
+        cases["not_a_directory"] = self.work / "20200102T050000.000000Z"
+        # Links to sound files that exist: refused for being links.
+        for name, linked_file in (("20200102T060000.000000Z", reuse.RESULT_FILE),
+                                  ("20200102T070000.000000Z", reuse.METRICS_FILE)):
+            linked = self.write_run(name, self.items, {**self.metrics, "run_id": name})
+            real = self.work / f"{name}-{linked_file}"
+            (linked / linked_file).rename(real)
+            (linked / linked_file).symlink_to(real)
+            cases[f"not_regular_file ({linked_file} link)"] = linked
+        linked_dir = self.work / "20200102T080000.000000Z"
+        linked_dir.symlink_to(self.write_run("20200102T090000.000000Z", self.items,
+                                             {**self.metrics, "run_id": "20200102T080000.000000Z"}))
+        cases["not_a_directory (link)"] = linked_dir
+        for case, run_dir in cases.items():
+            with self.subTest(case):
+                with self.assertRaises(reuse.Rejected) as caught:
+                    reuse.check_run(run_dir)
+                self.assertEqual(caught.exception.reason, case.split(" ")[0])
+        merged, report = reuse.merge([], [self.run_dir, *cases.values()], date(2020, 1, 2))
+        self.assertEqual(merged, self.items)
+        self.assertEqual(report["rejected_counts"], {
+            "unsound": 2, "run_id_mismatch": 1, "unreadable": 2, "missing": 1,
+            "not_regular_file": 2, "not_a_directory": 2,
+        })
+
+    def test_command_line_writes_the_merged_list_and_the_report(self):
+        previous = self.work / "previous.json"
+        previous.write_text("[]\n", encoding="utf-8")
+        out, report = self.work / "merged.json", self.work / "report.json"
+        arguments = ["--previous", str(previous), "--kst-day", DAY, "--run", str(self.run_dir),
+                     "--out", str(out), "--report", str(report)]
+        self.assertEqual(reuse.main(arguments), 0)
+        self.assertEqual(json.loads(out.read_text(encoding="utf-8")), self.items)
+        written = json.loads(report.read_text(encoding="utf-8"))
+        self.assertEqual((written["added_ids"], written["rejected_counts"]), (230, {}))
+        for bad in (["--kst-day", "2020-01-02"], ["--kst-day", "20201302"]):
+            with self.subTest(bad):
+                self.assertEqual(reuse.main(arguments + bad), 1)
+        previous.write_text("{}\n", encoding="utf-8")
+        self.assertEqual(reuse.main(arguments), 1)
 
 
 # --- spider tests against a local stand-in for Nate ---
@@ -1390,12 +1562,13 @@ class FallbackSpiderTest(unittest.TestCase):
         (self.work / "offline_spiders.py").write_text(OFFLINE_SPIDER_MODULE, encoding="utf-8")
         snapshot_path = self.work / "snapshot.json"
         publisher = local_publish.Publisher(self.work / "state")
-        command = publisher.crawl_command("run-1", snapshot_path, previous_path)
+        # The day comes from the publisher's command, as in a real run.
+        command = publisher.crawl_command("run-1", snapshot_path, previous_path, DAY)
         self.assertEqual(command[1:5], ["-m", "scrapy", "crawl", local_publish.CRAWL_SPIDER])
         command = (
             [sys.executable, "-m", "scrapy", "crawl", "offline_fallback"]
             + command[5:]
-            + ["-s", "SPIDER_MODULES=offline_spiders", "-s", f"NATE_FALLBACK_KST_DAY={DAY}",
+            + ["-s", "SPIDER_MODULES=offline_spiders",
                "-s", "DOWNLOAD_TIMEOUT=1", "-s", "LOG_LEVEL=INFO"]
         )
         environment = {
@@ -1416,6 +1589,7 @@ class FallbackSpiderTest(unittest.TestCase):
         self.assertRegex(log, rf"'CLOSESPIDER_TIMEOUT': '?{local_publish.CRAWL_BUDGET_SECONDS}'?")
         snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
         self.assertEqual(snapshot["close_reason"], "fallback_transport_failures:2")
+        self.assertEqual(snapshot["kst_day"], DAY)
         self.assert_counts_match_the_server(snapshot)
         items, metrics = self.assemble(snapshot, previous)
         self.assertEqual(metrics["stop_reason"], "transport_breaker")

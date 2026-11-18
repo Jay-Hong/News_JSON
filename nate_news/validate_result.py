@@ -197,9 +197,21 @@ def _fallback_counters(metrics, expected_total, exported):
     }
 
 
-def validate_result(items, metrics, mode="full"):
+def validate_result(items, metrics, mode="full", *, check_coverage=True):
+    """Check a crawl result against the metrics of the same crawl.
+
+    check_coverage=False skips only the two thresholds that a crawl cut off
+    early is expected to miss: the overall minimum item count and each
+    section's minimum share of its discovered links. Every other check still
+    runs, including the per-page and per-section discovery minimums and
+    "no more items than discovered". Only nate_news.reuse uses it, to decide
+    whether an earlier local run's output may be reused; the command line has
+    no such option, so publishing always applies every rule.
+    """
     if mode not in MODES:
         raise ValidationError(f"Unknown validation mode: {mode!r}")
+    if not check_coverage and mode != "fallback":
+        raise ValueError("check_coverage=False is only for reusing fallback results")
     if not isinstance(items, list):
         raise ValidationError("Spider result is not a JSON list")
     if not isinstance(metrics, dict):
@@ -363,7 +375,7 @@ def validate_result(items, metrics, mode="full"):
         raise ValidationError(
             f"Unexpected or missing section values: {unexpected_sections}"
         )
-    if len(items) < MINIMUM_TOTAL:
+    if check_coverage and len(items) < MINIMUM_TOTAL:
         raise ValidationError(
             f"Expected at least {MINIMUM_TOTAL} items, got {len(items)}"
         )
@@ -376,7 +388,7 @@ def validate_result(items, metrics, mode="full"):
             math.ceil(expected * MINIMUM_COVERAGE),
         )
         actual = sections[section]
-        if actual < required or actual > expected:
+        if (check_coverage and actual < required) or actual > expected:
             incomplete[section] = {
                 "expected": expected,
                 "required": required,

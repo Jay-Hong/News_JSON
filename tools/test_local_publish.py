@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -25,6 +26,7 @@ import local_publish  # noqa: E402  (needs sys.path above)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REAL_VALIDATOR = REPO_ROOT / "nate_news" / "validate_result.py"
 REAL_ASSEMBLER = REPO_ROOT / "nate_news" / "nate_news" / "fallback.py"
+REAL_REUSE = REPO_ROOT / "nate_news" / "nate_news" / "reuse.py"
 DAY = "20200102"
 
 # Stands in for `scrapy crawl nate_news_fallback`: writes a raw snapshot that
@@ -32,7 +34,7 @@ DAY = "20200102"
 # Article ids are interleaved by rank across the sections, like the real plan.
 FAKE_CRAWLER = r'''
 import hashlib, json, os, sys
-mode, seed, run_id, snapshot_path, previous_path = sys.argv[1:6]
+mode, seed, run_id, snapshot_path, previous_path, kst_day = sys.argv[1:7]
 DAY = "20200102"
 marker = os.environ.get("FAKE_CRAWLER_MARKER")
 if marker:
@@ -43,10 +45,12 @@ if args_log:
         handle.write(json.dumps({
             "run_id": run_id, "snapshot": snapshot_path, "previous": previous_path,
             "previous_sha256": hashlib.sha256(open(previous_path, "rb").read()).hexdigest(),
+            "kst_day": kst_day,
         }) + "\n")
 # Like the real spider's from_crawler: a previous file that is not a JSON list
 # is a configuration error before any request.
-if not isinstance(json.loads(open(previous_path, encoding="utf-8").read()), list):
+previous = json.loads(open(previous_path, encoding="utf-8").read())
+if not isinstance(previous, list):
     sys.exit(1)
 if mode == "exit":
     sys.exit(2)
@@ -67,13 +71,19 @@ for index, sect in enumerate(sections):
         })
 plan = [row["id"] for row in sorted(ranking, key=lambda row: (
     int(row["id"][-3:]), sections.index(row["section"])))]
-reached = {"ok": 300, "complete": 300, "blocked": 30, "cutoff": 285,
+if mode == "half":
+    # Like the real plan: articles whose company the previous file (with any
+    # reused local results) does not provide come first.
+    known = {item["newsURL"].split("/view/")[1].split("?")[0] for item in previous
+             if isinstance(item, dict) and item.get("company") and "/view/" in item.get("newsURL", "")}
+    plan = [i for i in plan if i not in known] + [i for i in plan if i in known]
+reached = {"ok": 300, "complete": 300, "blocked": 30, "cutoff": 285, "half": 150,
            "budget": 285, "reuse": 10, "rank_failed": 0, "wrong_run": 300}[mode]
 close_reason = {
     "ok": "finished", "complete": "finished", "wrong_run": "finished",
     "blocked": "fallback_transport_failures:2", "cutoff": "fallback_transport_failures:2",
-    "reuse": "fallback_transport_failures:2", "budget": "closespider_timeout",
-    "rank_failed": "rank_page_transport_failed:sisa-1",
+    "reuse": "fallback_transport_failures:2", "half": "fallback_transport_failures:2",
+    "budget": "closespider_timeout", "rank_failed": "rank_page_transport_failed:sisa-1",
 }[mode]
 articles = {}
 for count, identifier in enumerate(plan[:reached]):
@@ -147,9 +157,9 @@ class FakeCrawlPublisher(local_publish.Publisher):
     seed = "a"
     real_dependency_check = False
 
-    def crawl_command(self, run_id, snapshot, previous):
+    def crawl_command(self, run_id, snapshot, previous, kst_day):
         return [sys.executable, str(self.crawler_script), self.mode, self.seed,
-                run_id, str(snapshot), str(previous)]
+                run_id, str(snapshot), str(previous), kst_day]
 
     def check_dependencies(self):
         if self.real_dependency_check:
@@ -178,6 +188,7 @@ class LocalPublishTest(unittest.TestCase):
         (self.seed / "nate_news" / "nate_news" / "spiders").mkdir(parents=True)
         shutil.copyfile(REAL_VALIDATOR, self.seed / "nate_news" / "validate_result.py")
         shutil.copyfile(REAL_ASSEMBLER, self.seed / "nate_news" / "nate_news" / "fallback.py")
+        shutil.copyfile(REAL_REUSE, self.seed / "nate_news" / "nate_news" / "reuse.py")
         (self.seed / "nate_news" / "nate_news" / "__init__.py").write_text("")
         (self.seed / "nate_news" / "nate_news" / "spiders" / "spider.py").write_text("# v1\n")
         (self.seed / "nate_news" / "nate_news" / "config.json").write_text("{}\n")
@@ -279,15 +290,25 @@ class LocalPublishTest(unittest.TestCase):
     def test_crawl_runs_the_incremental_spider_with_the_local_settings(self):
         publisher = local_publish.Publisher(self.state)
         snapshot, previous = self.tmp / "snap.json", self.tmp / "prev.json"
-        crawl = local_publish.Publisher.crawl_command(publisher, "run-7", snapshot, previous)
+        crawl = local_publish.Publisher.crawl_command(publisher, "run-7", snapshot, previous,
+                                                      "20261119")
         self.assertEqual(crawl[:5], [str(self.state / "venv" / "bin" / "python"), "-m", "scrapy",
                                      "crawl", "nate_news_fallback"])
         settings = {crawl[i + 1] for i, arg in enumerate(crawl) if arg == "-s"}
         self.assertEqual(settings, {
             "NATE_FALLBACK_RUN_ID=run-7", f"NATE_FALLBACK_SNAPSHOT_PATH={snapshot}",
-            f"NATE_FALLBACK_PREVIOUS_PATH={previous}", "DOWNLOAD_DELAY=2.0",
-            "CLOSESPIDER_TIMEOUT=1200", "TELNETCONSOLE_ENABLED=False",
+            f"NATE_FALLBACK_PREVIOUS_PATH={previous}", "NATE_FALLBACK_KST_DAY=20261119",
+            "DOWNLOAD_DELAY=2.0", "CLOSESPIDER_TIMEOUT=1200", "TELNETCONSOLE_ENABLED=False",
         })
+        reuse = publisher.reuse_command(previous, "20261119", [Path("r2"), Path("r1")],
+                                        Path("m.json"), Path("rep.json"))
+        self.assertEqual(reuse[:3], [str(self.state / "venv" / "bin" / "python"), "-m",
+                                     "nate_news.reuse"])
+        for flag, value in (("--previous", str(previous)), ("--kst-day", "20261119"),
+                            ("--out", "m.json"), ("--report", "rep.json")):
+            self.assertEqual(reuse[reuse.index(flag) + 1], value)
+        self.assertEqual([reuse[i + 1] for i, arg in enumerate(reuse) if arg == "--run"],
+                         ["r2", "r1"])
         assemble = publisher.assemble_command("run-7", snapshot, previous, "out.json", "m.json")
         self.assertEqual(assemble[1:3], ["-m", "nate_news.fallback"])
         for flag, value in (("--snapshot", str(snapshot)), ("--previous", str(previous)),
@@ -327,7 +348,7 @@ class LocalPublishTest(unittest.TestCase):
         last = published[-1]
         self.assertEqual((last["title"], last["company"], last["image"]), ("a-ent-100", "old", ""))
 
-    def test_unusable_previous_publish_crawls_without_reuse(self):
+    def test_unusable_previous_publish_is_replaced_by_an_empty_list(self):
         for index, broken in enumerate((b"not json\n", b"{}\n", b"null\n", b"\xff\xfe[]\n")):
             with self.subTest(broken=broken):
                 git(self.seed, "pull", "--quiet", "origin", "master")
@@ -338,11 +359,25 @@ class LocalPublishTest(unittest.TestCase):
                 code, run = self.run_publisher()
                 self.assertEqual((code, run["outcome"]), (0, "published"))
                 # History keeps the hash of what the tip published; the spider
-                # got an empty list instead.
+                # got an empty list instead, followed by the results of the
+                # earlier runs of this test.
                 self.assertEqual((run["previous_sha256"], run["previous_usable"]),
                                  (hashlib.sha256(broken).hexdigest(), False))
+                reused = run["reuse"]
                 self.assertEqual(self.crawler_calls()[-1]["previous_sha256"],
-                                 hashlib.sha256(b"[]\n").hexdigest())
+                                 reused["input_sha256"])
+                runs = self.state / "runs"
+                if index == 0:
+                    self.assertEqual(reused["accepted"], [])
+                    self.assertEqual(reused["input_sha256"], hashlib.sha256(b"[]\n").hexdigest())
+                else:
+                    self.assertEqual(len(reused["accepted"]), index)
+                    expected = []
+                    for earlier in reused["accepted"]:
+                        expected += json.loads(
+                            (runs / earlier["run_id"] / "nate_result.json").read_text())
+                    merged = runs / run["run_id"] / local_publish.MERGED_PREVIOUS_FILE
+                    self.assertEqual(json.loads(merged.read_text()), expected)
                 published = git(self.origin, "show", f"{self.origin_tip()}:newsURL.json")
                 self.assertEqual(len(json.loads(published)), 300)
 
@@ -361,6 +396,10 @@ class LocalPublishTest(unittest.TestCase):
         code, run = self.run_publisher(publisher)
         self.assertEqual((code, run["reason"]), (1, "previous_publish_mismatch"))
         self.assertFalse(self.marker.exists(), "must stop before crawling")
+        # The optional reuse step never runs on, or hides, a bad copy.
+        self.assertNotIn("reuse", run)
+        self.assertFalse((self.state / "runs" / run["run_id"]
+                          / local_publish.MERGED_PREVIOUS_FILE).exists())
         self.assertEqual(self.origin_tip(), self.pin)
 
     def test_stale_bytecode_is_never_used_as_the_assembler(self):
@@ -384,6 +423,8 @@ class LocalPublishTest(unittest.TestCase):
         log = (self.state / "runs" / run["run_id"] / "publish.log").read_text()
         self.assertNotIn("FORGED", log)
         self.assertIn("assemble: fallback result: 300 of 300", log)
+        # The reuse step imports the same module and must not run it either.
+        self.assertNotIn("error", run["reuse"])
 
     def test_symlink_planted_before_the_previous_copy_is_refused(self):
         outside = self.tmp / "outside.txt"
@@ -408,10 +449,302 @@ class LocalPublishTest(unittest.TestCase):
 
     def test_cut_off_crawl_is_rescued_by_the_previous_publish(self):
         self.run_publisher()  # 300 articles with a company
+        # Without the first run's local result, so only the tip can help.
+        for path in (self.state / "runs").iterdir():
+            shutil.rmtree(path)
         self.mode, self.seed_name = "blocked", "b"  # only 30 pages before the cut-off
         code, run = self.run_publisher()
         self.assertEqual((code, run["outcome"]), (0, "published"))
+        self.assertEqual(run["reuse"]["accepted"], [])
         self.assertEqual((run["crawl"]["stop_reason"], run["crawl"]["items"]), ("transport_breaker", 300))
+
+    # -- reuse of this machine's earlier results ---------------------------
+
+    def fake_day_publisher(self):
+        """A publisher whose run day is the fake ranking's day, so the reuse
+        report counts the fake article ids as reusable."""
+        return self.make_publisher(kst_day=lambda started: DAY)
+
+    def test_cut_off_run_is_completed_by_the_next_run_with_its_results(self):
+        # Each run is cut off after 150 article pages, and the tip publishes
+        # nothing to reuse. The first run fails; the second asks only for the
+        # other 150 articles and publishes all 300.
+        self.mode, self.seed_name = "half", "a"
+        code, first = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual((code, first["reason"]), (1, "validation_failed"))
+        self.assertEqual(first["reuse"]["accepted"], [])
+        self.seed_name = "b"
+        code, second = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual((code, second["outcome"]), (0, "published"))
+        self.assertEqual((second["crawl"]["items"], second["crawl"]["article_requests"]), (300, 152))
+        earlier = self.state / "runs" / first["run_id"]
+        reused = second["reuse"]
+        self.assertEqual(reused["accepted"], [{
+            "run_id": first["run_id"],
+            "result_sha256": local_publish.sha256_file(earlier / "nate_result.json"),
+            "metrics_sha256": local_publish.sha256_file(earlier / "crawl_metrics.json"),
+        }])
+        self.assertEqual((reused["added_ids"], reused["kst_day"], reused["considered"]),
+                         (150, DAY, 1))
+        merged = self.state / "runs" / second["run_id"] / local_publish.MERGED_PREVIOUS_FILE
+        self.assertEqual(reused["input_sha256"], local_publish.sha256_file(merged))
+        call = self.crawler_calls()[-1]
+        self.assertEqual((call["previous"], call["previous_sha256"], call["kst_day"]),
+                         (str(merged), reused["input_sha256"], DAY))
+        # previous_sha256 still names what the tip published.
+        self.assertEqual(second["previous_sha256"], hashlib.sha256(b"[]\n").hexdigest())
+        published = json.loads(git(self.origin, "show", f"{self.origin_tip()}:newsURL.json"))
+        self.assertEqual({item["company"] for item in published}, {"c"})
+
+    def test_only_sound_recent_finished_runs_are_reused(self):
+        self.mode, self.seed_name = "half", "a"
+        code, first = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual(code, 1)
+        runs = self.state / "runs"
+        source = runs / first["run_id"]
+        history = self.state / "history.jsonl"
+        now = local_publish.utc_now()
+
+        def clone(hours_ago, change=None, recorded=True, parent=runs):
+            name = (now - timedelta(hours=hours_ago)).strftime(local_publish.RUN_ID_FORMAT)
+            target = parent / name
+            shutil.copytree(source, target)
+            metrics = json.loads((target / "crawl_metrics.json").read_text())
+            metrics["run_id"] = name
+            (target / "crawl_metrics.json").write_text(json.dumps(metrics))
+            if change:
+                change(target)
+            if recorded:
+                with open(history, "a", encoding="utf-8") as handle:
+                    handle.write(json.dumps({"run_id": name, "outcome": "failed"}) + "\n")
+            return name
+
+        def metrics_change(**updates):
+            def change(target):
+                metrics = json.loads((target / "crawl_metrics.json").read_text())
+                metrics.update(updates)
+                for key in [key for key, value in updates.items() if value is None]:
+                    del metrics[key]
+                (target / "crawl_metrics.json").write_text(json.dumps(metrics))
+            return change
+
+        def empty_company(target):
+            items = json.loads((target / "nate_result.json").read_text())
+            items[5]["company"] = ""
+            (target / "nate_result.json").write_text(json.dumps(items))
+
+        def broken_result(target):
+            (target / "nate_result.json").write_text("[")
+
+        def linked_result(target):
+            # A link to a sound result that stays in place: refused for being
+            # a link, not for being missing.
+            kept = self.tmp / "kept_result.json"
+            shutil.copyfile(target / "nate_result.json", kept)
+            (target / "nate_result.json").unlink()
+            (target / "nate_result.json").symlink_to(kept)
+
+        good_newer, good_older = clone(1), clone(2)
+        clone(3, metrics_change(stop_reason="unexpected:fallback_chain_broken"))
+        clone(4, metrics_change(spider_errors=1))
+        clone(5, metrics_change(mode=None))  # metrics of a full crawl carry no mode
+        clone(6, empty_company)
+        clone(7, metrics_change(run_id="20200101T000000.000000Z"))
+        clone(8, broken_result)
+        clone(9, linked_result)
+        clone(10, recorded=False)  # never reached record(): not in the history
+        clone(49)  # older than the window
+        clone(-1)  # in the future
+        outside = self.tmp / "outside"
+        outside.mkdir()
+        linked = clone(11, parent=outside)
+        (runs / linked).symlink_to(outside / linked)
+        (runs / "notes").mkdir()
+        shutil.rmtree(source)
+
+        self.seed_name = "b"
+        code, second = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual((code, second["outcome"]), (0, "published"))
+        reused = second["reuse"]
+        self.assertEqual([entry["run_id"] for entry in reused["accepted"]], [good_newer, good_older])
+        self.assertEqual(reused["rejected"], {"unsound": 4, "run_id_mismatch": 1,
+                                              "unreadable": 1, "not_regular_file": 1})
+        self.assertEqual(reused["skipped"], {"not_in_history": 1, "outside_window": 2,
+                                             "not_a_directory": 1, "not_a_run": 1})
+        self.assertEqual(reused["considered"], 9)
+        # The two copies of the same run add its 150 articles once.
+        self.assertEqual(reused["added_ids"], 150)
+        merged = json.loads((runs / second["run_id"] / local_publish.MERGED_PREVIOUS_FILE).read_text())
+        good = json.loads((runs / good_newer / "nate_result.json").read_text())
+        self.assertEqual(merged, good + good)
+
+    def test_tip_entry_wins_and_an_invalid_tip_entry_does_not_hide_a_local_one(self):
+        self.mode, self.seed_name = "half", "a"
+        code, _ = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual(code, 1)
+        # A manual data commit: every article with company "old", except one
+        # with an empty company, which build_cache() does not accept. Both ids
+        # are in the first run's result and outside the ten pages read below.
+        hidden, kept = f"{DAY}n00030", f"{DAY}n00031"
+        items = json.loads(previous_publish(company="old"))
+        for item in items:
+            if f"/{hidden}?" in item["newsURL"]:
+                item["company"] = ""
+        self.push_from_seed("newsURL.json", json.dumps(items, ensure_ascii=False) + "\n",
+                            "chore: manual data")
+        self.mode, self.seed_name = "reuse", "b"
+        code, second = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual((code, second["outcome"]), (0, "published"))
+        self.assertEqual(second["reuse"]["added_ids"], 1)
+        published = {
+            item["newsURL"].split("/view/")[1].split("?")[0]: item
+            for item in json.loads(git(self.origin, "show", f"{self.origin_tip()}:newsURL.json"))
+        }
+        self.assertEqual(published[hidden]["company"], "c")  # the earlier run's result
+        self.assertEqual(published[kept]["company"], "old")  # the tip's entry wins
+
+    def test_reuse_failure_falls_back_to_the_previous_publish(self):
+        self.push_from_seed("newsURL.json", previous_publish(company="old"), "News")
+        report_ok = json.dumps({"accepted": [], "rejected_counts": {}, "added_ids": 0})
+        scripts = {
+            "exit with partial files": "open(merged, 'w').write('[1]'); "
+                                       "open(report, 'w').write('{}'); raise SystemExit(1)",
+            "no report": "open(merged, 'w').write('[]')",
+            "corrupt report": "open(merged, 'w').write('[]'); open(report, 'w').write('{')",
+            "report not an object": "open(merged, 'w').write('[]'); open(report, 'w').write('[]')",
+            "merged not a list": f"open(merged, 'w').write('{{}}'); open(report, 'w').write({report_ok!r})",
+            "no merged file": f"open(report, 'w').write({report_ok!r})",
+            "report entry without a hash": "open(merged, 'w').write('[]'); open(report, 'w').write("
+                                           "'{\"accepted\": [{\"run_id\": \"x\"}], "
+                                           "\"rejected_counts\": {}, \"added_ids\": 0}')",
+            "timeout": "import time; time.sleep(10)",
+        }
+        for index, (name, body) in enumerate(scripts.items()):
+            with self.subTest(name), mock.patch.object(local_publish, "REUSE_TIMEOUT_SECONDS", 2):
+                self.mode, self.seed_name = "reuse", f"f{index}"
+                publisher = self.make_publisher()
+                notices = []
+                publisher.notify = lambda title, text: notices.append(title)
+
+                def failing(previous, kst_day, runs, merged, report, body=body):
+                    return [sys.executable, "-c",
+                            "import sys\nmerged, report = sys.argv[1:3]\n" + body,
+                            str(merged), str(report)]
+
+                publisher.reuse_command = failing
+                code, run = self.run_publisher(publisher)
+                self.assertEqual((code, run["outcome"]), (0, "published"))
+                self.assertIn("error", run["reuse"])
+                self.assertNotIn("accepted", run["reuse"])
+                self.assertEqual(run["reuse"]["input_sha256"], run["previous_sha256"])
+                self.assertEqual(notices, ["News_JSON reuse failed"])
+                call = self.crawler_calls()[-1]
+                self.assertEqual(call["previous_sha256"], run["previous_sha256"])
+                run_dir = self.state / "runs" / run["run_id"]
+                self.assertEqual(call["previous"], str(run_dir / local_publish.PREVIOUS_FILE))
+                self.assertFalse((run_dir / local_publish.MERGED_PREVIOUS_FILE).exists())
+                self.assertFalse((run_dir / local_publish.REUSE_REPORT_FILE).exists())
+
+    def test_failure_after_the_reuse_process_still_falls_back(self):
+        # The reuse process succeeded and accepted a run, but hashing its
+        # output fails: the run uses the tip copy and records no accepted runs.
+        self.mode, self.seed_name = "half", "a"
+        code, first = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual(code, 1)
+        real_sha256 = local_publish.sha256_file
+
+        def unreadable_merged(path):
+            if Path(path).name == local_publish.MERGED_PREVIOUS_FILE:
+                raise PermissionError(13, "Permission denied", str(path))
+            return real_sha256(path)
+
+        self.seed_name = "b"
+        with mock.patch.object(local_publish, "sha256_file", side_effect=unreadable_merged):
+            code, second = self.run_publisher(self.fake_day_publisher())
+        # Without the earlier result, the second cut-off run is short again.
+        self.assertEqual((code, second["reason"]), (1, "validation_failed"))
+        self.assertIn("Permission denied", second["reuse"]["error"])
+        self.assertNotIn("accepted", second["reuse"])
+        self.assertEqual(second["reuse"]["input_sha256"], second["previous_sha256"])
+        run_dir = self.state / "runs" / second["run_id"]
+        self.assertEqual(self.crawler_calls()[-1]["previous"], str(run_dir / local_publish.PREVIOUS_FILE))
+        self.assertFalse((run_dir / local_publish.MERGED_PREVIOUS_FILE).exists())
+
+    def test_ctrl_c_during_the_reuse_step_is_not_absorbed(self):
+        publisher = self.make_publisher()
+        real_run_command = publisher.run_command
+
+        def interrupt_reuse(args, **kwargs):
+            if "nate_news.reuse" in map(str, args):
+                raise KeyboardInterrupt
+            return real_run_command(args, **kwargs)
+
+        publisher.run_command = interrupt_reuse
+        with self.assertRaises(KeyboardInterrupt):
+            publisher.run()
+        self.assertFalse(self.marker.exists(), "must not crawl after Ctrl-C")
+        self.assertEqual(self.origin_tip(), self.pin)
+
+    def test_reuse_and_spider_get_one_day_fixed_before_the_reuse_step(self):
+        kst_day = local_publish.Publisher.kst_day
+        self.assertEqual(kst_day(datetime(2020, 1, 2, 14, 59, 59, 999999, tzinfo=timezone.utc)),
+                         "20200102")
+        self.assertEqual(kst_day(datetime(2020, 1, 2, 15, 0, tzinfo=timezone.utc)), "20200103")
+        # The run starts a moment before midnight KST (a date that can never
+        # be today's); every later reading of the clock is after midnight.
+        # The day is read once, after the preflight, and both the reuse step
+        # and the spider get that same day.
+        started = datetime(2020, 1, 2, 14, 59, 59, 900000, tzinfo=timezone.utc)
+        clock = iter([started])
+        with mock.patch.object(local_publish, "utc_now",
+                               side_effect=lambda: next(clock, started + timedelta(seconds=1))):
+            code, run = self.run_publisher()
+        self.assertEqual(code, 0)
+        self.assertTrue(run["run_id"].startswith("20200102T145959"))
+        self.assertEqual(run["reuse"]["kst_day"], "20200103")
+        self.assertEqual(self.crawler_calls()[-1]["kst_day"], "20200103")
+
+    def test_suspension_during_the_reuse_step_is_not_published(self):
+        # The day is fixed right before the reuse step, so a sleep from then
+        # on (for example past midnight) must stop the run.
+        publisher = self.make_publisher()
+        real_add = publisher.add_local_results
+        real_time = local_publish.time.time
+        offset = [0.0]
+
+        def add_while_machine_sleeps(*args):
+            outputs = real_add(*args)
+            offset[0] = 9 * 3600  # wall clock jumps, monotonic clock does not
+            return outputs
+
+        publisher.add_local_results = add_while_machine_sleeps
+        with mock.patch.object(local_publish.time, "time", lambda: real_time() + offset[0]):
+            code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "suspended_or_clock_jump"))
+        self.assertEqual(self.origin_tip(), self.pin)
+
+    def test_damaged_history_only_limits_reuse(self):
+        self.mode, self.seed_name = "half", "a"
+        code, first = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual(code, 1)
+        history = self.state / "history.jsonl"
+        good = history.read_bytes()
+        # A torn append that ends inside a multi-byte character, then lines
+        # that are not JSON objects, one nested too deeply to parse.
+        history.write_bytes(good + b'{"run_id": "x", "detail": "\xea\xb0' + b'not json\n[1]\n'
+                            + b"[" * 100000 + b"]" * 100000 + b"\n")
+        self.seed_name = "b"
+        code, second = self.run_publisher(self.fake_day_publisher())
+        self.assertEqual((code, second["outcome"]), (0, "published"))
+        self.assertEqual([entry["run_id"] for entry in second["reuse"]["accepted"]],
+                         [first["run_id"]])
+        # An unreadable history means nothing is offered, not a failed run.
+        history.unlink()
+        history.mkdir()
+        self.seed_name = "c"
+        code, third = self.run_publisher(self.fake_day_publisher())
+        self.assertIn("error", third["reuse"])
+        self.assertEqual(third["reuse"]["input_sha256"], third["previous_sha256"])
 
     def test_snapshot_problems_publish_nothing(self):
         for mode, reason in (("wrong_run", "assemble_failed"), ("nosnapshot", "crawl_failed"),

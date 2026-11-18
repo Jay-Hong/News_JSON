@@ -36,7 +36,12 @@ Safety rules, in the order they are enforced by ``run``:
 4. Only output that passes ``validate_result.py --mode fallback`` is
    published. The previous publish it builds on is a byte copy of what the
    base tip publishes, taken before crawling; if that copy is not a JSON
-   list, the crawl runs without reuse (an empty list) and says so.
+   list, an empty list takes its place and the run says so. The results of
+   this machine's own earlier incremental runs of the last 48 hours,
+   including runs that were cut off and failed validation, are added after
+   it (see nate_news/nate_news/reuse.py), so a company such a run read for an
+   article the tip does not cover is not requested again; if that step
+   fails, the run uses the previous publish alone.
 5. If the remote branch moved while crawling, the run stops instead of
    rebuilding on top of it; a newer publish must never be overwritten by an
    older crawl. The push is fast-forward only.
@@ -54,7 +59,7 @@ import subprocess
 import sys
 import time
 import traceback
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
@@ -82,13 +87,23 @@ CRAWL_TIMEOUT_SECONDS = 40 * 60
 ASSEMBLE_TIMEOUT_SECONDS = 120
 PREVIOUS_FILE = "previous_newsURL.json"
 SNAPSHOT_FILE = "fallback_snapshot.json"
+# Earlier runs whose results may be added to the previous publish (see
+# nate_news/nate_news/reuse.py). Article ids are limited to today and
+# yesterday (KST) anyway, so older runs could add nothing.
+REUSE_WINDOW_SECONDS = 48 * 60 * 60
+REUSE_TIMEOUT_SECONDS = 120
+MERGED_PREVIOUS_FILE = "previous_merged.json"
+REUSE_REPORT_FILE = "reuse_report.json"
+RUN_ID_FORMAT = "%Y%m%dT%H%M%S.%fZ"
+KST = timezone(timedelta(hours=9))
 GIT_TIMEOUT_SECONDS = 120
 RUNS_TO_KEEP = 40
 # A run right after wake can start before the network is back.
 PREFLIGHT_FETCH_ATTEMPTS = 3
 PREFLIGHT_FETCH_WAIT_SECONDS = 20
 # time.monotonic() stops while a Mac sleeps; time.time() does not. A gap this
-# large between the two since the crawl began means the machine was suspended
+# large between the two since the ranking day was fixed (right before the
+# reuse step and the crawl) means the machine was suspended
 # (or the system clock was moved), so the ranking may be stale.
 MAX_SUSPENDED_SECONDS = 120
 # Inherited variables that could redirect git, Python, pip, or Scrapy away
@@ -151,7 +166,7 @@ class Publisher:
         self.lock_path = self.state_dir / "lock"
         self._log_handle = log
         self.config = {}
-        self._crawl_clock = None  # (wall, monotonic) at crawl start
+        self._crawl_clock = None  # (wall, monotonic) when the ranking day is fixed
 
     # -- small helpers -----------------------------------------------------
 
@@ -350,14 +365,14 @@ class Publisher:
                 raise Abort("data_path_not_regular_file", f"{relative} has mode {mode}")
 
     def check_not_suspended(self):
-        """Abort if the wall clock ran ahead of the awake clock since the crawl began."""
+        """Abort if the wall clock ran ahead of the awake clock since the day was fixed."""
         if self._crawl_clock is None:
             return
         wall_start, awake_start = self._crawl_clock
         gap = (time.time() - wall_start) - (time.monotonic() - awake_start)
         if gap > MAX_SUSPENDED_SECONDS:
             raise Abort("suspended_or_clock_jump",
-                        f"wall clock ran {int(gap)}s ahead of awake time since the crawl began")
+                        f"wall clock ran {int(gap)}s ahead of awake time since the day was fixed")
 
     def prepare_publish_clone(self, tip):
         """Put the publish clone exactly at tip, discarding leftovers.
@@ -416,13 +431,140 @@ class Publisher:
         # and which fields can be reused. Without it every page is requested and
         # validation still guards the output; refusing to run would instead keep
         # a broken file published.
-        self.log("previous publish is not a JSON list; crawling without reuse")
-        self.notify("News_JSON previous publish unusable", "crawling without reuse")
+        self.log("previous publish is not a JSON list; crawling without it")
+        self.notify("News_JSON previous publish unusable", "crawling without it")
         empty = run_dir / "previous_unusable.json"
         empty.write_text("[]\n", encoding="utf-8")
         return empty, digest, False
 
-    def crawl_command(self, run_id, snapshot, previous):
+    @staticmethod
+    def kst_day(moment):
+        """The KST day of a UTC moment, as the spider's YYYYMMDD setting.
+
+        A run fixes it once, right before the reuse step, and gives the same
+        day to the reuse step and the spider.
+        """
+        return moment.astimezone(KST).strftime("%Y%m%d")
+
+    def history_run_ids(self):
+        """Run ids that reached record(), i.e. runs that finished.
+
+        Lines that cannot be decoded or parsed (a torn append, a hand edit)
+        are skipped, so a damaged history only means less reuse.
+        """
+        try:
+            lines = self.history_path.read_bytes().splitlines()
+        except FileNotFoundError:
+            return set()
+        run_ids = set()
+        for line in lines:
+            try:
+                entry = json.loads(line.decode("utf-8"))
+            # ValueError also covers UnicodeDecodeError; RecursionError is a
+            # line nested too deeply to parse.
+            except (ValueError, RecursionError):
+                continue
+            if isinstance(entry, dict) and isinstance(entry.get("run_id"), str):
+                run_ids.add(entry["run_id"])
+        return run_ids
+
+    def reuse_candidates(self, run_id, started):
+        """Earlier finished runs at most REUSE_WINDOW_SECONDS old, newest first.
+
+        Returns (paths, counts of directories passed over, by reason).
+        """
+        finished = self.history_run_ids()
+        candidates = []
+        skipped = {}
+        for path in self.runs_dir.iterdir():
+            if path.name == run_id:
+                continue
+            try:
+                when = datetime.strptime(path.name, RUN_ID_FORMAT).replace(tzinfo=timezone.utc)
+            except ValueError:
+                reason = "not_a_run"
+            else:
+                age = (started - when).total_seconds()
+                if path.is_symlink() or not path.is_dir():
+                    reason = "not_a_directory"
+                elif path.name not in finished:
+                    reason = "not_in_history"
+                elif not 0 <= age <= REUSE_WINDOW_SECONDS:
+                    reason = "outside_window"
+                else:
+                    candidates.append((when, path))
+                    continue
+            skipped[reason] = skipped.get(reason, 0) + 1
+        return [path for _, path in sorted(candidates, reverse=True)], skipped
+
+    def reuse_command(self, previous, kst_day, runs, merged, report):
+        command = [
+            str(self.python), "-m", "nate_news.reuse",
+            "--previous", str(previous), "--kst-day", kst_day,
+            "--out", str(merged), "--report", str(report),
+        ]
+        for path in runs:
+            command += ["--run", str(path)]
+        return command
+
+    def add_local_results(self, run_dir, run_id, started, previous, kst_day):
+        """Add recent local results to the previous publish (nate_news.reuse).
+
+        Returns (path to give the spider and the assembler, record for the
+        history). This step only adds optional reuse: if it fails, the run
+        continues with the previous publish alone, which is exactly how runs
+        worked before it existed, and validation still guards the output.
+        Only a failure of this step (choosing the earlier runs, the reuse
+        process, or its output) is absorbed.
+        """
+        merged = run_dir / MERGED_PREVIOUS_FILE
+        report_path = run_dir / REUSE_REPORT_FILE
+        record = {"kst_day": kst_day}
+        try:
+            runs, skipped = self.reuse_candidates(run_id, started)
+            completed = self.run_command(
+                self.reuse_command(previous, kst_day, runs, merged, report_path),
+                cwd=self.code_dir / "nate_news",
+                timeout=REUSE_TIMEOUT_SECONDS,
+                reason="reuse_failed",
+                env=self.pinned_code_env(run_dir),
+            )
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            if not isinstance(json.loads(merged.read_text(encoding="utf-8")), list):
+                raise ValueError("merged previous publish is not a JSON list")
+            details = {
+                "considered": len(runs),
+                "skipped": skipped,
+                "accepted": [
+                    {key: entry[key] for key in ("run_id", "result_sha256", "metrics_sha256")}
+                    for entry in report["accepted"]
+                ],
+                "rejected": dict(report["rejected_counts"]),
+                "added_ids": report["added_ids"],
+            }
+            if details["accepted"]:
+                used = merged
+            else:
+                # Nothing to add: the spider gets the previous publish itself.
+                merged.unlink(missing_ok=True)
+                used = previous
+            details["input_sha256"] = sha256_file(used)
+        except (Abort, OSError, ValueError, KeyError, TypeError) as error:
+            detail = getattr(error, "detail", "") or str(error)
+            self.log(f"reuse failed, using the previous publish alone: {detail[:300]}")
+            self.notify("News_JSON reuse failed", "crawling with the previous publish alone")
+            for partial in (merged, report_path):
+                with contextlib.suppress(OSError):
+                    partial.unlink()
+            record["error"] = detail[:300]
+            record["input_sha256"] = sha256_file(previous)
+            return previous, record
+        record.update(details)
+        summary = completed.stdout.strip().splitlines()[-1:] or [""]
+        self.log(f"reuse: {summary[0][:300]}")
+        return used, record
+
+    def crawl_command(self, run_id, snapshot, previous, kst_day):
         return [
             str(self.python),
             "-m",
@@ -435,6 +577,8 @@ class Publisher:
             f"NATE_FALLBACK_SNAPSHOT_PATH={snapshot}",
             "-s",
             f"NATE_FALLBACK_PREVIOUS_PATH={previous}",
+            "-s",
+            f"NATE_FALLBACK_KST_DAY={kst_day}",
             # Command-line settings take priority over the spider's own.
             "-s",
             f"DOWNLOAD_DELAY={CRAWL_DOWNLOAD_DELAY}",
@@ -461,14 +605,14 @@ class Publisher:
             str(metrics),
         ]
 
-    def crawl(self, run_dir, run_id, previous):
+    def crawl(self, run_dir, run_id, previous, kst_day):
         snapshot = run_dir / SNAPSHOT_FILE
         environment = self.pinned_code_env(run_dir)
         # Stream to the file so a timed-out crawl still leaves its log behind.
         with open(run_dir / "spider.log", "w", encoding="utf-8") as spider_log:
             try:
                 completed = subprocess.run(
-                    self.crawl_command(run_id, snapshot, previous),
+                    self.crawl_command(run_id, snapshot, previous, kst_day),
                     cwd=str(self.code_dir / "nate_news"),
                     env=environment,
                     stdout=spider_log,
@@ -511,7 +655,8 @@ class Publisher:
         """What the validated output holds, for history and status.
 
         A "complete" stop reason does not mean every article page was read:
-        fields of articles that were already published are reused.
+        fields of articles that were already published, or that earlier local
+        runs read, are reused.
         """
         items = json.loads(Path(result).read_text(encoding="utf-8"))
         stats = json.loads(Path(metrics).read_text(encoding="utf-8"))
@@ -664,7 +809,7 @@ class Publisher:
 
     def _run_locked(self):
         started = utc_now()
-        run_id = started.strftime("%Y%m%dT%H%M%S.%fZ")
+        run_id = started.strftime(RUN_ID_FORMAT)
         run_dir = self.runs_dir / run_id
         run_dir.mkdir(parents=True, exist_ok=False)
         entry = {"run_id": run_id, "started": started.isoformat(), "outcome": "failed"}
@@ -686,10 +831,17 @@ class Publisher:
                 )
                 self.log(f"preflight ok: pin {self.config['pin_sha'][:8]}, remote {base_tip[:8]},"
                          f" previous publish {entry['previous_sha256'][:12]}"
-                         + ("" if entry["previous_usable"] else " (unusable, not reused)"))
+                         + ("" if entry["previous_usable"] else " (unusable, replaced by an empty list)"))
 
+                # The ranking day is fixed here, and the suspension check covers
+                # everything from this moment to the push, so a machine that
+                # sleeps past midnight cannot publish the previous day's ranking.
                 self._crawl_clock = (time.time(), time.monotonic())
-                result, metrics = self.crawl(run_dir, run_id, previous)
+                kst_day = self.kst_day(utc_now())
+                previous, entry["reuse"] = self.add_local_results(
+                    run_dir, run_id, started, previous, kst_day
+                )
+                result, metrics = self.crawl(run_dir, run_id, previous, kst_day)
                 self.validate(result, metrics)
                 entry["data_sha256"] = sha256_file(result)
                 entry["crawl"] = self.summarize(result, metrics)
