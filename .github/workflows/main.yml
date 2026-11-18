@@ -166,8 +166,8 @@ jobs:
         git commit -m "News"
         # This result was built on $BASE. If the branch moved since then,
         # someone published in the meantime (normally the local publisher,
-        # with complete data), so this degraded result is dropped instead of
-        # being rebased on top of theirs.
+        # which reads Nate more slowly and with a longer budget), so this
+        # result is dropped instead of being rebased on top of theirs.
         tip="$(git ls-remote origin "$GITHUB_REF" | cut -f1)"
         if [ "$tip" = "$BASE" ]; then
           echo "push=true" >> "$GITHUB_OUTPUT"

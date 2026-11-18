@@ -17,8 +17,8 @@ data was committed at or after that slot's start, it is fresh; otherwise the
 slot was missed and the fallback should run. One exception: from
 LEAD_MINUTES before a slot until GRACE_MINUTES after it, the local publisher
 may be crawling for that slot, so the gate defers instead of starting a
-fallback that would publish first and make the complete local result fail
-with remote_moved. Scheduled runs (one hour after each slot) never fall in
+fallback that would publish first and make the local result (normally the
+better one) fail with remote_moved. Scheduled runs (one hour after each slot) never fall in
 that window; only delayed ones do, and the next run decides again.
 
 A last data commit up to FUTURE_TOLERANCE_MINUTES in the future is accepted

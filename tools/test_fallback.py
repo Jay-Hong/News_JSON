@@ -1184,6 +1184,17 @@ process.crawl(OfflineFallbackSpider)
 process.start()
 """
 
+# For `scrapy crawl` through the project's spider loader (SPIDER_MODULES).
+OFFLINE_SPIDER_MODULE = """
+from nate_news.spiders.nate_news_fallback import NateNewsFallbackSpider
+
+
+class OfflineFallbackSpider(NateNewsFallbackSpider):
+    name = "offline_fallback"
+    MOBILE_RANK_URL = NateNewsFallbackSpider.MOBILE_RANK_URL.replace("https://", "http://")
+    PC_RANK_URL = NateNewsFallbackSpider.PC_RANK_URL.replace("https://", "http://")
+"""
+
 COUNTS = {"sisa": 100, "spo": 57, "ent": 91}
 RANKED = sum(COUNTS.values())
 PC_THUMBNAILS = 15
@@ -1359,6 +1370,55 @@ class FallbackSpiderTest(unittest.TestCase):
         items, metrics = self.assemble(snapshot, previous)
         self.assertEqual(metrics["stop_reason"], "time_budget")
         self.assertGreater(metrics["article_requests"]["not_requested"], 0)
+        validate_result.validate_result(items, metrics, "fallback")
+
+    def test_local_publisher_command_survives_a_cut_off(self):
+        """The local publisher's command, through the real `scrapy crawl`.
+
+        The publisher relies on two things only the command line shows:
+        `scrapy crawl` exits 0 after a CloseSpider close, so a cut-off run is
+        still assembled and validated, and its -s settings beat the spider's
+        custom_settings (2.0 s and 20 minutes instead of 0.5 s and 10).
+        """
+        import local_publish  # tools/ is on sys.path
+
+        self.fake = FakeNate(COUNTS, block_after=14)  # 12 ranking pages, 2 articles
+        self.addCleanup(self.fake.close)
+        previous = previous_for_all()
+        previous_path = self.work / "previous.json"
+        previous_path.write_text(json.dumps(previous, ensure_ascii=False), encoding="utf-8")
+        (self.work / "offline_spiders.py").write_text(OFFLINE_SPIDER_MODULE, encoding="utf-8")
+        snapshot_path = self.work / "snapshot.json"
+        publisher = local_publish.Publisher(self.work / "state")
+        command = publisher.crawl_command("run-1", snapshot_path, previous_path)
+        self.assertEqual(command[1:5], ["-m", "scrapy", "crawl", local_publish.CRAWL_SPIDER])
+        command = (
+            [sys.executable, "-m", "scrapy", "crawl", "offline_fallback"]
+            + command[5:]
+            + ["-s", "SPIDER_MODULES=offline_spiders", "-s", f"NATE_FALLBACK_KST_DAY={DAY}",
+               "-s", "DOWNLOAD_TIMEOUT=1", "-s", "LOG_LEVEL=INFO"]
+        )
+        environment = {
+            key: value for key, value in os.environ.items() if not key.upper().endswith("_PROXY")
+        }
+        environment.update(
+            http_proxy=f"http://127.0.0.1:{self.fake.port}",
+            PYTHONPATH=os.pathsep.join((str(PROJECT), str(self.work))),
+            PYTHONDONTWRITEBYTECODE="1",
+            SCRAPY_SETTINGS_MODULE="nate_news.settings",
+        )
+        process = subprocess.run(
+            command, cwd=self.work, capture_output=True, text=True, env=environment, timeout=180,
+        )
+        log = process.stdout + process.stderr
+        self.assertEqual(process.returncode, 0, log[-3000:])
+        self.assertRegex(log, r"'DOWNLOAD_DELAY': '?2\.0'?")
+        self.assertRegex(log, rf"'CLOSESPIDER_TIMEOUT': '?{local_publish.CRAWL_BUDGET_SECONDS}'?")
+        snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        self.assertEqual(snapshot["close_reason"], "fallback_transport_failures:2")
+        self.assert_counts_match_the_server(snapshot)
+        items, metrics = self.assemble(snapshot, previous)
+        self.assertEqual(metrics["stop_reason"], "transport_breaker")
         validate_result.validate_result(items, metrics, "fallback")
 
     def test_transport_streak_is_reset_by_any_answer(self):

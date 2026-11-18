@@ -1,8 +1,13 @@
 """Crawl, validate, and publish Nate news from a local machine.
 
 GitHub-hosted runners lose access to Nate mid-crawl (see CLAUDE.md), so this
-script lets a scheduled local job (launchd) do what main.yml does. It only uses
-the standard library and is meant to be run from a pinned checkout:
+script lets a scheduled local job (launchd) be the primary collector. Since
+2026-11-17 this machine's full crawls were cut off the same way after four to
+eight minutes, so it runs the incremental pipeline that main.yml uses as its
+fallback (spider nate_news_fallback, then nate_news.fallback): ranking pages,
+the previous publish, and article pages only where a company or an image is
+still missing, at the full crawl's request spacing. It only uses the standard
+library and is meant to be run from a pinned checkout:
 
     <state>/venv/bin/python <state>/code/tools/local_publish.py run
 
@@ -28,7 +33,10 @@ Safety rules, in the order they are enforced by ``run``:
    and sub.yml-synced paths, and the two data paths must be regular files.
    Any other net difference means code changed upstream, so a person has to
    review it and bump the pin first.
-4. Only output that passes validate_result.py is published.
+4. Only output that passes ``validate_result.py --mode fallback`` is
+   published. The previous publish it builds on is a byte copy of what the
+   base tip publishes, taken before crawling; if that copy is not a JSON
+   list, the crawl runs without reuse (an empty list) and says so.
 5. If the remote branch moved while crawling, the run stops instead of
    rebuilding on top of it; a newer publish must never be overwritten by an
    older crawl. The push is fast-forward only.
@@ -62,8 +70,18 @@ DATA_FILES = ("nate_news/nate_result.json", "newsURL.json")
 SYNCED_PATHS = ("news", "requirements.txt", "nate_news/nate_news/config.json")
 ALLOWED_DRIFT = frozenset(DATA_FILES + SYNCED_PATHS)
 
-# settings.py closes the spider after 35 minutes; leave room for startup.
+CRAWL_SPIDER = "nate_news_fallback"
+VALIDATION_MODE = "fallback"
+# The spacing (randomized 1-3 s) of the full crawl that ran 14 times without a
+# cut-off until 2026-11-17. The spider's own 0.5 s is for the runner fallback.
+CRAWL_DOWNLOAD_DELAY = 2.0
+# Up to 312 requests at about 2 s each do not fit the spider's 10 minutes.
+CRAWL_BUDGET_SECONDS = 20 * 60
+# Above the crawl budget, with room for startup and shutdown.
 CRAWL_TIMEOUT_SECONDS = 40 * 60
+ASSEMBLE_TIMEOUT_SECONDS = 120
+PREVIOUS_FILE = "previous_newsURL.json"
+SNAPSHOT_FILE = "fallback_snapshot.json"
 GIT_TIMEOUT_SECONDS = 120
 RUNS_TO_KEEP = 40
 # A run right after wake can start before the network is back.
@@ -361,40 +379,96 @@ class Publisher:
 
     # -- crawl and validate ------------------------------------------------
 
-    def crawl_command(self, result, metrics):
-        feeds = json.dumps(
-            {
-                str(result): {
-                    "format": "json",
-                    "encoding": "utf-8",
-                    "indent": 4,
-                    "overwrite": True,
-                }
-            }
-        )
+    def copy_previous_publish(self, run_dir, tip):
+        """Freeze what the base tip publishes, for the spider and the assembler.
+
+        Called after the publish clone was reset to the base tip and the
+        dry-run push, before crawling. The tree-mode check covers the tip's
+        tree; this refuses a symlink on disk, and the blob comparison below is
+        the real guard that the copy is exactly the tip's file.
+
+        Returns (path given to the spider and the assembler, sha256 of the
+        copy, whether the copy could be reused).
+        """
+        relative = "newsURL.json"
+        source = self.publish_dir / relative
+        if source.is_symlink() or not source.is_file():
+            raise Abort("data_path_not_regular_file", relative)
+        target = run_dir / PREVIOUS_FILE
+        shutil.copyfile(source, target, follow_symlinks=False)
+        copied = self.git(
+            self.publish_dir, "hash-object", "--no-filters", "--", target,
+            reason="publish_prepare_failed",
+        ).stdout.strip()
+        expected = self.git(
+            self.publish_dir, "rev-parse", f"{tip}:{relative}", reason="publish_prepare_failed"
+        ).stdout.strip()
+        if copied != expected:
+            raise Abort("previous_publish_mismatch", f"{copied} != {expected}")
+        digest = sha256_file(target)
+        try:
+            usable = isinstance(json.loads(target.read_text(encoding="utf-8")), list)
+        except ValueError:  # also covers UnicodeDecodeError
+            usable = False
+        if usable:
+            return target, digest, True
+        # The previous publish only decides which article pages can be skipped
+        # and which fields can be reused. Without it every page is requested and
+        # validation still guards the output; refusing to run would instead keep
+        # a broken file published.
+        self.log("previous publish is not a JSON list; crawling without reuse")
+        self.notify("News_JSON previous publish unusable", "crawling without reuse")
+        empty = run_dir / "previous_unusable.json"
+        empty.write_text("[]\n", encoding="utf-8")
+        return empty, digest, False
+
+    def crawl_command(self, run_id, snapshot, previous):
         return [
             str(self.python),
             "-m",
             "scrapy",
             "crawl",
-            "nate_news_rank",
+            CRAWL_SPIDER,
             "-s",
-            f"FEEDS={feeds}",
+            f"NATE_FALLBACK_RUN_ID={run_id}",
             "-s",
-            f"NATE_CRAWL_METRICS_PATH={metrics}",
+            f"NATE_FALLBACK_SNAPSHOT_PATH={snapshot}",
+            "-s",
+            f"NATE_FALLBACK_PREVIOUS_PATH={previous}",
+            # Command-line settings take priority over the spider's own.
+            "-s",
+            f"DOWNLOAD_DELAY={CRAWL_DOWNLOAD_DELAY}",
+            "-s",
+            f"CLOSESPIDER_TIMEOUT={CRAWL_BUDGET_SECONDS}",
             "-s",
             "TELNETCONSOLE_ENABLED=False",
         ]
 
-    def crawl(self, run_dir):
-        result = run_dir / "nate_result.json"
-        metrics = run_dir / "crawl_metrics.json"
+    def assemble_command(self, run_id, snapshot, previous, result, metrics):
+        return [
+            str(self.python),
+            "-m",
+            "nate_news.fallback",
+            "--snapshot",
+            str(snapshot),
+            "--previous",
+            str(previous),
+            "--run-id",
+            run_id,
+            "--out",
+            str(result),
+            "--metrics",
+            str(metrics),
+        ]
+
+    def crawl(self, run_dir, run_id, previous):
+        snapshot = run_dir / SNAPSHOT_FILE
         environment = self.pinned_code_env(run_dir)
         # Stream to the file so a timed-out crawl still leaves its log behind.
         with open(run_dir / "spider.log", "w", encoding="utf-8") as spider_log:
             try:
                 completed = subprocess.run(
-                    self.crawl_command(result, metrics),
+                    self.crawl_command(run_id, snapshot, previous),
                     cwd=str(self.code_dir / "nate_news"),
                     env=environment,
                     stdout=spider_log,
@@ -407,13 +481,53 @@ class Publisher:
                 raise Abort("crawl_failed", f"cannot start crawler: {error}") from error
         if completed.returncode != 0:
             raise Abort("crawl_failed", f"crawler exit {completed.returncode}")
+        if not snapshot.is_file():
+            raise Abort("crawl_failed", "crawler wrote no snapshot")
+        return self.assemble(run_dir, run_id, snapshot, previous)
+
+    def assemble(self, run_dir, run_id, snapshot, previous):
+        """Turn the raw snapshot into nate_result.json and crawl_metrics.json."""
+        result = run_dir / "nate_result.json"
+        metrics = run_dir / "crawl_metrics.json"
+        completed = self.run_command(
+            self.assemble_command(run_id, snapshot, previous, result, metrics),
+            cwd=self.code_dir / "nate_news",
+            timeout=ASSEMBLE_TIMEOUT_SECONDS,
+            reason="assemble_failed",
+            env=self.pinned_code_env(run_dir),
+            check=False,
+        )
+        lines = completed.stdout.strip().splitlines()
+        for line in lines[-12:]:
+            self.log(f"assemble: {line[:300]}")
+        if completed.returncode != 0:
+            raise Abort("assemble_failed", (lines[-1:] or [f"exit {completed.returncode}"])[0][:300])
         if not result.is_file() or not metrics.is_file():
-            raise Abort("crawl_failed", "crawler produced no result or metrics file")
+            raise Abort("assemble_failed", "assembler produced no result or metrics file")
         return result, metrics
+
+    @staticmethod
+    def summarize(result, metrics):
+        """What the validated output holds, for history and status.
+
+        A "complete" stop reason does not mean every article page was read:
+        fields of articles that were already published are reused.
+        """
+        items = json.loads(Path(result).read_text(encoding="utf-8"))
+        stats = json.loads(Path(metrics).read_text(encoding="utf-8"))
+        requests = stats.get("article_requests", {})
+        return {
+            "mode": VALIDATION_MODE,
+            "stop_reason": stats.get("stop_reason"),
+            "items": len(items),
+            "images": sum(1 for item in items if item.get("image")),
+            "article_requests": requests.get("attempted"),
+            "article_pages_not_reached": requests.get("not_requested"),
+        }
 
     def validate(self, result, metrics):
         completed = self.run_command(
-            [self.python, "validate_result.py", result, metrics],
+            [self.python, "validate_result.py", "--mode", VALIDATION_MODE, result, metrics],
             cwd=self.code_dir / "nate_news",
             timeout=120,
             reason="validation_failed",
@@ -567,12 +681,19 @@ class Publisher:
                 # Everything that can fail without Nate is checked before crawling.
                 self.prepare_publish_clone(base_tip)
                 self.check_push_auth(base_tip)
-                self.log(f"preflight ok: pin {self.config['pin_sha'][:8]}, remote {base_tip[:8]}")
+                previous, entry["previous_sha256"], entry["previous_usable"] = (
+                    self.copy_previous_publish(run_dir, base_tip)
+                )
+                self.log(f"preflight ok: pin {self.config['pin_sha'][:8]}, remote {base_tip[:8]},"
+                         f" previous publish {entry['previous_sha256'][:12]}"
+                         + ("" if entry["previous_usable"] else " (unusable, not reused)"))
 
                 self._crawl_clock = (time.time(), time.monotonic())
-                result, metrics = self.crawl(run_dir)
+                result, metrics = self.crawl(run_dir, run_id, previous)
                 self.validate(result, metrics)
                 entry["data_sha256"] = sha256_file(result)
+                entry["crawl"] = self.summarize(result, metrics)
+                self.log(f"crawl: {json.dumps(entry['crawl'])}")
                 self.check_not_suspended()  # checked again right before the push
 
                 commit = self.publish(result, base_tip)

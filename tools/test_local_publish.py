@@ -7,6 +7,7 @@ request is sent to Nate or GitHub. Run with:
 """
 
 import fcntl
+import hashlib
 import json
 import os
 import shutil
@@ -23,34 +24,102 @@ import local_publish  # noqa: E402  (needs sys.path above)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REAL_VALIDATOR = REPO_ROOT / "nate_news" / "validate_result.py"
+REAL_ASSEMBLER = REPO_ROOT / "nate_news" / "nate_news" / "fallback.py"
+DAY = "20200102"
 
+# Stands in for `scrapy crawl nate_news_fallback`: writes a raw snapshot that
+# the real assembler (nate_news.fallback) and the real validator then process.
+# Article ids are interleaved by rank across the sections, like the real plan.
 FAKE_CRAWLER = r'''
-import json, os, sys
-mode, seed = sys.argv[1], sys.argv[2]
+import hashlib, json, os, sys
+mode, seed, run_id, snapshot_path, previous_path = sys.argv[1:6]
+DAY = "20200102"
 marker = os.environ.get("FAKE_CRAWLER_MARKER")
 if marker:
     open(marker, "a").write("ran\n")
+args_log = os.environ.get("FAKE_CRAWLER_ARGS")
+if args_log:
+    with open(args_log, "a") as handle:
+        handle.write(json.dumps({
+            "run_id": run_id, "snapshot": snapshot_path, "previous": previous_path,
+            "previous_sha256": hashlib.sha256(open(previous_path, "rb").read()).hexdigest(),
+        }) + "\n")
+# Like the real spider's from_crawler: a previous file that is not a JSON list
+# is a configuration error before any request.
+if not isinstance(json.loads(open(previous_path, encoding="utf-8").read()), list):
+    sys.exit(1)
 if mode == "exit":
     sys.exit(2)
-items, urls = [], []
-for sect in ("sisa", "spo", "ent"):
-    for i in range(100):
-        url = f"https://m.news.nate.com/view/2026{seed}{sect}{i:03d}?sect={sect}&list=rank&cate=interest"
-        urls.append(url)
-        items.append({"title": f"{seed}-{sect}-{i}", "company": "c", "image": "", "newsURL": url})
-pages = ["sisa-1", "sisa-2", "spo-1", "spo-2", "ent-1", "ent-2"]
-metrics = {
-    "close_reason": "article_transport_failures:3" if mode == "blocked" else "finished",
-    "rank_pages_completed": pages,
-    "discovered_by_page": {p: 50 for p in pages},
-    "discovered_by_section": {"sisa": 100, "spo": 100, "ent": 100},
-    "articles_discovered": 300, "discovered_urls": urls,
-    "article_failures": 0, "article_items_yielded": 300,
-    "item_scraped_count": 300, "item_dropped_count": 0, "item_error_count": 0,
+if mode == "nosnapshot":
+    sys.exit(0)
+sections = ("sisa", "spo", "ent")
+ranking = []
+for index, sect in enumerate(sections):
+    for position in range(1, 101):
+        identifier = f"{DAY}n{index * 1000 + position:05d}"
+        ranking.append({
+            "id": identifier,
+            "url": f"https://m.news.nate.com/view/{identifier}?sect={sect}&list=rank&cate=interest",
+            "section": sect,
+            "page": f"{sect}-{1 if position <= 50 else 2}",
+            "page_position": position if position <= 50 else position - 50,
+            "title": f"{seed}-{sect}-{position}",
+        })
+plan = [row["id"] for row in sorted(ranking, key=lambda row: (
+    int(row["id"][-3:]), sections.index(row["section"])))]
+reached = {"ok": 300, "complete": 300, "blocked": 30, "cutoff": 285,
+           "budget": 285, "reuse": 10, "rank_failed": 0, "wrong_run": 300}[mode]
+close_reason = {
+    "ok": "finished", "complete": "finished", "wrong_run": "finished",
+    "blocked": "fallback_transport_failures:2", "cutoff": "fallback_transport_failures:2",
+    "reuse": "fallback_transport_failures:2", "budget": "closespider_timeout",
+    "rank_failed": "rank_page_transport_failed:sisa-1",
+}[mode]
+articles = {}
+for count, identifier in enumerate(plan[:reached]):
+    articles[identifier] = {
+        "status": "ok", "title": f"{seed}-article-{identifier}", "company": "c",
+        "image": f"https://img/{seed}/{identifier}.jpg" if count % 2 == 0 else "",
+    }
+if close_reason.startswith("fallback_transport_failures") and reached < len(plan):
+    for identifier in plan[reached:reached + 2]:
+        articles[identifier] = {"status": "failed", "reason": "TimeoutError()"}
+rank_failed = mode == "rank_failed"
+snapshot = {
+    "schema": 2,
+    "run_id": "another-run" if mode == "wrong_run" else run_id,
+    "kst_day": DAY,
+    "close_reason": close_reason,
+    "spider_errors": 0,
+    "rank_pages_completed": [] if rank_failed else
+        ["sisa-1", "sisa-2", "spo-1", "spo-2", "ent-1", "ent-2"],
+    "ranking": [] if rank_failed else ranking,
+    # The PC stage ended on its first page, as when the PC ranking is empty.
+    "pc_pages_completed": [],
+    "pc_stop_reason": None if rank_failed else "no_rows:pc-sisa-1",
+    "pc_rows": [],
+    "plan_built": not rank_failed,
+    "article_plan": [] if rank_failed else plan,
+    "planned_before_cap": 0 if rank_failed else len(plan),
+    "articles": articles,
+    "requests": {"mobile_rank": 1 if rank_failed else 6, "pc_rank": 0 if rank_failed else 1,
+                 "article": len(articles)},
 }
-json.dump(items, open(sys.argv[3], "w"), ensure_ascii=False, indent=4)
-json.dump(metrics, open(sys.argv[4], "w"))
+json.dump(snapshot, open(snapshot_path, "w"))
 '''
+
+
+def previous_publish(company="old", image=""):
+    """A published file covering the fake ranking, as a JSON text."""
+    items = []
+    for index, sect in enumerate(("sisa", "spo", "ent")):
+        for position in range(1, 101):
+            identifier = f"{DAY}n{index * 1000 + position:05d}"
+            items.append({
+                "title": f"old-{sect}-{position}", "company": company, "image": image,
+                "newsURL": f"https://m.news.nate.com/view/{identifier}?sect={sect}&list=rank&cate=interest",
+            })
+    return json.dumps(items, ensure_ascii=False, indent=4) + "\n"
 
 
 TEST_GIT_ENV = {
@@ -78,9 +147,9 @@ class FakeCrawlPublisher(local_publish.Publisher):
     seed = "a"
     real_dependency_check = False
 
-    def crawl_command(self, result, metrics):
+    def crawl_command(self, run_id, snapshot, previous):
         return [sys.executable, str(self.crawler_script), self.mode, self.seed,
-                str(result), str(metrics)]
+                run_id, str(snapshot), str(previous)]
 
     def check_dependencies(self):
         if self.real_dependency_check:
@@ -108,6 +177,8 @@ class LocalPublishTest(unittest.TestCase):
         git(self.tmp, "clone", "--quiet", self.origin, self.seed)
         (self.seed / "nate_news" / "nate_news" / "spiders").mkdir(parents=True)
         shutil.copyfile(REAL_VALIDATOR, self.seed / "nate_news" / "validate_result.py")
+        shutil.copyfile(REAL_ASSEMBLER, self.seed / "nate_news" / "nate_news" / "fallback.py")
+        (self.seed / "nate_news" / "nate_news" / "__init__.py").write_text("")
         (self.seed / "nate_news" / "nate_news" / "spiders" / "spider.py").write_text("# v1\n")
         (self.seed / "nate_news" / "nate_news" / "config.json").write_text("{}\n")
         (self.seed / "nate_news" / "requirements.txt").write_text("")
@@ -130,6 +201,8 @@ class LocalPublishTest(unittest.TestCase):
         self.crawler.write_text(FAKE_CRAWLER)
         self.marker = self.tmp / "crawler_ran"
         os.environ["FAKE_CRAWLER_MARKER"] = str(self.marker)
+        self.crawler_args = self.tmp / "crawler_args.jsonl"
+        os.environ["FAKE_CRAWLER_ARGS"] = str(self.crawler_args)
         self.mode, self.seed_name = "ok", "a"
         self.write_config()
 
@@ -189,6 +262,166 @@ class LocalPublishTest(unittest.TestCase):
         self.assertEqual(len(published), 300)
         self.assertEqual(run["data_sha256"],
                          local_publish.sha256_file(self.state / "runs" / run["run_id"] / "nate_result.json"))
+        self.assertEqual(run["crawl"], {
+            "mode": "fallback", "stop_reason": "complete", "items": 300, "images": 150,
+            "article_requests": 300, "article_pages_not_reached": 0,
+        })
+        # The spider got a byte copy of what the base tip publishes.
+        pinned_publish = git(self.origin, "show", f"{self.pin}:newsURL.json") + "\n"
+        expected = hashlib.sha256(pinned_publish.encode()).hexdigest()
+        self.assertEqual((run["previous_sha256"], run["previous_usable"]), (expected, True))
+        self.assertEqual(self.crawler_calls()[-1]["previous_sha256"], expected)
+        self.assertEqual(self.crawler_calls()[-1]["run_id"], run["run_id"])
+
+    def crawler_calls(self):
+        return [json.loads(line) for line in self.crawler_args.read_text().splitlines()]
+
+    def test_crawl_runs_the_incremental_spider_with_the_local_settings(self):
+        publisher = local_publish.Publisher(self.state)
+        snapshot, previous = self.tmp / "snap.json", self.tmp / "prev.json"
+        crawl = local_publish.Publisher.crawl_command(publisher, "run-7", snapshot, previous)
+        self.assertEqual(crawl[:5], [str(self.state / "venv" / "bin" / "python"), "-m", "scrapy",
+                                     "crawl", "nate_news_fallback"])
+        settings = {crawl[i + 1] for i, arg in enumerate(crawl) if arg == "-s"}
+        self.assertEqual(settings, {
+            "NATE_FALLBACK_RUN_ID=run-7", f"NATE_FALLBACK_SNAPSHOT_PATH={snapshot}",
+            f"NATE_FALLBACK_PREVIOUS_PATH={previous}", "DOWNLOAD_DELAY=2.0",
+            "CLOSESPIDER_TIMEOUT=1200", "TELNETCONSOLE_ENABLED=False",
+        })
+        assemble = publisher.assemble_command("run-7", snapshot, previous, "out.json", "m.json")
+        self.assertEqual(assemble[1:3], ["-m", "nate_news.fallback"])
+        for flag, value in (("--snapshot", str(snapshot)), ("--previous", str(previous)),
+                            ("--run-id", "run-7")):
+            self.assertEqual(assemble[assemble.index(flag) + 1], value)
+        self.assertGreater(local_publish.CRAWL_TIMEOUT_SECONDS, local_publish.CRAWL_BUDGET_SECONDS)
+
+    def test_cut_off_crawl_that_validates_is_published(self):
+        # 285 articles reached; the 15 without a company are left out. The
+        # breaker run also records the two failed requests.
+        for mode, stop_reason, attempted, not_reached in (
+            ("cutoff", "transport_breaker", 287, 13),
+            ("budget", "time_budget", 285, 15),
+        ):
+            with self.subTest(mode):
+                self.mode, self.seed_name = mode, mode
+                code, run = self.run_publisher()
+                self.assertEqual((code, run["outcome"]), (0, "published"))
+                self.assertEqual(run["crawl"], {
+                    "mode": "fallback", "stop_reason": stop_reason, "items": 285, "images": 143,
+                    "article_requests": attempted, "article_pages_not_reached": not_reached,
+                })
+                self.assertEqual(self.origin_tip(), run["published_commit"])
+
+    def test_previous_publish_with_few_images_is_reused(self):
+        text = previous_publish(company="old", image="")
+        self.push_from_seed("newsURL.json", text, "News")
+        self.mode = "reuse"
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        self.assertEqual(self.crawler_calls()[-1]["previous_sha256"],
+                         hashlib.sha256(text.encode()).hexdigest())
+        # Ten article pages were read; every other article keeps the company
+        # of the previous publish and the title of the ranking list.
+        self.assertEqual((run["crawl"]["items"], run["crawl"]["images"]), (300, 5))
+        published = json.loads(git(self.origin, "show", f"{self.origin_tip()}:newsURL.json"))
+        last = published[-1]
+        self.assertEqual((last["title"], last["company"], last["image"]), ("a-ent-100", "old", ""))
+
+    def test_unusable_previous_publish_crawls_without_reuse(self):
+        for index, broken in enumerate((b"not json\n", b"{}\n", b"null\n", b"\xff\xfe[]\n")):
+            with self.subTest(broken=broken):
+                git(self.seed, "pull", "--quiet", "origin", "master")
+                (self.seed / "newsURL.json").write_bytes(broken)
+                git(self.seed, "commit", "--quiet", "-am", "chore: break the data")
+                git(self.seed, "push", "--quiet", "origin", "HEAD:refs/heads/master")
+                self.seed_name = f"u{index}"
+                code, run = self.run_publisher()
+                self.assertEqual((code, run["outcome"]), (0, "published"))
+                # History keeps the hash of what the tip published; the spider
+                # got an empty list instead.
+                self.assertEqual((run["previous_sha256"], run["previous_usable"]),
+                                 (hashlib.sha256(broken).hexdigest(), False))
+                self.assertEqual(self.crawler_calls()[-1]["previous_sha256"],
+                                 hashlib.sha256(b"[]\n").hexdigest())
+                published = git(self.origin, "show", f"{self.origin_tip()}:newsURL.json")
+                self.assertEqual(len(json.loads(published)), 300)
+
+    def test_previous_copy_must_equal_the_tip_blob(self):
+        publisher = self.make_publisher()
+        real_git = publisher.git
+
+        def git_then_rewrite(cwd, *args, **kwargs):
+            out = real_git(cwd, *args, **kwargs)
+            if args[:1] == ("clean",):  # first prepare_publish_clone, before the copy
+                publisher.git = real_git
+                (self.state / "publish" / "newsURL.json").write_text(previous_publish(company="tampered"))
+            return out
+
+        publisher.git = git_then_rewrite
+        code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "previous_publish_mismatch"))
+        self.assertFalse(self.marker.exists(), "must stop before crawling")
+        self.assertEqual(self.origin_tip(), self.pin)
+
+    def test_stale_bytecode_is_never_used_as_the_assembler(self):
+        # `python -m nate_news.fallback` would load a valid __pycache__ entry.
+        # A forged one, same size and mtime as the source, must not run.
+        import py_compile
+        source = self.state / "code" / "nate_news" / "nate_news" / "fallback.py"
+        size = source.stat().st_size
+        forged_text = "print('FORGED ASSEMBLER RAN')\n"
+        forged = self.tmp / "fallback.py"
+        forged.write_text(forged_text + "#" * (size - len(forged_text) - 1) + "\n")
+        self.assertEqual(forged.stat().st_size, size)
+        stat = source.stat()
+        os.utime(forged, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+        cache = source.parent / "__pycache__"
+        cache.mkdir()
+        (self.state / "code" / ".git" / "info" / "exclude").write_text("__pycache__/\n")
+        py_compile.compile(str(forged), cfile=str(cache / f"fallback.{sys.implementation.cache_tag}.pyc"))
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        log = (self.state / "runs" / run["run_id"] / "publish.log").read_text()
+        self.assertNotIn("FORGED", log)
+        self.assertIn("assemble: fallback result: 300 of 300", log)
+
+    def test_symlink_planted_before_the_previous_copy_is_refused(self):
+        outside = self.tmp / "outside.txt"
+        outside.write_text("[]\n")
+        publisher = self.make_publisher()
+        real_git = publisher.git
+
+        def git_then_plant(cwd, *args, **kwargs):
+            out = real_git(cwd, *args, **kwargs)
+            if args[:1] == ("clean",):  # first prepare_publish_clone, before the copy
+                publisher.git = real_git
+                target = self.state / "publish" / "newsURL.json"
+                target.unlink()
+                target.symlink_to(outside)
+            return out
+
+        publisher.git = git_then_plant
+        code, run = self.run_publisher(publisher)
+        self.assertEqual((code, run["reason"]), (1, "data_path_not_regular_file"))
+        self.assertFalse(self.marker.exists(), "must stop before crawling")
+        self.assertEqual(self.origin_tip(), self.pin)
+
+    def test_cut_off_crawl_is_rescued_by_the_previous_publish(self):
+        self.run_publisher()  # 300 articles with a company
+        self.mode, self.seed_name = "blocked", "b"  # only 30 pages before the cut-off
+        code, run = self.run_publisher()
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        self.assertEqual((run["crawl"]["stop_reason"], run["crawl"]["items"]), ("transport_breaker", 300))
+
+    def test_snapshot_problems_publish_nothing(self):
+        for mode, reason in (("wrong_run", "assemble_failed"), ("nosnapshot", "crawl_failed"),
+                             ("rank_failed", "validation_failed")):
+            with self.subTest(mode):
+                self.mode = mode
+                code, run = self.run_publisher()
+                self.assertEqual((code, run["outcome"], run["reason"]), (1, "failed", reason))
+                self.assertNotIn("crawl", run)
+                self.assertEqual(self.origin_tip(), self.pin)
 
     def test_identical_data_is_not_committed_again(self):
         self.run_publisher()
@@ -213,8 +446,8 @@ class LocalPublishTest(unittest.TestCase):
         publisher = self.make_publisher()
         original_crawl = publisher.crawl
 
-        def crawl_then_someone_else_publishes(run_dir):
-            outputs = original_crawl(run_dir)
+        def crawl_then_someone_else_publishes(*args):
+            outputs = original_crawl(*args)
             self.newer = self.push_from_seed("newsURL.json", '["newer"]\n', "News")
             return outputs
 
@@ -491,8 +724,8 @@ class LocalPublishTest(unittest.TestCase):
         real_time = local_publish.time.time
         offset = [0.0]
 
-        def crawl_while_machine_sleeps(run_dir):
-            outputs = original_crawl(run_dir)
+        def crawl_while_machine_sleeps(*args):
+            outputs = original_crawl(*args)
             offset[0] = 3 * 3600  # wall clock jumps, monotonic clock does not
             return outputs
 
@@ -573,7 +806,7 @@ class LocalPublishTest(unittest.TestCase):
         notices = []
         publisher.notify = lambda title, text: notices.append(text)
 
-        def explode(run_dir):
+        def explode(*args):
             raise OSError(28, "No space left on device")
 
         publisher.crawl = explode
@@ -666,7 +899,9 @@ class LocalPublishTest(unittest.TestCase):
 
     def test_history_and_last_success_are_recorded(self):
         self.run_publisher()
-        self.mode, self.seed_name = "blocked", "b"
+        # Not "blocked": with the first publish to reuse, a cut-off run can
+        # still validate. A lost ranking page never does.
+        self.mode, self.seed_name = "rank_failed", "b"
         self.run_publisher()
         state = json.loads((self.state / "state.json").read_text())
         self.assertEqual(state["last_run"]["outcome"], "failed")
