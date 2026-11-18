@@ -34,7 +34,10 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Pinned: on ubuntu-26.04 (ubuntu-latest from November 2026) `pip check`
+    # fails on preinstalled system packages unrelated to this project, and the
+    # fallback was tested on ubuntu-24.04 (Python 3.12). See CLAUDE.md.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
     - uses: actions/checkout@v5
