@@ -5,7 +5,10 @@ crawl starts (GitHub-hosted runners since 2026-10-23). It keeps the current
 mobile ranking as the source of order and URL, and fills title, company and
 image from, in this order: an article page fetched in this run, the PC ranking
 list, and the previously published file. Items whose company is still unknown
-are left out; an unknown image is published as an empty string.
+are left out; an unknown image is published as an empty string. Article pages
+are read from the PC site first and from the mobile host only when the PC site
+cannot be used (see the spider); the published newsURL stays the mobile
+ranking's link either way.
 
 Both the fallback spider (to decide which article pages are worth requesting)
 and the assembler (to build the published file) use resolve_fields(), so the
@@ -25,8 +28,23 @@ from urllib.parse import parse_qs, urlparse
 KST = timezone(timedelta(hours=9))
 SECTIONS = ("sisa", "spo", "ent")
 RANK_PAGES = ("sisa-1", "sisa-2", "spo-1", "spo-2", "ent-1", "ent-2")
-SNAPSHOT_SCHEMA = 2
+SNAPSHOT_SCHEMA = 3
 MODE = "fallback"
+# Where article pages may come from: the PC site (sports on its own host)
+# first, the mobile host when the PC site cannot be used.
+ARTICLE_HOSTS = ("news.nate.com", "sports.news.nate.com", "m.news.nate.com")
+PC_ARTICLE_HOSTS = ARTICLE_HOSTS[:2]
+# Why the PC site was given up during the article stage: one of its hosts
+# stopped answering, or answered several times in a row without giving a
+# company (a changed layout or a block page). Either way the mobile host then
+# serves only the articles that still lack a company.
+HOST_SWITCH_REASONS = ("pc_transport_failures", "pc_pages_unusable")
+# Why an article request failed. no_answer is a transport failure; refused is
+# a 403 or 429 (the run ends); other is a local outcome such as a cancelled
+# request.
+FAILURE_KINDS = ("no_answer", "refused", "http_error", "no_company", "other_url", "other")
+# Answers that make a PC host count as unusable when they come in a row.
+PC_UNUSABLE_FAILURES = ("http_error", "no_company", "other_url")
 
 ARTICLE_PATH = re.compile(r"^/view/((\d{8})n\d+)$")
 LEADING_BRACKETS = re.compile(r"^(?:\[[^\]]*\]\s*)+")
@@ -52,6 +70,10 @@ PUBLISHABLE_STOP_REASONS = (
     STOP_TIME_BUDGET,
 )
 CLOSE_TRANSPORT_PREFIX = "fallback_transport_failures:"
+# The PC site was given up (see HOST_SWITCH_REASONS), the mobile host has
+# been asked for every company gap that was left, and the rest of the plan
+# only lacked images. A stop forced by a site, like the transport breaker.
+CLOSE_PC_UNUSABLE = CLOSE_TRANSPORT_PREFIX + "pc"
 CLOSE_REFUSED_PREFIX = "fallback_access_refused:"
 CLOSE_REQUEST_CAP = "fallback_request_cap"
 # Scrapy reports "finished" whenever nothing is left to do, including when a
@@ -108,6 +130,18 @@ def pc_thumbnail_to_image(source):
         return ""
     match = PC_THUMBNAIL.match(source.strip())
     return "https://" + match.group(1) if match else ""
+
+
+def pc_article_image(og_image):
+    """Picture of a PC article page from its og:image, or None.
+
+    A PC article page only ever adds a picture. It never confirms that there
+    is none: an article without a picture shows Nate's logo there, which in a
+    video article may also stand for a picture the mobile page does show, and
+    a missing or unfamiliar og:image says nothing at all. All of these are
+    "not observed", so a picture known from elsewhere is kept.
+    """
+    return pc_thumbnail_to_image(og_image) or None
 
 
 def stop_reason_from_close_reason(close_reason):
@@ -191,11 +225,11 @@ def merge_pc_rows(pc_rows):
 def resolve_fields(ranking_title, pc_row, cached, article):
     """Decide title, company and image for one ranked article.
 
-    Each source is "not observed", "has a value" or, for an article page
-    fetched in this run, "confirmed empty". A source that did not observe a
-    field never overrides one that did: a PC row without a thumbnail says
-    nothing about the image, while a fetched article page without an image
-    clears it.
+    Each source is "not observed", "has a value" or, for a mobile article
+    page fetched in this run, "confirmed empty". A source that did not observe
+    a field never overrides one that did: a PC row without a thumbnail, or a
+    PC article page (image None), says nothing about the image, while a
+    fetched mobile article page without an image clears it.
 
     The title is the article page's (normalized like the full crawl) when it
     was fetched, else the previously published title when it is the same
@@ -227,7 +261,7 @@ def resolve_fields(ranking_title, pc_row, cached, article):
     else:
         company, company_source = "", "none"
 
-    if article_ok:
+    if article_ok and article["image"] is not None:
         image = article["image"]
         image_source = "article" if image else "empty_confirmed"
     elif pc_row and pc_row.get("image"):
@@ -263,6 +297,16 @@ def plan_enrichment(ranking, pc_rows, cache):
     run that is cut off early has enriched the top of every section instead of
     only politics.
     """
+    company_ids, image_ids = enrichment_groups(ranking, pc_rows, cache)
+    return company_ids + image_ids
+
+
+def enrichment_groups(ranking, pc_rows, cache):
+    """The plan of plan_enrichment() as its two groups.
+
+    Returns (ids without a known company, ids that only lack an image), each
+    in plan order.
+    """
     pc_by_id, _ = merge_pc_rows(pc_rows)
     position_in_section = Counter()
     missing_company = []
@@ -285,11 +329,10 @@ def plan_enrichment(ranking, pc_rows, cache):
             missing_company.append((key, row["id"]))
         elif not fields["image"]:
             missing_image.append((key, row["id"]))
-    return [
-        identifier
+    return tuple(
+        [identifier for _, identifier in sorted(group)]
         for group in (missing_company, missing_image)
-        for _, identifier in sorted(group)
-    ]
+    )
 
 
 def _require(condition, message):
@@ -343,6 +386,29 @@ def _check_snapshot(snapshot, run_id):
     _require(
         snapshot["planned_before_cap"] >= len(snapshot["article_plan"]),
         "Snapshot plan is longer than the plan before the cap",
+    )
+    _require(
+        snapshot["plan_built"]
+        or (
+            not snapshot["article_plan"]
+            and not snapshot["articles"]
+            and snapshot.get("article_host_switch") is None
+        ),
+        "Article requests although the plan was not built",
+    )
+    switch = snapshot.get("article_host_switch", "missing")
+    _require(
+        switch is None
+        or (
+            isinstance(switch, dict)
+            and set(switch) == {"reason", "host", "after_article_requests"}
+            and switch["reason"] in HOST_SWITCH_REASONS
+            and switch["host"] in PC_ARTICLE_HOSTS
+            # The request whose outcome made the PC site unusable counts.
+            and _is_count(switch["after_article_requests"])
+            and switch["after_article_requests"] >= 1
+        ),
+        f"Invalid article_host_switch: {switch!r}",
     )
     return kst_day
 
@@ -412,20 +478,45 @@ def _check_pc_rows(pc_rows):
         )
 
 
-def _check_articles(articles, article_plan, ranking_ids):
+def expected_article_host(section, site):
+    """Host an article page is asked for: PC site (sports apart) or mobile."""
+    if site == "mobile":
+        return "m.news.nate.com"
+    return "sports.news.nate.com" if section == "spo" else "news.nate.com"
+
+
+def _check_articles(articles, article_plan, section_by_id, switch):
+    """The article results the spider can have written.
+
+    They are a prefix of the plan (one request at a time, in plan order),
+    each names the host the spider asks for that article (the PC site, then
+    the mobile host from the switch on), and the last request before the
+    switch is a failure on the host that made the PC site unusable. That the
+    mobile host was asked only for company gaps, and the matching close
+    reason, are the spider's rules and are covered by its tests.
+    """
     _require(
         all(isinstance(identifier, str) for identifier in article_plan)
         and len(set(article_plan)) == len(article_plan)
-        and set(article_plan) <= ranking_ids,
+        and set(article_plan) <= set(section_by_id),
         "Article plan repeats an id or names an unranked article",
     )
     _require(
-        set(articles) <= set(article_plan),
-        "An article outside the plan was requested",
+        list(articles) == article_plan[: len(articles)],
+        "Articles were not requested in plan order",
     )
-    for identifier, result in articles.items():
+    switched_at = switch["after_article_requests"] if switch else len(articles)
+    _require(
+        switched_at <= len(articles),
+        f"The host switch comes after the last article request: {switch!r}",
+    )
+    for index, (identifier, result) in enumerate(articles.items()):
+        site = "pc" if index < switched_at else "mobile"
         _require(
-            isinstance(result, dict) and result.get("status") in ("ok", "failed"),
+            isinstance(result, dict)
+            and result.get("status") in ("ok", "failed")
+            and result.get("host")
+            == expected_article_host(section_by_id[identifier], site),
             f"Article result for {identifier} is invalid: {result!r}",
         )
         if result["status"] == "ok":
@@ -433,9 +524,36 @@ def _check_articles(articles, article_plan, ranking_ids):
                 isinstance(result.get("title"), str)
                 and isinstance(result.get("company"), str)
                 and result["company"]
-                and isinstance(result.get("image"), str),
+                and "image" in result
+                # Only a mobile page can confirm that there is no picture;
+                # a PC page either shows one or says nothing (None).
+                and (
+                    isinstance(result["image"], str)
+                    if site == "mobile"
+                    else result["image"] is None
+                    or (isinstance(result["image"], str) and result["image"])
+                ),
                 f"Article result for {identifier} is incomplete: {result!r}",
             )
+        else:
+            _require(
+                result.get("failure") in FAILURE_KINDS,
+                f"Article result for {identifier} has no failure kind: {result!r}",
+            )
+    if switch:
+        identifier = list(articles)[switched_at - 1]
+        last = articles[identifier]
+        expected = (
+            ("no_answer",)
+            if switch["reason"] == "pc_transport_failures"
+            else PC_UNUSABLE_FAILURES
+        )
+        _require(
+            last["host"] == switch["host"]
+            and last["status"] == "failed"
+            and last["failure"] in expected,
+            f"The host switch does not follow a failure on {switch['host']}: {last!r}",
+        )
 
 
 def _stop_reason(snapshot):
@@ -474,8 +592,11 @@ def assemble(snapshot, previous_items, run_id):
     article_plan = snapshot["article_plan"]
     _check_ranking(ranking, snapshot["rank_pages_completed"])
     _check_pc_rows(pc_rows)
-    ranking_ids = {row["id"] for row in ranking}
-    _check_articles(articles, article_plan, ranking_ids)
+    section_by_id = {}
+    for row in ranking:
+        # The spider asks for an article listed twice by its first listing.
+        section_by_id.setdefault(row["id"], row["section"])
+    _check_articles(articles, article_plan, section_by_id, snapshot["article_host_switch"])
 
     cache = build_cache(previous_items, kst_day)
     pc_by_id, pc_conflicts = merge_pc_rows(pc_rows)
@@ -528,6 +649,18 @@ def assemble(snapshot, previous_items, run_id):
 
     attempted = len(articles)
     succeeded = sum(1 for result in articles.values() if result["status"] == "ok")
+    # ok: pages that gave a company; no_answer: requests without any answer
+    # (a cut-off), as opposed to answers that did not give a company.
+    article_hosts = {
+        host: {"attempted": 0, "ok": 0, "failed": 0, "no_answer": 0}
+        for host in ARTICLE_HOSTS
+    }
+    for result in articles.values():
+        counts = article_hosts[result["host"]]
+        counts["attempted"] += 1
+        counts[result["status"]] += 1
+        if result.get("failure") == "no_answer":
+            counts["no_answer"] += 1
     requests = snapshot["requests"]
     metrics = {
         "mode": MODE,
@@ -565,6 +698,10 @@ def assemble(snapshot, previous_items, run_id):
             "failed": attempted - succeeded,
             "not_requested": len(article_plan) - attempted,
         },
+        # Diagnostics only; the validator does not need them, so results of
+        # earlier versions, which lack them, can still be reused.
+        "article_hosts": article_hosts,
+        "article_host_switch": snapshot["article_host_switch"],
         "requests": {
             "mobile_rank": requests.get("mobile_rank"),
             "pc_rank": requests.get("pc_rank"),
@@ -628,7 +765,25 @@ def summary_lines(metrics):
         f"PC ranking: pages {len(pc['pages_completed'])}, rows {pc['rows']},"
         f" distinct articles {pc['distinct_articles']}, company conflicts"
         f" {pc['company_conflicts']}, stage end {pc['stop_reason'] or 'complete'}",
+        article_host_line(metrics),
     ]
+
+
+def article_host_line(metrics):
+    hosts = ", ".join(
+        f"{host} {counts['attempted']} (with a company {counts['ok']},"
+        f" no answer {counts['no_answer']})"
+        for host, counts in metrics["article_hosts"].items()
+    )
+    switch = metrics["article_host_switch"]
+    change = (
+        f"; PC site given up after {switch['after_article_requests']} requests"
+        f" ({switch['reason']} on {switch['host']}), then m.news.nate.com for"
+        " company gaps only"
+        if switch
+        else ""
+    )
+    return f"article pages by host: {hosts}{change}"
 
 
 def main(argv=None):

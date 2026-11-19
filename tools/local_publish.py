@@ -668,6 +668,16 @@ class Publisher:
             "images": sum(1 for item in items if item.get("image")),
             "article_requests": requests.get("attempted"),
             "article_pages_not_reached": requests.get("not_requested"),
+            # transport_breaker also covers fallback_transport_failures:pc,
+            # where the PC site was given up and only images were left.
+            "close_reason": stats.get("close_reason"),
+            # Per host: requests, pages that gave a company, requests without
+            # any answer; and the switch to the mobile host.
+            "article_hosts": {
+                host: [counts.get("attempted"), counts.get("ok"), counts.get("no_answer")]
+                for host, counts in (stats.get("article_hosts") or {}).items()
+            },
+            "article_host_switch": stats.get("article_host_switch"),
         }
 
     def validate(self, result, metrics):

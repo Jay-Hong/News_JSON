@@ -24,20 +24,36 @@ class NateNewsFallbackSpider(scrapy.Spider):
     `python -m nate_news.fallback` turns that snapshot into the published
     format.
 
+    Article pages come from the PC site first (news.nate.com, and
+    sports.news.nate.com for sports, where news.nate.com redirects them). The
+    mobile host is the only source of the ranking, so every run needs it, and
+    since 2026-11-17 it stops answering after a few dozen to a few hundred
+    requests from the same address for hours. The PC site is another address
+    and has mostly kept answering (it missed one request at 20:44 KST on
+    2026-11-19). So the mobile host is asked for article pages only when the
+    PC site is given up (two requests in a row without an answer, or three
+    answers in a row without a company, counted per PC host and for the
+    site), and then only for the articles that still lack a company and
+    would otherwise be left out: an image alone is not worth risking the
+    next run's ranking.
+
     This class deliberately does not inherit from NateNewsRankSpider, so the
     full crawl's request chain, signal handlers and metrics cannot leak into
     it. Only selectors, the transport failure list and the two extraction
     helpers are shared.
 
-    Request budget: Scrapy issues every URL once. There are no download
-    retries, no parse retries, no HTTP redirects and no meta refreshes, so at
-    most 6 + 6 + 300 requests leave the spider. Below Scrapy, Twisted may send
+    Request budget: Scrapy issues every URL once and every article is asked
+    for once, on one host. There are no download retries, no parse retries,
+    no HTTP redirects and no meta refreshes, so at most 6 + 6 + 300 requests
+    leave the spider. All requests share one download slot, so the download
+    delay also holds between two Nate hosts. Below Scrapy, Twisted may send
     a GET a second time when a reused keep-alive connection is closed before
     any byte of the answer arrives; a silent drop (the runner cut-off) ends in
     a timeout instead and is not resent.
     """
 
     name = "nate_news_fallback"
+    # "news.nate.com" also allows sports.news.nate.com.
     allowed_domains = ["m.news.nate.com", "news.nate.com"]
 
     custom_settings = {
@@ -66,12 +82,38 @@ class NateNewsFallbackSpider(scrapy.Spider):
         "&rmode=interest&date={day}&page={page}"
     )
     PC_RANK_URL = "https://news.nate.com/rank/interest?sc={section}&p=day&date={day}"
+    # news.nate.com answers a sports article with a redirect to the sports
+    # host, and redirects are not followed, so sports articles are asked for
+    # there directly. The section is the one the mobile ranking lists.
+    PC_ARTICLE_URLS = {
+        "spo": "https://sports.news.nate.com/view/{id}",
+        "sisa": "https://news.nate.com/view/{id}",
+        "ent": "https://news.nate.com/view/{id}",
+    }
     SECTIONS = fallback.SECTIONS
+    # One download slot for every Nate host: Scrapy keeps the download delay
+    # per slot, and the default slot is the hostname.
+    DOWNLOAD_SLOT = "nate"
 
     MOBILE_ROW_SELECTOR = "#contents > div.rank_news > ol > li > a"
     MOBILE_TITLE_SELECTOR = "h2.context"
     PC_TOP_ROW_SELECTOR = "div.postRankSubjectList > div.mduSubjectList"
     PC_LIST_ROW_SELECTOR = "#postRankSubject ul.mduRankSubject > li"
+
+    # PC article page (checked on 2026-11-19 against six articles the mobile
+    # pages had given: same company, same image after the usual thumbnail
+    # prefix is removed). The title is an <h1> with one of two classes, one
+    # per host. og:image is the article's picture, or Nate's logo when the
+    # page has none to show (see fallback.pc_article_image).
+    PC_TITLE_SELECTOR = "h1.articleSubecjt, h1.viewTite"
+    PC_COMPANY_SELECTOR = ".articleInfo > span.link > a.medium"
+    PC_IMAGE_SELECTOR = 'meta[property="og:image"]::attr(content)'
+    PC_HOSTS = fallback.PC_ARTICLE_HOSTS
+    MOBILE_HOST = "m.news.nate.com"
+    # Answers in a row from one PC host that give no company (an HTTP error,
+    # a page without the press line, a page for another URL) after which the
+    # PC site is taken to be unusable: a changed layout or a block page.
+    PC_UNUSABLE_LIMIT = 3
 
     RANK_CONTAINER_SELECTOR = NateNewsRankSpider.RANK_CONTAINER_SELECTOR
     TITLE_SELECTOR = NateNewsRankSpider.TITLE_SELECTOR
@@ -110,12 +152,29 @@ class NateNewsFallbackSpider(scrapy.Spider):
         self.articles = {}
         self.next_plan_index = 0
         self.url_by_id = {}
+        self.section_by_id = {}
+        # Articles of the plan that have no known company before their page
+        # is read; the plan lists them first.
+        self.company_needed = set()
+        # "pc" until the PC site is given up, then "mobile", which is asked
+        # only for articles in company_needed. See the class docstring.
+        self.article_host = "pc"
+        self.article_host_switch = None
         # Requests that got an outcome (a response or a failure). A request
         # that was built but never sent because the spider was closing does
         # not count.
         self.request_counts = {"mobile_rank": 0, "pc_rank": 0, "article": 0}
         self.spider_errors = 0
-        self.consecutive_transport_failures = 0
+        # Transport failures in a row, and PC answers in a row that gave no
+        # company: per host, and under "pc" for the PC site as a whole. The
+        # plan interleaves the two PC hosts, so a host's own count catches
+        # trouble on one of them that answers from the other would hide,
+        # while the site's count catches the whole site going away as soon
+        # as a single host would.
+        self.transport_streak = {
+            key: 0 for key in (self.MOBILE_HOST, "pc") + self.PC_HOSTS
+        }
+        self.pc_unusable_streak = {key: 0 for key in ("pc",) + self.PC_HOSTS}
         self.started_at = None
         self.cache = {}
 
@@ -194,7 +253,7 @@ class NateNewsFallbackSpider(scrapy.Spider):
             callback=callback,
             errback=errback,
             dont_filter=True,
-            meta={**meta, "dont_redirect": True},
+            meta={**meta, "dont_redirect": True, "download_slot": self.DOWNLOAD_SLOT},
         )
 
     async def start(self):
@@ -224,7 +283,7 @@ class NateNewsFallbackSpider(scrapy.Spider):
 
     def parse_mobile_rank(self, response):
         self.request_counts["mobile_rank"] += 1
-        self.consecutive_transport_failures = 0
+        self.transport_streak[self.MOBILE_HOST] = 0
         page_index = response.meta["nate_page_index"]
         page_name, section, _ = self._mobile_pages()[page_index]
         rows = []
@@ -290,7 +349,11 @@ class NateNewsFallbackSpider(scrapy.Spider):
 
     # --- PC ranking: company for many rows, a thumbnail for the top five. ---
     # Optional. Whatever goes wrong here ends only this stage, except an
-    # explicit refusal, which ends the run. The stage is never re-entered.
+    # explicit refusal, which ends the run. The stage is never re-entered. A
+    # page that got no answer counts as the first of the transport failures
+    # in a row on news.nate.com that make the article stage give up the PC
+    # site; one dropped request is not enough (it happened at 20:44 KST on
+    # 2026-11-19 while the PC site answered before and after).
 
     def _pc_pages(self):
         pages = []
@@ -311,7 +374,7 @@ class NateNewsFallbackSpider(scrapy.Spider):
 
     def parse_pc_rank(self, response):
         self.request_counts["pc_rank"] += 1
-        self.consecutive_transport_failures = 0
+        self._reset_streak(self.transport_streak, "news.nate.com")
         page_index = response.meta["nate_page_index"]
         page_name = response.meta["nate_page_name"]
         try:
@@ -371,94 +434,175 @@ class NateNewsFallbackSpider(scrapy.Spider):
         self.logger.warning("%s request failed: %r", page_name, failure.value)
         self._close_if_refused(failure)
         if failure.check(*self.TRANSPORT_FAILURES):
-            # Carried into the article stage: one more transport failure in a
-            # row there ends the run instead of starting a fresh count.
-            self._count_transport_failure()
+            self._add_to_streak(self.transport_streak, "news.nate.com")
             yield from self._leave_pc_stage(f"transport_failure:{page_name}")
         else:
             if failure.check(HttpError):
-                self.consecutive_transport_failures = 0
+                self._reset_streak(self.transport_streak, "news.nate.com")
             yield from self._leave_pc_stage(f"request_failed:{page_name}")
 
     def _leave_pc_stage(self, reason):
         self.pc_stop_reason = reason
-        plan = fallback.plan_enrichment(self.ranking, self.pc_rows, self.cache)
+        company_ids, image_ids = fallback.enrichment_groups(
+            self.ranking, self.pc_rows, self.cache
+        )
+        plan = company_ids + image_ids
         self.planned_before_cap = len(plan)
         self.article_plan = plan[: self.max_article_requests]
+        self.company_needed = set(company_ids)
         self.url_by_id = {}
+        self.section_by_id = {}
         for row in self.ranking:
             self.url_by_id.setdefault(row["id"], row["url"])
+            self.section_by_id.setdefault(row["id"], row["section"])
         self.plan_built = True
         self.logger.info(
             "PC stage ended (%s): %d PC rows, %d cache entries, %d article"
-            " pages planned, %d after the request cap",
+            " pages planned (%d without a company), %d after the request cap",
             reason or "complete",
             len(self.pc_rows),
             len(self.cache),
             self.planned_before_cap,
+            len(company_ids),
             len(self.article_plan),
         )
         yield from self._next_article_or_stop()
 
     # --- article pages: only for what is still unknown, one request each. ---
 
+    def _article_url(self, identifier):
+        if self.article_host == "mobile":
+            return self.url_by_id[identifier]
+        return self.PC_ARTICLE_URLS[self.section_by_id[identifier]].format(id=identifier)
+
     def _next_article_or_stop(self):
         if self.next_plan_index < len(self.article_plan):
             identifier = self.article_plan[self.next_plan_index]
+            if self.article_host == "mobile" and identifier not in self.company_needed:
+                # The plan lists the company gaps first, so only images are
+                # left; they are not worth the mobile host's next ranking.
+                raise CloseSpider(reason=fallback.CLOSE_PC_UNUSABLE)
             self.next_plan_index += 1
+            url = self._article_url(identifier)
             yield self._request(
-                self.url_by_id[identifier],
+                url,
                 self.parse_article,
                 self.article_errback,
-                {"nate_article_id": identifier},
+                {"nate_article_id": identifier, "nate_article_host": urlparse(url).hostname},
             )
         elif self.planned_before_cap > len(self.article_plan):
             raise CloseSpider(reason=fallback.CLOSE_REQUEST_CAP)
         else:
             self.chain_complete = True
 
+    def _switch_to_mobile(self, reason, host):
+        if self.article_host == "mobile":
+            return
+        self.article_host = "mobile"
+        self.article_host_switch = {
+            "reason": reason,
+            "host": host,
+            "after_article_requests": self.request_counts["article"],
+        }
+        self.logger.warning(
+            "The PC site is given up after %d article requests (%s on %s); the"
+            " mobile host is asked only for articles without a company",
+            self.request_counts["article"],
+            reason,
+            host,
+        )
+
+    def _streak_keys(self, host):
+        return (host, "pc") if host in self.PC_HOSTS else (host,)
+
+    def _reset_streak(self, streak, host):
+        for key in self._streak_keys(host):
+            streak[key] = 0
+
+    def _add_to_streak(self, streak, host):
+        """Count one more in a row; return the longest count it is part of."""
+        for key in self._streak_keys(host):
+            streak[key] += 1
+        return max(streak[key] for key in self._streak_keys(host))
+
+    def _record_article(self, identifier, host, result):
+        self.articles[identifier] = {"host": host, **result}
+        if host not in self.PC_HOSTS:
+            return
+        if result["status"] == "ok":
+            self._reset_streak(self.pc_unusable_streak, host)
+        elif result["failure"] in fallback.PC_UNUSABLE_FAILURES:
+            if self._add_to_streak(self.pc_unusable_streak, host) >= self.PC_UNUSABLE_LIMIT:
+                # The site answers, but nothing it says gives a company: a
+                # changed layout or a block page.
+                self._switch_to_mobile("pc_pages_unusable", host)
+
     def parse_article(self, response):
         self.request_counts["article"] += 1
-        self.consecutive_transport_failures = 0
         identifier = response.meta["nate_article_id"]
-        company = self._extract_text(response, self.COMPANY_SELECTOR)
-        if fallback.article_id(response.url) != identifier:
+        host = response.meta["nate_article_host"]
+        self._reset_streak(self.transport_streak, host)
+        if host in self.PC_HOSTS:
+            company = self._extract_text(response, self.PC_COMPANY_SELECTOR)
+            title = self._extract_text(response, self.PC_TITLE_SELECTOR)
+            image = fallback.pc_article_image(response.css(self.PC_IMAGE_SELECTOR).get())
+        else:
+            company = self._extract_text(response, self.COMPANY_SELECTOR)
+            title = self._extract_text(response, self.TITLE_SELECTOR)
+            image = self._extract_image(response)
+        if (
+            fallback.article_id(response.url) != identifier
+            or urlparse(response.url).hostname != host
+        ):
             # Cannot happen while redirects are off; never attach another
             # article's fields to this one.
-            self.articles[identifier] = {
+            result = {
                 "status": "failed",
+                "failure": "other_url",
                 "reason": f"answered for another URL: {response.url}",
             }
         elif company:
-            self.articles[identifier] = {
+            result = {
                 "status": "ok",
-                "title": self.SQUARE_BRACKET_PREFIX.sub(
-                    "", self._extract_text(response, self.TITLE_SELECTOR)
-                ),
+                "title": self.SQUARE_BRACKET_PREFIX.sub("", title),
                 "company": company,
-                "image": self._extract_image(response),
+                # None: the page did not show whether there is a picture.
+                "image": image,
             }
         else:
             # No parse retry: one request per article is the budget.
-            self.articles[identifier] = {
-                "status": "failed",
-                "reason": "company missing",
-            }
+            result = {"status": "failed", "failure": "no_company", "reason": "company missing"}
+        self._record_article(identifier, host, result)
         yield from self._next_article_or_stop()
 
     def article_errback(self, failure):
         self.request_counts["article"] += 1
         identifier = failure.request.meta["nate_article_id"]
-        self.articles[identifier] = {
-            "status": "failed",
-            "reason": repr(failure.value),
-        }
-        self._close_if_refused(failure)
+        host = failure.request.meta["nate_article_host"]
         if failure.check(*self.TRANSPORT_FAILURES):
-            self._count_transport_failure()
+            kind = "no_answer"
         elif failure.check(HttpError):
+            refused = failure.value.response.status in self.REFUSAL_STATUSES
+            kind = "refused" if refused else "http_error"
+        else:
+            # A local outcome, not an answer from Nate.
+            kind = "other"
+        self._record_article(
+            identifier,
+            host,
+            {"status": "failed", "failure": kind, "reason": repr(failure.value)},
+        )
+        self._close_if_refused(failure)
+        if kind == "no_answer":
+            in_a_row = self._add_to_streak(self.transport_streak, host)
+            if in_a_row >= self.transport_failure_limit:
+                if host in self.PC_HOSTS:
+                    self._switch_to_mobile("pc_transport_failures", host)
+                else:
+                    raise CloseSpider(reason=f"{fallback.CLOSE_TRANSPORT_PREFIX}{in_a_row}")
+        elif kind == "http_error":
             # Nate answered, so this is not part of a transport failure streak.
-            self.consecutive_transport_failures = 0
+            self._reset_streak(self.transport_streak, host)
         yield from self._next_article_or_stop()
 
     # --- shared stop rules ---
@@ -470,16 +614,6 @@ class NateNewsFallbackSpider(scrapy.Spider):
                 raise CloseSpider(
                     reason=f"{fallback.CLOSE_REFUSED_PREFIX}{status}"
                 )
-
-    def _count_transport_failure(self):
-        self.consecutive_transport_failures += 1
-        if self.consecutive_transport_failures >= self.transport_failure_limit:
-            raise CloseSpider(
-                reason=(
-                    f"{fallback.CLOSE_TRANSPORT_PREFIX}"
-                    f"{self.consecutive_transport_failures}"
-                )
-            )
 
     def _record_spider_error(self, failure, response, spider):
         self.spider_errors += 1
@@ -505,6 +639,7 @@ class NateNewsFallbackSpider(scrapy.Spider):
             "plan_built": self.plan_built,
             "article_plan": self.article_plan,
             "planned_before_cap": self.planned_before_cap,
+            "article_host_switch": self.article_host_switch,
             "articles": self.articles,
             "requests": self.request_counts,
         }

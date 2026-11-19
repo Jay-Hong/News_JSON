@@ -246,8 +246,30 @@ def make_snapshot(
     plan=None,
     close_reason="finished",
     planned_before_cap=None,
+    switch=None,
 ):
-    articles = dict(articles or {})
+    """A snapshot as the spider writes it.
+
+    Article results get the host the spider would have asked (the PC site,
+    then the mobile host from the switch on) unless they name one, and a
+    failed result without a failure kind gets "no_answer".
+    """
+    section_by_id = {}
+    for row in ranking:
+        section_by_id.setdefault(row["id"], row["section"])
+    switched_at = switch["after_article_requests"] if switch else len(articles or {})
+    filled = {}
+    for index, (identifier, result) in enumerate(dict(articles or {}).items()):
+        defaults = {
+            "host": fallback.expected_article_host(
+                section_by_id.get(identifier, "sisa"),
+                "pc" if index < switched_at else "mobile",
+            )
+        }
+        if result.get("status") == "failed":
+            defaults["failure"] = "no_answer"
+        filled[identifier] = {**defaults, **result}
+    articles = filled
     plan = list(plan if plan is not None else articles)
     return {
         "schema": fallback.SNAPSHOT_SCHEMA,
@@ -263,6 +285,7 @@ def make_snapshot(
         "plan_built": True,
         "article_plan": plan,
         "planned_before_cap": len(plan) if planned_before_cap is None else planned_before_cap,
+        "article_host_switch": switch,
         "articles": articles,
         "requests": {"mobile_rank": 6, "pc_rank": 6, "article": len(articles)},
     }
@@ -328,12 +351,43 @@ class FallbackHelpersTest(unittest.TestCase):
         ):
             self.assertEqual(fallback.pc_thumbnail_to_image(source), "")
 
+    def test_a_pc_article_page_shows_a_picture_or_says_nothing(self):
+        # og:image of 20261119n10873 on news.nate.com, 2026-11-19.
+        self.assertEqual(
+            fallback.pc_article_image(
+                "https://thumbnews.nateimg.co.kr/view610///news.nateimg.co.kr"
+                "/orgImg/ed/2026/11/19/PS26111900566.jpg"
+            ),
+            "https://news.nateimg.co.kr/orgImg/ed/2026/11/19/PS26111900566.jpg",
+        )
+        # Nate's logo (an article without a picture, 20261116n27534), a
+        # missing og:image and anything unfamiliar are all "not observed".
+        for source in (NO_IMAGE_LOGO, None, "", "https://example.com/a.jpg"):
+            with self.subTest(source=source):
+                self.assertIsNone(fallback.pc_article_image(source))
+
+    def test_article_hosts(self):
+        self.assertEqual(fallback.expected_article_host("spo", "pc"), "sports.news.nate.com")
+        for section in ("sisa", "ent"):
+            self.assertEqual(fallback.expected_article_host(section, "pc"), "news.nate.com")
+        for section in SECTIONS:
+            self.assertEqual(fallback.expected_article_host(section, "mobile"), "m.news.nate.com")
+        if SPIDER_IMPORTABLE:
+            spider = fallback_spider.NateNewsFallbackSpider
+            for section in SECTIONS:
+                url = spider.PC_ARTICLE_URLS[section].format(id="20200102n00001")
+                self.assertEqual(
+                    urlparse(url).hostname, fallback.expected_article_host(section, "pc")
+                )
+                self.assertEqual(fallback.article_id(url), "20200102n00001")
+
     def test_close_reason_mapping_agrees_with_the_validator(self):
         samples = (
             "finished",
             "closespider_timeout",
             fallback.CLOSE_REQUEST_CAP,
             fallback.CLOSE_TRANSPORT_PREFIX + "2",
+            fallback.CLOSE_PC_UNUSABLE,
             fallback.CLOSE_REFUSED_PREFIX + "403",
             fallback.CLOSE_CHAIN_BROKEN,
             "shutdown",
@@ -472,19 +526,16 @@ class FallbackHelpersTest(unittest.TestCase):
             ids[("ent", 1)]: {"title": "ent 제목 1", "company": "라", "image": "https://img/e.jpg"},
             ids[("spo", 3)]: {"title": "ent 다른 제목", "company": "마", "image": "https://img/s.jpg"},
         }
+        no_company = [ids[("spo", 2)], ids[("ent", 2)], ids[("sisa", 3)]]
+        no_image = [ids[("spo", 1)], ids[("sisa", 2)], ids[("spo", 3)], ids[("ent", 3)]]
         self.assertEqual(
             fallback.plan_enrichment(ranking, pc_rows, cache),
-            [
-                # no company anywhere: rank 2 of spo and ent, then rank 3 of sisa
-                ids[("spo", 2)],
-                ids[("ent", 2)],
-                ids[("sisa", 3)],
-                # company known, image missing
-                ids[("spo", 1)],
-                ids[("sisa", 2)],
-                ids[("spo", 3)],
-                ids[("ent", 3)],
-            ],
+            # no company anywhere: rank 2 of spo and ent, then rank 3 of sisa;
+            # then company known, image missing
+            no_company + no_image,
+        )
+        self.assertEqual(
+            fallback.enrichment_groups(ranking, pc_rows, cache), (no_company, no_image)
         )
 
     def test_plan_requests_an_article_ranked_twice_only_once(self):
@@ -600,7 +651,8 @@ class AssembleTest(unittest.TestCase):
                 fallback.assemble(snapshot, [], "run-1")
 
         first = self.ranking[0]["id"]
-        outside = {"20200102n99999": ok_article()}
+        mobile = "m.news.nate.com"
+        outside = {"20200102n99999": dict(ok_article(), host=mobile)}
         broken(lambda s: s.update(articles=outside))
         broken(lambda s: s["ranking"][0].update(section="spo"))
         broken(lambda s: s["ranking"][0].update(url="https://example.com/view/20200102n00001?sect=sisa"))
@@ -614,13 +666,119 @@ class AssembleTest(unittest.TestCase):
         broken(lambda s: s.update(rank_pages_completed=list(fallback.RANK_PAGES[:2])))
         broken(lambda s: s["pc_rows"].append({"id": "nope", "company": "x", "image": ""}))
         broken(lambda s: s.update(article_plan=[first] * 2))
-        broken(lambda s: s.update(article_plan=[first], articles={first: dict(ok_article(), company="")}))
-        broken(lambda s: s.update(article_plan=[first], articles={first: {"status": "ok", "company": "x", "image": ""}}))
+        broken(lambda s: s.update(article_plan=[first], articles={first: dict(ok_article(), host=mobile, company="")}))
+        broken(lambda s: s.update(article_plan=[first], articles={first: {"status": "ok", "host": mobile, "company": "x", "image": ""}}))
         broken(lambda s: s.update(planned_before_cap=-1))
         broken(lambda s: s.update(article_plan=[first], planned_before_cap=0))
         broken(lambda s: s.pop("plan_built"))
         broken(lambda s: s.update(spider_errors=None))
         broken(lambda s: s.update(kst_day="2020-01-02"))
+
+    def test_article_hosts_must_follow_the_switch(self):
+        """Each result names the host the spider must have asked, in plan order."""
+        sisa, spo, ent = (self.ranking[i]["id"] for i in (0, 60, 160))
+        self.assertEqual(
+            [self.ranking[i]["section"] for i in (0, 60, 160)], ["sisa", "spo", "ent"]
+        )
+        pc_rows = self.companies_for_all()
+        # sisa got no answer from news.nate.com (after a PC ranking page got
+        # none either), so spo and ent come from the mobile host.
+        switch = {"reason": "pc_transport_failures", "host": "news.nate.com",
+                  "after_article_requests": 1}
+        good = make_snapshot(
+            self.ranking, pc_rows,
+            {sisa: {"status": "failed", "failure": "no_answer", "reason": "TimeoutError()"},
+             spo: ok_article(image=""), ent: ok_article()},
+            close_reason=fallback.CLOSE_PC_UNUSABLE, switch=switch,
+        )
+        self.assertEqual(
+            [good["articles"][i]["host"] for i in (sisa, spo, ent)],
+            ["news.nate.com", "m.news.nate.com", "m.news.nate.com"],
+        )
+        items, metrics = fallback.assemble(good, [], "run-1")
+        self.assertEqual(metrics["article_hosts"], {
+            "news.nate.com": {"attempted": 1, "ok": 0, "failed": 1, "no_answer": 1},
+            "sports.news.nate.com": {"attempted": 0, "ok": 0, "failed": 0, "no_answer": 0},
+            "m.news.nate.com": {"attempted": 2, "ok": 2, "failed": 0, "no_answer": 0},
+        })
+        self.assertEqual(metrics["article_host_switch"], switch)
+        self.assertEqual(metrics["stop_reason"], "transport_breaker")
+        # A mobile page confirms that spo has no picture.
+        self.assertEqual(metrics["image_sources"]["empty_confirmed"], 1)
+        self.assertIn(
+            "PC site given up after 1 requests (pc_transport_failures on news.nate.com),"
+            " then m.news.nate.com for company gaps only",
+            fallback.article_host_line(metrics),
+        )
+        pc_only = make_snapshot(self.ranking, pc_rows, {sisa: ok_article(image=None),
+                                                         spo: ok_article(image=None)})
+        self.assertEqual(
+            [pc_only["articles"][i]["host"] for i in (sisa, spo)],
+            ["news.nate.com", "sports.news.nate.com"],
+        )
+        fallback.assemble(pc_only, [], "run-1")
+
+        def refused(base, change, message):
+            broken = json.loads(json.dumps(base))
+            change(broken)
+            with self.assertRaisesRegex(fallback.FallbackError, message):
+                fallback.assemble(broken, [], "run-1")
+
+        invalid, incomplete = "is invalid", "is incomplete"
+        # Sports on news.nate.com, which only redirects it; the PC site after
+        # the switch; the mobile host before it; an unknown or missing host.
+        refused(pc_only, lambda s: s["articles"][spo].update(host="news.nate.com"), invalid)
+        refused(good, lambda s: s["articles"][spo].update(host="sports.news.nate.com"), invalid)
+        refused(pc_only, lambda s: s["articles"][sisa].update(host="m.news.nate.com"), invalid)
+        refused(pc_only, lambda s: s["articles"][sisa].update(host="example.com"), invalid)
+        refused(pc_only, lambda s: s["articles"][sisa].pop("host"), invalid)
+        # Results that skip a planned article, with otherwise fitting hosts.
+        refused(good, lambda s: s["articles"].pop(spo), "plan order")
+        # A switch that cannot have happened or is not described.
+        refused(good, lambda s: s["article_host_switch"].update(after_article_requests=4),
+                "after the last article request")
+        refused(good, lambda s: s["article_host_switch"].update(host="sports.news.nate.com"),
+                "does not follow a failure")
+        refused(good, lambda s: s["article_host_switch"].update(reason="pc_pages_unusable"),
+                "does not follow a failure")
+        refused(good, lambda s: s["articles"][sisa].update(failure="http_error"),
+                "does not follow a failure")
+        for change in (
+            lambda s: s["article_host_switch"].update(after_article_requests=0),
+            lambda s: s["article_host_switch"].update(after_article_requests=-1),
+            lambda s: s["article_host_switch"].update(host="m.news.nate.com"),
+            lambda s: s["article_host_switch"].update(reason="other"),
+            lambda s: s["article_host_switch"].update(extra=1),
+            lambda s: s.pop("article_host_switch"),
+        ):
+            refused(good, change, "Invalid article_host_switch")
+        refused(good, lambda s: s.update(plan_built=False), "plan was not built")
+        # Every failure says what kind it was.
+        refused(good, lambda s: s["articles"][sisa].pop("failure"), "no failure kind")
+        refused(good, lambda s: s["articles"][sisa].update(failure="timeout"), "no failure kind")
+        # Only a mobile page can confirm that there is no picture, and every
+        # page result says something about it.
+        refused(pc_only, lambda s: s["articles"][sisa].update(image=""), incomplete)
+        refused(pc_only, lambda s: s["articles"][sisa].pop("image"), incomplete)
+        refused(good, lambda s: s["articles"][ent].update(image=None), incomplete)
+
+    def test_a_pc_article_page_never_clears_a_known_image(self):
+        first = self.ranking[0]["id"]
+        pc_rows = self.companies_for_all()
+        pc_rows[0] = {"id": first, "company": "가나일보", "image": "https://img/pc.jpg"}
+        second = self.ranking[1]["id"]
+        previous = [published(second, "sisa", "sisa 제목 2", company="기사신문")]
+        articles = {first: ok_article(image=None, title="sisa 제목 1"),
+                    second: ok_article(image=None, title="sisa 제목 2")}
+        items, metrics = fallback.assemble(
+            make_snapshot(self.ranking, pc_rows, articles), previous, "run-1"
+        )
+        self.assertEqual(
+            [(item["company"], item["image"]) for item in items[:2]],
+            [("기사신문", "https://img/pc.jpg"), ("기사신문", "https://img/old.jpg")],
+        )
+        self.assertEqual(metrics["image_sources"]["empty_confirmed"], 0)
+        self.assertEqual(metrics["company_sources"]["article"], 2)
 
     def test_unusable_close_reasons_are_not_publishable(self):
         for close_reason in (
@@ -1023,6 +1181,17 @@ class ReuseTest(unittest.TestCase):
         for path, value in ((reuse.RESULT_FILE, result_sha256), (reuse.METRICS_FILE, metrics_sha256)):
             self.assertEqual(value, hashlib.sha256((self.run_dir / path).read_bytes()).hexdigest())
 
+    def test_results_written_before_the_per_host_counts_are_still_reused(self):
+        # Runs of 2026-11-19 05:44 and 15:44 wrote metrics without them.
+        older = {key: value for key, value in self.metrics.items()
+                 if key not in ("article_hosts", "article_host_switch")}
+        self.assertEqual(len(older), len(self.metrics) - 2)
+        validate_result.validate_result(self.items, older, "fallback", check_coverage=False)
+        name = "20200101T230000.000000Z"
+        run_dir = self.write_run(name, self.items, dict(older, run_id=name))
+        items, _, _ = reuse.check_run(run_dir)
+        self.assertEqual(items, self.items)
+
     def test_previous_publish_comes_first_and_the_date_rule_still_applies(self):
         day = date(2020, 1, 2)
         previous = [{"title": "이전 제목", "company": "이전일보", "image": "",
@@ -1112,10 +1281,17 @@ PC_FIRST_PAGE = tuple(range(1, 31))
 PC_SECOND_PAGE = tuple(range(1, 26)) + tuple(range(31, 36))
 
 
+PC_HOSTS = ("news.nate.com", "sports.news.nate.com")
+NO_IMAGE_LOGO = "https://nimg.nate.com/ui/uidev/images/common/sns-og-fb-logo2.gif"
+
+
 class FakeNate:
-    """Local stand-in for m.news.nate.com and news.nate.com, used as a proxy.
+    """Local stand-in for m.news.nate.com and the PC site, used as a proxy.
 
     Request numbers count every request the stand-in receives, from 1.
+    Article pages are served by the mobile host and by the PC site
+    (news.nate.com, which redirects sports articles to sports.news.nate.com,
+    as the real site does); all of them are of kind "article".
     """
 
     def __init__(
@@ -1135,6 +1311,9 @@ class FakeNate:
         tag_only_title=None,
         pc_broken_page=None,
         pc_empty_page=None,
+        pc_articles_answered=None,
+        pc_layout_broken=False,
+        pc_no_og_image=(),
     ):
         self.counts = counts
         self.block_after = block_after
@@ -1150,7 +1329,14 @@ class FakeNate:
         self.tag_only_title = tag_only_title
         self.pc_broken_page = pc_broken_page
         self.pc_empty_page = pc_empty_page
+        # After this many PC article pages, the PC site stops answering while
+        # the mobile host goes on.
+        self.pc_articles_answered = pc_articles_answered
+        self.pc_layout_broken = pc_layout_broken
+        self.pc_no_og_image = set(pc_no_og_image)
         self.requests = []
+        # (kind, host, monotonic time) per request, in arrival order.
+        self.arrivals = []
         self.release = threading.Event()
         self.lock = threading.Lock()
         fake = self
@@ -1179,6 +1365,16 @@ class FakeNate:
     def kinds(self):
         return [kind for kind, _ in self.requests]
 
+    def article_hosts(self):
+        return [host for kind, host, _ in self.arrivals if kind == "article"]
+
+    def article_ids(self, host):
+        return [
+            urlparse(path).path.rsplit("/", 1)[-1]
+            for (kind, path), (_, arrived_host, _) in zip(self.requests, self.arrivals)
+            if kind == "article" and arrived_host == host
+        ]
+
     def send(self, handler, status, body, content_type="text/html; charset=utf-8", headers=()):
         data = body.encode("utf-8")
         handler.send_response(status)
@@ -1194,14 +1390,16 @@ class FakeNate:
             return "mobile_rank"
         if url.hostname == "news.nate.com" and url.path == "/rank/interest":
             return "pc_rank"
-        if url.hostname == "m.news.nate.com" and url.path.startswith("/view/"):
+        if (
+            url.hostname in ("m.news.nate.com",) + PC_HOSTS
+            and url.path.startswith("/view/")
+        ):
             return "article"
         return "other"
 
-    def page(self, handler, body):
-        head = (
-            f'<meta http-equiv="refresh" content="0; url={handler.path}">' if self.refresh else ""
-        )
+    def page(self, handler, body, head=""):
+        if self.refresh:
+            head += f'<meta http-equiv="refresh" content="0; url={handler.path}">'
         return f"<html><head>{head}</head><body>{body}</body></html>"
 
     def handle(self, handler):
@@ -1209,8 +1407,22 @@ class FakeNate:
         kind = self.kind(url)
         with self.lock:
             self.requests.append((kind, handler.path))
+            self.arrivals.append((kind, url.hostname, time.monotonic()))
             number = len(self.requests)
-        if number in self.hang or (self.block_after is not None and number > self.block_after):
+            pc_articles = sum(
+                1 for arrived, host, _ in self.arrivals
+                if arrived == "article" and host in PC_HOSTS
+            )
+        pc_cut_off = (
+            self.pc_articles_answered is not None
+            and url.hostname in PC_HOSTS
+            and pc_articles > self.pc_articles_answered
+        )
+        if (
+            number in self.hang
+            or (self.block_after is not None and number > self.block_after)
+            or pc_cut_off
+        ):
             self.release.wait(60)  # the runner's view of a dropped connection
             return
         if url.path in self.close_paths:
@@ -1239,6 +1451,7 @@ class FakeNate:
             self.send(handler, 200, self.page(handler, self.pc_rank(query["sc"][0], page)))
         elif kind == "article":
             identifier = url.path.rsplit("/", 1)[-1]
+            sports = int(identifier.split("n")[1]) // 1000 == SECTIONS.index("spo")
             if self.article_latency:
                 time.sleep(self.article_latency)
             if identifier in self.redirect_articles:
@@ -1247,6 +1460,15 @@ class FakeNate:
                 )
             elif identifier in self.octet_articles:
                 self.send(handler, 200, "\x00\x01\x02binary", content_type="application/octet-stream")
+            elif url.hostname == "news.nate.com" and sports:
+                self.send(
+                    handler, 302, "", headers=[("Location", f"//sports.news.nate.com/view/{identifier}")]
+                )
+            elif url.hostname == "sports.news.nate.com" and not sports:
+                self.send(handler, 404, "not a sports article")
+            elif url.hostname in PC_HOSTS:
+                head, body = self.pc_article(identifier, url.hostname)
+                self.send(handler, 200, self.page(handler, body, head))
             else:
                 self.send(handler, 200, self.page(handler, self.article(identifier)))
         else:
@@ -1333,6 +1555,45 @@ class FakeNate:
             + company + "</header>" + image + "</div></section></div></div>"
         )
 
+    def pc_article(self, identifier, host):
+        """The same article as the PC site shows it: (head, body).
+
+        Shaped like the real pages of 2026-11-19: the sports host uses a
+        <dl>, the other a <p>, for the press line, and an article without a
+        picture shows Nate's logo as og:image.
+        """
+        if identifier in self.pc_no_og_image:
+            head = ""
+        else:
+            picture = (
+                NO_IMAGE_LOGO
+                if identifier.endswith("7")
+                else "https://thumbnews.nateimg.co.kr/view610///"
+                f"news.nateimg.co.kr/orgImg/art/{identifier}.jpg"
+            )
+            head = f'<meta property="og:image" content="{picture}">'
+        company = (
+            ""
+            if identifier in self.no_company or self.pc_layout_broken
+            else '<a href="//news.nate.com/mediaList?cp=x" class="medium">기사신문</a> '
+        )
+        # Related articles carry a press name too, outside the press line.
+        related = '<ul class="related"><li><span class="medium">다른일보</span></li></ul>'
+        if host == "sports.news.nate.com":
+            body = (
+                f'<h1 class="viewTite">[IN REVIEW] 기사 제목 {identifier}</h1>'
+                f'<dl class="articleInfo"><span class="link">{company}</span>'
+                "<em>2026-11-19</em></dl>" + related
+            )
+        else:
+            body = (
+                '<div id="articleView">'
+                f'<h1 class="articleSubecjt">[IN REVIEW] 기사 제목 {identifier}</h1>'
+                f'<p class="articleInfo"><span class="link">{company}</span></p>'
+                "</div>" + related
+            )
+        return head, body
+
 
 RUNNER = """
 import sys
@@ -1345,6 +1606,10 @@ class OfflineFallbackSpider(NateNewsFallbackSpider):
     # Same pages as production, but plain http so the local proxy can serve them.
     MOBILE_RANK_URL = NateNewsFallbackSpider.MOBILE_RANK_URL.replace("https://", "http://")
     PC_RANK_URL = NateNewsFallbackSpider.PC_RANK_URL.replace("https://", "http://")
+    PC_ARTICLE_URLS = {
+        section: url.replace("https://", "http://")
+        for section, url in NateNewsFallbackSpider.PC_ARTICLE_URLS.items()
+    }
 
 
 settings = get_project_settings()
@@ -1365,6 +1630,10 @@ class OfflineFallbackSpider(NateNewsFallbackSpider):
     name = "offline_fallback"
     MOBILE_RANK_URL = NateNewsFallbackSpider.MOBILE_RANK_URL.replace("https://", "http://")
     PC_RANK_URL = NateNewsFallbackSpider.PC_RANK_URL.replace("https://", "http://")
+    PC_ARTICLE_URLS = {
+        section: url.replace("https://", "http://")
+        for section, url in NateNewsFallbackSpider.PC_ARTICLE_URLS.items()
+    }
 """
 
 COUNTS = {"sisa": 100, "spo": 57, "ent": 91}
@@ -1463,7 +1732,8 @@ class FallbackSpiderTest(unittest.TestCase):
         self.assertEqual(fallback_spider.NateNewsFallbackSpider.DEFAULT_TRANSPORT_FAILURE_LIMIT, 2)
 
     def test_unblocked_run_requests_only_what_is_missing(self):
-        self.fake = FakeNate(COUNTS)
+        no_og_image = article_id_for("sisa", 52)
+        self.fake = FakeNate(COUNTS, pc_no_og_image={no_og_image})
         # Five articles are fully known from the previous publish.
         previous = [
             published(article_id_for("sisa", position), "sisa", f"sisa 제목 {position}")
@@ -1501,9 +1771,32 @@ class FallbackSpiderTest(unittest.TestCase):
                 f"https://news.nateimg.co.kr/orgImg/art/{article_id_for('sisa', 51)}.jpg",
             ),
         )
-        self.assertEqual(metrics["image_sources"]["empty_unobserved"], 0)
+        # Article pages came from the PC site only, sports from its own host
+        # (news.nate.com would only have redirected them), titles included.
+        self.assertIsNone(snapshot["article_host_switch"])
+        self.assertEqual(set(self.fake.article_hosts()), set(PC_HOSTS))
+        sports_36 = article_id_for("spo", 36)
+        self.assertEqual(
+            {item["newsURL"]: item["title"] for item in items}[article_url(sports_36, "spo", "http")],
+            f"[IN REVIEW] 기사 제목 {sports_36}",
+        )
+        sports_ids = {row["id"] for row in snapshot["ranking"] if row["section"] == "spo"}
+        self.assertLessEqual(set(self.fake.article_ids("sports.news.nate.com")), sports_ids)
+        self.assertFalse(set(self.fake.article_ids("news.nate.com")) & sports_ids)
+        self.assertEqual(metrics["article_hosts"]["m.news.nate.com"]["attempted"], 0)
+        self.assertEqual(
+            sum(counts["ok"] for counts in metrics["article_hosts"].values()),
+            metrics["article_requests"]["ok"],
+        )
+        # A PC page without a picture shows Nate's logo, which says nothing,
+        # and neither does a page without og:image.
+        no_picture = [identifier for identifier in snapshot["articles"] if identifier.endswith("7")]
+        self.assertTrue(no_picture)
+        no_picture.append(no_og_image)
+        self.assertTrue(all(snapshot["articles"][i]["image"] is None for i in no_picture))
         self.assertEqual(metrics["image_sources"]["pc"], PC_THUMBNAILS)
-        self.assertGreater(metrics["image_sources"]["empty_confirmed"], 0)
+        self.assertEqual(metrics["image_sources"]["empty_confirmed"], 0)
+        self.assertEqual(metrics["image_sources"]["empty_unobserved"], len(no_picture))
         validate_result.validate_result(items, metrics, "fallback")
 
     def test_cut_off_run_keeps_what_it_has_and_stops_after_two_failures(self):
@@ -1512,8 +1805,22 @@ class FallbackSpiderTest(unittest.TestCase):
         # spo 30: a reusable image, with the company the PC ranking also shows.
         previous[100 + 30 - 1].update(image="https://img/spo30.jpg", company="피씨일보")
         snapshot = self.crawl(previous=previous)
-        self.assertEqual(snapshot["close_reason"], "fallback_transport_failures:2")
+        # Every company is known, so after two PC requests in a row got no
+        # answer (sports 15, then entertainment 15: one on each PC host, two
+        # for the site) only images were left, which the mobile host is not
+        # asked for.
+        self.assertEqual(snapshot["close_reason"], fallback.CLOSE_PC_UNUSABLE)
         self.assertEqual(len(self.fake.requests), 42)  # 40 answered, 2 dropped, then nothing
+        self.assertEqual(
+            snapshot["article_host_switch"],
+            {"reason": "pc_transport_failures", "host": "news.nate.com",
+             "after_article_requests": 30},
+        )
+        self.assertEqual(
+            [snapshot["articles"][i]["failure"] for i in snapshot["article_plan"][28:30]],
+            ["no_answer", "no_answer"],
+        )
+        self.assertNotIn("m.news.nate.com", self.fake.article_hosts())
         self.assert_each_url_requested_once()
         self.assert_counts_match_the_server(snapshot)
         items, metrics = self.assemble(snapshot, previous)
@@ -1588,25 +1895,45 @@ class FallbackSpiderTest(unittest.TestCase):
         self.assertRegex(log, r"'DOWNLOAD_DELAY': '?2\.0'?")
         self.assertRegex(log, rf"'CLOSESPIDER_TIMEOUT': '?{local_publish.CRAWL_BUDGET_SECONDS}'?")
         snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
-        self.assertEqual(snapshot["close_reason"], "fallback_transport_failures:2")
+        self.assertEqual(snapshot["close_reason"], fallback.CLOSE_PC_UNUSABLE)
         self.assertEqual(snapshot["kst_day"], DAY)
         self.assert_counts_match_the_server(snapshot)
         items, metrics = self.assemble(snapshot, previous)
         self.assertEqual(metrics["stop_reason"], "transport_breaker")
         validate_result.validate_result(items, metrics, "fallback")
 
-    def test_transport_streak_is_reset_by_any_answer(self):
-        for name, behaviour, expected in (
-            ("answer between", {"hang": {15, 17}}, "finished"),
-            ("error page between", {"hang": {15, 17}, "statuses": {16: 500}}, "finished"),
-            ("two in a row", {"hang": {15, 16}}, "fallback_transport_failures:2"),
+    def test_transport_streaks_are_counted_per_host_and_for_the_pc_site(self):
+        # Requests 13 to 20 are the eight planned articles, all without a
+        # known company, ranks 36 to 38 in turn: politics (news.nate.com),
+        # sports (sports.news.nate.com), entertainment (news.nate.com).
+        news, sports = "news.nate.com", "sports.news.nate.com"
+        for name, behaviour, expected, switched in (
+            ("answer between", {"hang": {15, 17}}, "fallback_request_cap", None),
+            ("error page between", {"hang": {15, 17}, "statuses": {16: 500}},
+             "fallback_request_cap", None),
+            # Two in a row on one PC host: the mobile host takes over.
+            ("two in a row on one host", {"hang": {15, 16}}, "fallback_request_cap", (news, 4)),
+            # Two in a row on the PC site, one on each host.
+            ("two in a row on the site", {"hang": {14, 15}}, "fallback_request_cap", (news, 3)),
+            # Only the sports host is gone; news.nate.com answers in between.
+            ("one host only", {"hang": {14, 17, 20}}, "fallback_request_cap", (sports, 5)),
+            # The mobile host has its own breaker ...
+            ("both sites", {"hang": {15, 16, 17, 18}}, "fallback_transport_failures:2", (news, 4)),
+            # ... which any answer resets as well.
+            ("mobile answer between", {"hang": {15, 16, 17, 19}}, "fallback_request_cap",
+             (news, 4)),
         ):
             with self.subTest(case=name):
                 self.fresh_work()
                 self.fake = FakeNate(COUNTS, **behaviour)
                 snapshot = self.crawl(NATE_FALLBACK_MAX_ARTICLE_REQUESTS="8")
-                expected_close = "fallback_request_cap" if expected == "finished" else expected
-                self.assertEqual(snapshot["close_reason"], expected_close)
+                self.assertEqual(snapshot["close_reason"], expected)
+                switch = snapshot["article_host_switch"]
+                self.assertEqual(
+                    switch and (switch["host"], switch["after_article_requests"]), switched
+                )
+                if switched:
+                    self.assertEqual(switch["reason"], "pc_transport_failures")
                 self.assert_counts_match_the_server(snapshot)
 
     def test_a_connection_closed_without_an_answer_is_a_transport_failure(self):
@@ -1614,12 +1941,150 @@ class FallbackSpiderTest(unittest.TestCase):
         first, second = article_id_for("sisa", 36), article_id_for("spo", 36)
         self.fake = FakeNate(COUNTS, close_paths={f"/view/{first}", f"/view/{second}"})
         snapshot = self.crawl()
-        self.assertEqual(snapshot["close_reason"], "fallback_transport_failures:2")
-        self.assertEqual(list(snapshot["articles"]), [first, second])
+        self.assertEqual(
+            snapshot["article_host_switch"],
+            {"reason": "pc_transport_failures", "host": "sports.news.nate.com",
+             "after_article_requests": 2},
+        )
+        self.assertEqual(list(snapshot["articles"])[:2], [first, second])
+        self.assertEqual(
+            [(snapshot["articles"][i]["host"], snapshot["articles"][i]["failure"])
+             for i in (first, second)],
+            [("news.nate.com", "no_answer"), ("sports.news.nate.com", "no_answer")],
+        )
+        # Neither is asked for again; the other company gaps go to the mobile
+        # host, and nothing that only lacks an image does.
+        mobile = self.fake.article_ids("m.news.nate.com")
+        self.assertTrue(mobile)
+        self.assertFalse({first, second} & set(mobile))
+        self.assertFalse(set(mobile) & {row["id"] for row in snapshot["pc_rows"]})
+        self.assertEqual(snapshot["close_reason"], fallback.CLOSE_PC_UNUSABLE)
         # Twisted may send a GET once more on a reused connection that closed
         # before answering; Scrapy itself sends each URL once.
         paths = [path for kind, path in self.fake.requests if kind == "article"]
         self.assertTrue(all(paths.count(path) <= 2 for path in paths))
+
+    def test_pc_cut_off_leaves_only_the_company_gaps_to_the_mobile_host(self):
+        self.fake = FakeNate(COUNTS, pc_articles_answered=10)
+        snapshot = self.crawl()
+        self.assertEqual(snapshot["close_reason"], fallback.CLOSE_PC_UNUSABLE)
+        # Sports 39 and entertainment 39 got no answer.
+        self.assertEqual(
+            snapshot["article_host_switch"],
+            {"reason": "pc_transport_failures", "host": "news.nate.com",
+             "after_article_requests": 12},
+        )
+        company_ids, image_ids = fallback.enrichment_groups(
+            snapshot["ranking"], snapshot["pc_rows"], {}
+        )
+        self.assertEqual(snapshot["article_plan"], company_ids + image_ids)
+        self.assertEqual(self.fake.article_ids("m.news.nate.com"), company_ids[12:])
+        self.assert_each_url_requested_once()
+        self.assert_counts_match_the_server(snapshot)
+        items, metrics = self.assemble(snapshot)
+        self.assertEqual(metrics["stop_reason"], "transport_breaker")
+        # The two PC requests that got no answer are not asked for again.
+        self.assertEqual(metrics["excluded_no_company"], 2)
+        self.assertEqual(metrics["article_requests"]["not_requested"], len(image_ids))
+        gaps = len(company_ids) - 12
+        self.assertEqual(
+            metrics["article_hosts"]["m.news.nate.com"],
+            {"attempted": gaps, "ok": gaps, "failed": 0, "no_answer": 0},
+        )
+        self.assertEqual(
+            sum(metrics["article_hosts"][host]["no_answer"] for host in PC_HOSTS), 2
+        )
+        self.assertIn("company gaps only", fallback.article_host_line(metrics))
+        validate_result.validate_result(items, metrics, "fallback")
+        # A refusal from the mobile host ends the run at once as well:
+        # 12 ranking pages and 12 PC article requests come first.
+        self.fresh_work()
+        self.fake = FakeNate(COUNTS, pc_articles_answered=10, statuses={25: 403})
+        snapshot = self.crawl()
+        self.assertEqual(snapshot["close_reason"], "fallback_access_refused:403")
+        self.assertEqual(len(self.fake.requests), 25)
+        self.assertEqual(self.fake.article_hosts()[-1], "m.news.nate.com")
+        self.assertEqual(list(snapshot["articles"].values())[-1]["failure"], "refused")
+
+    def test_unusable_pc_pages_leave_only_the_company_gaps_to_the_mobile_host(self):
+        # A changed layout and a block page look the same: answers without a
+        # company. Three in a row end the PC site's turn.
+        for name, previous in (("company gaps", ()), ("every company known", previous_for_all())):
+            with self.subTest(case=name):
+                self.fresh_work()
+                self.fake = FakeNate(COUNTS, pc_layout_broken=True)
+                snapshot = self.crawl(previous=previous)
+                self.assertEqual(snapshot["close_reason"], fallback.CLOSE_PC_UNUSABLE)
+                self.assertEqual(
+                    snapshot["article_host_switch"],
+                    {"reason": "pc_pages_unusable", "host": "news.nate.com",
+                     "after_article_requests": 3},
+                )
+                first_three = snapshot["article_plan"][:3]
+                self.assertEqual(
+                    [snapshot["articles"][i]["failure"] for i in first_three],
+                    ["no_company"] * 3,
+                )
+                company_ids, _ = fallback.enrichment_groups(
+                    snapshot["ranking"],
+                    snapshot["pc_rows"],
+                    fallback.build_cache(list(previous), date(2020, 1, 2)),
+                )
+                self.assertEqual(self.fake.article_ids("m.news.nate.com"), company_ids[3:])
+                items, metrics = self.assemble(snapshot, previous)
+                self.assertEqual(metrics["stop_reason"], "transport_breaker")
+                validate_result.validate_result(items, metrics, "fallback")
+
+    def test_pc_answers_without_a_company_are_counted_per_host_and_for_the_site(self):
+        # The plan starts with ranks 36, 37 and 38 of politics (news), sports
+        # (sports.news) and entertainment (news), none with a known company.
+        ids = {(s, r): article_id_for(s, r) for s in SECTIONS for r in (36, 37, 38)}
+        news, sports = "news.nate.com", "sports.news.nate.com"
+        for name, behaviour, cap, switched, mobile in (
+            # Three in a row on the site, across both hosts.
+            ("three on the site", {"no_company": {ids["sisa", 36], ids["spo", 36], ids["ent", 36]}},
+             5, (news, 3), 2),
+            # A page that parses resets the count: miss, miss, ok, miss, miss.
+            ("reset between", {"no_company": {ids["sisa", 36], ids["spo", 36],
+                                              ids["sisa", 37], ids["spo", 37]}},
+             6, None, 0),
+            # Only the sports layout changed; news.nate.com parses in between.
+            ("one host only", {"no_company": {ids["spo", 36], ids["spo", 37], ids["spo", 38]}},
+             9, (sports, 8), 1),
+            # HTTP errors are answers without a company as well; a refusal is not.
+            ("HTTP errors", {"statuses": {13: 503, 14: 302, 15: 404}}, 5, (news, 3), 2),
+        ):
+            with self.subTest(case=name):
+                self.fresh_work()
+                self.fake = FakeNate(COUNTS, **behaviour)
+                snapshot = self.crawl(NATE_FALLBACK_MAX_ARTICLE_REQUESTS=str(cap))
+                switch = snapshot["article_host_switch"]
+                self.assertEqual(
+                    switch and (switch["host"], switch["after_article_requests"]), switched
+                )
+                if switched:
+                    self.assertEqual(switch["reason"], "pc_pages_unusable")
+                self.assertEqual(snapshot["close_reason"], "fallback_request_cap")
+                self.assertEqual(self.fake.article_hosts().count("m.news.nate.com"), mobile)
+                fallback.assemble(snapshot, [], "run-1")
+
+    def test_one_download_delay_spans_every_nate_host(self):
+        self.fake = FakeNate(COUNTS)
+        self.crawl(
+            NATE_FALLBACK_MAX_ARTICLE_REQUESTS="6",
+            DOWNLOAD_DELAY="0.25",
+            RANDOMIZE_DOWNLOAD_DELAY="False",
+        )
+        hosts = [host for _, host, _ in self.fake.arrivals]
+        # Mobile ranking, PC ranking, then politics, sports and entertainment
+        # articles (ranks 36 and 37) in turn on two PC hosts.
+        self.assertEqual(hosts[:12], ["m.news.nate.com"] * 6 + ["news.nate.com"] * 6)
+        self.assertEqual(
+            hosts[12:], ["news.nate.com", "sports.news.nate.com", "news.nate.com"] * 2
+        )
+        times = [arrived for _, _, arrived in self.fake.arrivals]
+        gaps = [later - earlier for earlier, later in zip(times, times[1:])]
+        self.assertGreaterEqual(min(gaps), 0.2, gaps)
 
     def test_cut_off_during_ranking_is_not_publishable(self):
         self.fake = FakeNate(COUNTS, block_after=3)
@@ -1649,13 +2114,37 @@ class FallbackSpiderTest(unittest.TestCase):
         self.assertEqual(snapshot["ranking"][2]["title"], "[속보]")
         self.assertEqual(snapshot["ranking"][3]["title"], "sisa 제목 4")
 
-    def test_pc_stage_failure_is_skipped_but_counts_toward_the_breaker(self):
-        # Request 7 (the first PC page) is dropped, then the first article too.
+    def test_a_pc_ranking_page_without_an_answer_is_the_first_of_two(self):
+        # Request 7 (the first PC page) is dropped, and every request after
+        # it: the first PC article page makes two in a row on news.nate.com,
+        # and the mobile host, asked for the company gaps, has its own breaker.
         self.fake = FakeNate(COUNTS, block_after=6)
         snapshot = self.crawl()
         self.assertEqual(snapshot["pc_stop_reason"], "transport_failure:pc-sisa-1")
+        self.assertEqual(
+            snapshot["article_host_switch"],
+            {"reason": "pc_transport_failures", "host": "news.nate.com",
+             "after_article_requests": 1},
+        )
         self.assertEqual(snapshot["close_reason"], "fallback_transport_failures:2")
-        self.assertEqual(self.fake.kinds()[6:], ["pc_rank", "article"])
+        self.assertEqual(self.fake.kinds()[6:], ["pc_rank"] + ["article"] * 3)
+        self.assertEqual(
+            self.fake.article_hosts(), ["news.nate.com"] + ["m.news.nate.com"] * 2
+        )
+        self.assert_not_publishable(snapshot)
+        # One dropped PC page alone (as at 20:44 KST on 2026-11-19, while the
+        # PC site answered before and after) does not give up the PC site.
+        for name, previous in (("no company known", ()), ("every company known", previous_for_all())):
+            with self.subTest(case=name):
+                self.fresh_work()
+                self.fake = FakeNate(COUNTS, hang={7})
+                snapshot = self.crawl(previous=previous)
+                self.assertEqual(snapshot["close_reason"], "finished")
+                self.assertIsNone(snapshot["article_host_switch"])
+                self.assertEqual(len(self.fake.article_hosts()), RANKED)
+                self.assertEqual(set(self.fake.article_hosts()), set(PC_HOSTS))
+                items, metrics = self.assemble(snapshot, previous)
+                validate_result.validate_result(items, metrics, "fallback")
 
     def test_pc_problems_end_only_the_pc_stage(self):
         for name, behaviour, stop in (
@@ -1672,6 +2161,9 @@ class FallbackSpiderTest(unittest.TestCase):
                 self.assertEqual(snapshot["spider_errors"], 0)
                 self.assertEqual(self.fake.kinds().count("article"), 20)
                 self.assertTrue(snapshot["plan_built"])
+                # The PC site answered, so its article pages are still used.
+                self.assertIsNone(snapshot["article_host_switch"])
+                self.assertEqual(set(self.fake.article_hosts()), set(PC_HOSTS))
 
     def test_refusal_on_a_pc_or_article_page_ends_the_run(self):
         for name, statuses, expected in (
@@ -1688,9 +2180,9 @@ class FallbackSpiderTest(unittest.TestCase):
 
     def test_article_problems_are_recorded_and_the_run_goes_on(self):
         first = article_id_for("sisa", 36)
-        for name, behaviour, reason in (
-            ("no company", {"no_company": {first}}, "company missing"),
-            ("redirect", {"redirect_articles": {first}}, "HttpError"),
+        for name, behaviour, reason, failure in (
+            ("no company", {"no_company": {first}}, "company missing", "no_company"),
+            ("redirect", {"redirect_articles": {first}}, "HttpError", "http_error"),
         ):
             with self.subTest(case=name):
                 self.fresh_work()
@@ -1698,6 +2190,7 @@ class FallbackSpiderTest(unittest.TestCase):
                 snapshot = self.crawl(NATE_FALLBACK_MAX_ARTICLE_REQUESTS="3")
                 self.assertEqual(snapshot["close_reason"], "fallback_request_cap")
                 self.assertEqual(snapshot["articles"][first]["status"], "failed")
+                self.assertEqual(snapshot["articles"][first]["failure"], failure)
                 self.assertIn(reason, snapshot["articles"][first]["reason"])
                 self.assertEqual(len(snapshot["articles"]), 3)
                 self.assert_each_url_requested_once()

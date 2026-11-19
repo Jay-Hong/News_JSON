@@ -85,18 +85,34 @@ close_reason = {
     "reuse": "fallback_transport_failures:2", "half": "fallback_transport_failures:2",
     "budget": "closespider_timeout", "rank_failed": "rank_page_transport_failed:sisa-1",
 }[mode]
+def pc_host(identifier):
+    # Like the real spider: article pages from the PC site, sports apart.
+    # Ids are DAY + "n" + f"{section index * 1000 + position:05d}".
+    return "sports.news.nate.com" if identifier[10] == "1" else "news.nate.com"
+
+
 articles = {}
 for count, identifier in enumerate(plan[:reached]):
     articles[identifier] = {
-        "status": "ok", "title": f"{seed}-article-{identifier}", "company": "c",
-        "image": f"https://img/{seed}/{identifier}.jpg" if count % 2 == 0 else "",
+        "status": "ok", "host": pc_host(identifier), "title": f"{seed}-article-{identifier}",
+        "company": "c",
+        # A PC page shows a picture or says nothing about one.
+        "image": f"https://img/{seed}/{identifier}.jpg" if count % 2 == 0 else None,
     }
+switch = None
 if close_reason.startswith("fallback_transport_failures") and reached < len(plan):
+    # Like a cut-off of both sites: two PC requests get no answer, the PC
+    # site is given up, and the mobile host does not answer either.
+    timeout = {"status": "failed", "failure": "no_answer", "reason": "TimeoutError()"}
     for identifier in plan[reached:reached + 2]:
-        articles[identifier] = {"status": "failed", "reason": "TimeoutError()"}
+        articles[identifier] = dict(timeout, host=pc_host(identifier))
+    switch = {"reason": "pc_transport_failures", "host": pc_host(plan[reached + 1]),
+              "after_article_requests": len(articles)}
+    for identifier in plan[reached + 2:reached + 4]:
+        articles[identifier] = dict(timeout, host="m.news.nate.com")
 rank_failed = mode == "rank_failed"
 snapshot = {
-    "schema": 2,
+    "schema": 3,
     "run_id": "another-run" if mode == "wrong_run" else run_id,
     "kst_day": DAY,
     "close_reason": close_reason,
@@ -111,6 +127,7 @@ snapshot = {
     "plan_built": not rank_failed,
     "article_plan": [] if rank_failed else plan,
     "planned_before_cap": 0 if rank_failed else len(plan),
+    "article_host_switch": switch,
     "articles": articles,
     "requests": {"mobile_rank": 1 if rank_failed else 6, "pc_rank": 0 if rank_failed else 1,
                  "article": len(articles)},
@@ -275,7 +292,11 @@ class LocalPublishTest(unittest.TestCase):
                          local_publish.sha256_file(self.state / "runs" / run["run_id"] / "nate_result.json"))
         self.assertEqual(run["crawl"], {
             "mode": "fallback", "stop_reason": "complete", "items": 300, "images": 150,
-            "article_requests": 300, "article_pages_not_reached": 0,
+            "article_requests": 300, "article_pages_not_reached": 0, "close_reason": "finished",
+            "article_hosts": {"news.nate.com": [200, 200, 0],
+                              "sports.news.nate.com": [100, 100, 0],
+                              "m.news.nate.com": [0, 0, 0]},
+            "article_host_switch": None,
         })
         # The spider got a byte copy of what the base tip publishes.
         pinned_publish = git(self.origin, "show", f"{self.pin}:newsURL.json") + "\n"
@@ -318,10 +339,18 @@ class LocalPublishTest(unittest.TestCase):
 
     def test_cut_off_crawl_that_validates_is_published(self):
         # 285 articles reached; the 15 without a company are left out. The
-        # breaker run also records the two failed requests.
-        for mode, stop_reason, attempted, not_reached in (
-            ("cutoff", "transport_breaker", 287, 13),
-            ("budget", "time_budget", 285, 15),
+        # breaker run also records the four requests that got no answer:
+        # politics and sports rank 96 on the PC site, then entertainment 96
+        # and politics 97 on the mobile host.
+        cut_off_switch = {"reason": "pc_transport_failures", "host": "sports.news.nate.com",
+                          "after_article_requests": 287}
+        for mode, stop_reason, close_reason, attempted, not_reached, hosts, switch in (
+            ("cutoff", "transport_breaker", "fallback_transport_failures:2", 289, 11,
+             {"news.nate.com": [191, 190, 1], "sports.news.nate.com": [96, 95, 1],
+              "m.news.nate.com": [2, 0, 2]}, cut_off_switch),
+            ("budget", "time_budget", "closespider_timeout", 285, 15,
+             {"news.nate.com": [190, 190, 0], "sports.news.nate.com": [95, 95, 0],
+              "m.news.nate.com": [0, 0, 0]}, None),
         ):
             with self.subTest(mode):
                 self.mode, self.seed_name = mode, mode
@@ -330,6 +359,8 @@ class LocalPublishTest(unittest.TestCase):
                 self.assertEqual(run["crawl"], {
                     "mode": "fallback", "stop_reason": stop_reason, "items": 285, "images": 143,
                     "article_requests": attempted, "article_pages_not_reached": not_reached,
+                    "close_reason": close_reason, "article_hosts": hosts,
+                    "article_host_switch": switch,
                 })
                 self.assertEqual(self.origin_tip(), run["published_commit"])
 
@@ -476,7 +507,7 @@ class LocalPublishTest(unittest.TestCase):
         self.seed_name = "b"
         code, second = self.run_publisher(self.fake_day_publisher())
         self.assertEqual((code, second["outcome"]), (0, "published"))
-        self.assertEqual((second["crawl"]["items"], second["crawl"]["article_requests"]), (300, 152))
+        self.assertEqual((second["crawl"]["items"], second["crawl"]["article_requests"]), (300, 154))
         earlier = self.state / "runs" / first["run_id"]
         reused = second["reuse"]
         self.assertEqual(reused["accepted"], [{
