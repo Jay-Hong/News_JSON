@@ -98,9 +98,12 @@ RUN_ID_FORMAT = "%Y%m%dT%H%M%S.%fZ"
 KST = timezone(timedelta(hours=9))
 GIT_TIMEOUT_SECONDS = 120
 RUNS_TO_KEEP = 40
-# A run right after wake can start before the network is back.
-PREFLIGHT_FETCH_ATTEMPTS = 3
-PREFLIGHT_FETCH_WAIT_SECONDS = 20
+# The fetch and the dry-run push before crawling are each tried this often:
+# a run right after wake can start before the network is back, and GitHub
+# can fail for a moment (on 2026-11-21 at 05:44 the dry-run push timed out
+# right after the fetch had succeeded, and the slot was lost).
+PREFLIGHT_ATTEMPTS = 3
+PREFLIGHT_WAIT_SECONDS = 20
 # time.monotonic() stops while a Mac sleeps; time.time() does not. A gap this
 # large between the two since the ranking day was fixed (right before the
 # reuse step and the crawl) means the machine was suspended
@@ -294,25 +297,42 @@ class Publisher:
         if actual != expected:
             raise Abort("dependency_drift", f"fingerprint {actual} != {expected}")
 
-    def remote_tip(self, attempts=1):
-        branch = self.config["branch"]
+    def with_retries(self, action, attempts, what):
+        """Return action(), trying it up to ``attempts`` times in all.
+
+        Every failure is retried, not only the ones that look transient: git
+        reports a timeout and a refused credential with the same exit code,
+        and its messages vary. For the side-effect-free steps this is used
+        for, an error that does not go away still ends the run with the same
+        reason, only later, while a transient error that went unrecognized
+        would lose the slot.
+        """
         for attempt in range(1, attempts + 1):
             try:
-                self.git(
-                    self.publish_dir,
-                    "fetch",
-                    "--no-tags",
-                    "--no-recurse-submodules",
-                    "origin",
-                    f"+refs/heads/{branch}:refs/remotes/origin/{branch}",
-                    reason="fetch_failed",
-                )
-                break
+                return action()
             except Abort as abort:
                 if attempt == attempts:
-                    raise
-                self.log(f"fetch attempt {attempt} failed, retrying: {abort.detail[:160]}")
-                time.sleep(PREFLIGHT_FETCH_WAIT_SECONDS)
+                    if attempts == 1:
+                        raise
+                    raise Abort(abort.reason, f"{attempts} attempts, last: {abort.detail}") from abort
+                self.log(f"{what} attempt {attempt} failed, retrying: {abort.detail[:160]}")
+                time.sleep(PREFLIGHT_WAIT_SECONDS)
+
+    def remote_tip(self, attempts=1):
+        branch = self.config["branch"]
+        self.with_retries(
+            lambda: self.git(
+                self.publish_dir,
+                "fetch",
+                "--no-tags",
+                "--no-recurse-submodules",
+                "origin",
+                f"+refs/heads/{branch}:refs/remotes/origin/{branch}",
+                reason="fetch_failed",
+            ),
+            attempts,
+            "fetch",
+        )
         return self.git(
             self.publish_dir,
             "rev-parse",
@@ -387,10 +407,18 @@ class Publisher:
         ):
             self.git(self.publish_dir, *args, reason="publish_prepare_failed")
 
-    def check_push_auth(self, tip):
-        """Dry-run push: fail before crawling if this context cannot authenticate."""
-        self.git(self.publish_dir, "push", "--dry-run", "origin",
-                 f"{tip}:refs/heads/{self.config['branch']}", reason="push_auth_failed")
+    def check_push_auth(self, tip, attempts=1):
+        """Dry-run push: fail before crawling if this context cannot authenticate.
+
+        The reason stays ``push_auth_failed`` also when the network failed;
+        the detail holds git's message.
+        """
+        self.with_retries(
+            lambda: self.git(self.publish_dir, "push", "--dry-run", "origin",
+                             f"{tip}:refs/heads/{self.config['branch']}", reason="push_auth_failed"),
+            attempts,
+            "dry-run push",
+        )
 
     # -- crawl and validate ------------------------------------------------
 
@@ -830,12 +858,12 @@ class Publisher:
                 entry["code_sha"] = self.config["pin_sha"]
                 self.check_code_pin()
                 self.check_dependencies()
-                base_tip = self.remote_tip(attempts=PREFLIGHT_FETCH_ATTEMPTS)
+                base_tip = self.remote_tip(attempts=PREFLIGHT_ATTEMPTS)
                 entry["remote_tip"] = base_tip
                 self.check_remote_matches_pin(base_tip)
                 # Everything that can fail without Nate is checked before crawling.
                 self.prepare_publish_clone(base_tip)
-                self.check_push_auth(base_tip)
+                self.check_push_auth(base_tip, attempts=PREFLIGHT_ATTEMPTS)
                 previous, entry["previous_sha256"], entry["previous_usable"] = (
                     self.copy_previous_publish(run_dir, base_tip)
                 )

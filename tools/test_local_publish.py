@@ -1053,19 +1053,92 @@ class LocalPublishTest(unittest.TestCase):
         self.assertEqual((code, run["reason"]), (1, "publish_prepare_failed"))
         self.assertFalse(self.marker.exists(), "must stop before crawling")
 
-    def test_push_auth_failure_aborts_before_crawling(self):
-        publisher = self.make_publisher()
+    def failing_git(self, publisher, marker_arg, failures=None):
+        """Make ``publisher.git`` fail the first ``failures`` calls (all if None)
+        whose arguments contain ``marker_arg``; return the list of those calls."""
         real_git = publisher.git
+        calls = []
 
-        def deny_dry_run(cwd, *args, **kwargs):
-            if "--dry-run" in args:
-                raise local_publish.Abort(kwargs["reason"], "simulated auth failure")
+        def git_with_failures(cwd, *args, **kwargs):
+            if marker_arg in args:
+                calls.append(args)
+                if failures is None or len(calls) <= failures:
+                    raise local_publish.Abort(kwargs["reason"], "Recv failure: Operation timed out")
             return real_git(cwd, *args, **kwargs)
 
-        publisher.git = deny_dry_run
-        code, run = self.run_publisher(publisher)
+        publisher.git = git_with_failures
+        return calls
+
+    def run_without_waiting(self, publisher):
+        """Run with the waits between attempts recorded instead of slept.
+
+        Only the publisher's own reference to ``time`` is replaced: patching
+        ``time.sleep`` itself would also catch the polling inside subprocess.
+        """
+        self.waits = []
+        real_time = local_publish.time
+        waits = self.waits
+
+        class RecordingTime:
+            def sleep(self, seconds):
+                waits.append(seconds)
+
+            def __getattr__(self, name):
+                return getattr(real_time, name)
+
+        with mock.patch.object(local_publish, "time", RecordingTime()):
+            return self.run_publisher(publisher)
+
+    def test_push_auth_failure_aborts_before_crawling(self):
+        publisher = self.make_publisher()
+        dry_runs = self.failing_git(publisher, "--dry-run")
+        code, run = self.run_without_waiting(publisher)
         self.assertEqual((code, run["reason"]), (1, "push_auth_failed"))
+        attempts = local_publish.PREFLIGHT_ATTEMPTS
+        self.assertEqual(len(dry_runs), attempts)
+        self.assertEqual(len(set(dry_runs)), 1, "every attempt pushes the same tip")
+        self.assertIn(f"{attempts} attempts, last: Recv failure", run["detail"])
+        self.assertEqual(self.waits, [local_publish.PREFLIGHT_WAIT_SECONDS] * (attempts - 1))
         self.assertFalse(self.marker.exists())
+
+    def test_a_dry_run_push_that_fails_once_is_retried(self):
+        # 2026-11-21 05:44: the dry-run push timed out right after the fetch
+        # had succeeded, and the slot was lost.
+        publisher = self.make_publisher()
+        dry_runs = self.failing_git(publisher, "--dry-run", failures=1)
+        code, run = self.run_without_waiting(publisher)
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        self.assertEqual(len(dry_runs), 2)
+        self.assertEqual(dry_runs[0], dry_runs[1])
+        self.assertEqual(self.waits, [local_publish.PREFLIGHT_WAIT_SECONDS])
+        log = (self.state / "runs" / run["run_id"] / "publish.log").read_text()
+        self.assertIn("dry-run push attempt 1 failed, retrying: Recv failure", log)
+
+    def test_a_fetch_that_fails_before_crawling_is_retried(self):
+        publisher = self.make_publisher()
+        fetches = self.failing_git(publisher, "fetch", failures=1)
+        code, run = self.run_without_waiting(publisher)
+        self.assertEqual((code, run["outcome"]), (0, "published"))
+        # One failure and one success before crawling, one fetch before the push.
+        self.assertEqual(len(fetches), 3)
+        self.assertEqual(self.waits, [local_publish.PREFLIGHT_WAIT_SECONDS])
+
+    def test_a_fetch_that_keeps_failing_stops_before_crawling(self):
+        publisher = self.make_publisher()
+        fetches = self.failing_git(publisher, "fetch")
+        code, run = self.run_without_waiting(publisher)
+        self.assertEqual((code, run["reason"]), (1, "fetch_failed"))
+        self.assertEqual(len(fetches), local_publish.PREFLIGHT_ATTEMPTS)
+        self.assertFalse(self.marker.exists())
+
+    def test_check_auth_tries_the_dry_run_push_once(self):
+        publisher = self.make_publisher()
+        dry_runs = self.failing_git(publisher, "--dry-run")
+        with self.assertRaises(local_publish.Abort) as raised:
+            publisher.check_auth()
+        self.assertEqual(raised.exception.reason, "push_auth_failed")
+        self.assertEqual(len(dry_runs), 1)
+        self.assertNotIn("attempts", raised.exception.detail)
 
     def test_push_error_after_remote_accepted_counts_as_published(self):
         publisher = self.make_publisher()
